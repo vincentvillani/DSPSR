@@ -983,15 +983,13 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
      *
      */
 
-    CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
-    unloader[ifold] = covarianceMatrix;
-    //prepare_archiver(covarianceMatrix);
-
-    /*
     Archiver* archiver = new Archiver;
     unloader[ifold] = archiver;
     prepare_archiver( archiver );
-    */
+
+    CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
+    covarianceMatrix->set_unloader (archiver);
+    unloader[ifold] = covarianceMatrix;
   }
 
   return unloader.at(ifold);

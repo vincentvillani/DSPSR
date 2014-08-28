@@ -11,10 +11,17 @@
 
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
-	printf("COVARIANCE MATRIX CREATED!!!!!!\n");
-	_covarianceMatrix = NULL;
-	_ampsData = NULL;
-	_hitsData = NULL;
+	_stokesLength = 4; //TODO: VINCENT - MAKE THIS THIS VARIABLE SOMEHOW
+
+
+	//initially set pointers to null
+	_phaseSeries = NULL;
+	_covarianceMatrices = NULL;
+	_tempMeanStokesData = NULL;
+	_unloader = NULL;
+
+
+
 }
 
 
@@ -23,75 +30,139 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	printf("GOT MY PHASE SERIES INTEGRATED DATA\n");
 
 	printf("Num of Phase Bins: %u\n", phaseSeriesData->get_nbin());
-	printf("Number of channels in the hit array: %u\n", phaseSeriesData->get_hits_nchan ());
+	printf("Number of channels in the hit array: %u\n", phaseSeriesData->get_hits_nchan() );
 
 	//Num bins == 0 the first time this is called for some reason?
-	unsigned int numBins = phaseSeriesData->get_nbin();
-	unsigned int numChannels = phaseSeriesData->get_hits_nchan (); //number of freq channels
+	unsigned int binNum = phaseSeriesData->get_nbin();
+	//unsigned int numChannels = phaseSeriesData->get_hits_nchan(); //number of freq channels
 	bool firstIteration = false;
 
 
+	//first time this is called numBins may be zero
+	if(binNum == 0)
+		return;
+
 	//Allocate memory on first use, once we know the amount of memory required
-	if(_covarianceMatrix == NULL && numBins != 0)
+	if(_covarianceMatrices == NULL && binNum != 0)
 	{
 		//This is the first iteration, we can take shortcuts
 		firstIteration = true;
 
-		//TODO: VINCENT: ADD OTHER CHANNELS?
+		_binNum = binNum;
+		_freqChanNum = phaseSeriesData->get_hits_nchan();
+		_covarianceMatrixLength = covariance_matrix_length(_binNum) * _stokesLength;
+
 		//Allocate memory to store the covarianceMatrix
-		//bins^2 * 4 stokes vector elements
-		_covarianceMatrix = new float[ numBins * numBins * 4 ];
+		//upper triangle * 4 stokes vector elements
+		_covarianceMatrices = new float*[_freqChanNum]; //allocate a pointer for each channel
+		//_summedMeanStokesDatas = new float*[numChannels]; //allocate a pointer for each channel
 
-		//Allocate memory to store the summed amps data
-		//bins * 4 stokes vector elements?
-		_ampsData = new float[numBins * 4];
+		for(int i = 0; i < _freqChanNum; ++i)
+		{
+			//Assign the amount of memory needed for a covariance matrix in each freq channel
+			_covarianceMatrices[i] = new float[ _covarianceMatrixLength ];
 
-		//Allocate memory to store summed hits data
-		//bins * 4 stokes vector elements?
-		_hitsData = new unsigned int[numBins];
+			//Assign the amount of memory needed for the running total of mean stokes data in each freq channel
+			//_summedMeanStokesDatas[i] = new float[ numBins * _stokesLength ];
+		}
+
+
+		//allocate scratch space for temporary data
+		_tempMeanStokesData = new float[_binNum * _stokesLength];
+
+		//clone the first phase series
+		_phaseSeries = new PhaseSeries(*phaseSeriesData);
+
 	}
 
+
+	// ------ HOST COMPUTE CODE ----------
 
 	//take shortcuts
 	if(firstIteration)
 	{
-		//TODO: VINCENT: ACTUALLY ADD MEMORY STRUCTURES TO HANDLE MORE THAN ONE FREQ CHANNEL
 		//For each channel
-		for(int i = 0; i < numChannels; ++i)
+		for(int channel = 0; channel < _freqChanNum; ++channel)
 		{
 
 			//------- AMPLITUDE DATA ------
 
 			//TODO: VINCENT: FIGURE OUT IF THE END OF STOKES-I IS NEXT TO THE START OF STOKES-Q
-			const float* stokesI = phaseSeriesData->get_datptr(i, 0); //Get a pointer to all the I stokes values
-			const float* stokesQ = phaseSeriesData->get_datptr(i, 1); //Get a pointer to all the Q stokes values
-			const float* stokesU = phaseSeriesData->get_datptr(i, 2); //Get a pointer to all the U stokes values
-			const float* stokesV = phaseSeriesData->get_datptr(i, 3); //Get a pointer to all the V stokes values
+			const float* stokesI = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to all the I stokes values
+			const float* stokesQ = phaseSeriesData->get_datptr(channel, 1); //Get a pointer to all the Q stokes values
+			const float* stokesU = phaseSeriesData->get_datptr(channel, 2); //Get a pointer to all the U stokes values
+			const float* stokesV = phaseSeriesData->get_datptr(channel, 3); //Get a pointer to all the V stokes values
 
-			//Simply copy all the data across, no need to compute or call kernels
-			memcpy(_ampsData, stokesI, sizeof(float) * numBins);
-			memcpy(_ampsData + numBins, stokesQ, sizeof(float) * numBins);
-			memcpy(_ampsData + (numBins * 2), stokesU, sizeof(float) * numBins);
-			memcpy(_ampsData + (numBins * 3), stokesV, sizeof(float) * numBins);
+			const unsigned int* hits = phaseSeriesData->get_hits(channel); //Get a pointer to the hit data
 
 
-			//------- HIT DATA -----
+			mean_stokes_data_host(stokesI, hits, 0);
+			mean_stokes_data_host(stokesQ, hits, _binNum);
+			mean_stokes_data_host(stokesU, hits, _binNum * 2);
+			mean_stokes_data_host(stokesV, hits, _binNum * 3);
 
-			const unsigned int* hits = phaseSeriesData->get_hits(i); //Get a pointer to the hit data
 
-			//Simply copy all the data across, no need to compute or call kernels
-			memcpy(_hitsData, hits, sizeof(unsigned int) * numBins);
 
+
+			// --------
 
 		}
 
 
 	}
 
+}
 
 
+void dsp::CovarianceMatrix::compute_covariance_matrix_host(unsigned int freqChan)
+{
+
+	/*
+	for(int i = 0; i < _covarianceMatrixLength; ++i)
+	{
+		for(int row = 0; )
+	}
+	*/
+
+	/*
+	int col = (blockIdx.x * blockDim.x) + threadIdx.x; //column
+	int row = (blockIdx.y * blockDim.y) + threadIdx.y; //row
+
+	//check bounds
+	if(row >= vectorLength || col >= vectorLength)
+		return;
+
+	//transpose
+	if(row > col)
+	{
+		row = vectorLength - row;
+		col = row + col;
+	}
+
+	int index = (row * vectorLength + col) - (row * (row + 1)) / 2;
+
+	resultMatrix[index] += vec[row] * vec[col];
+	*/
+}
 
 
+void dsp::CovarianceMatrix::mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int offset)
+{
+	for(int i = 0; i < _binNum; ++i)
+	{
+		_tempMeanStokesData[offset + i] = stokesData[i] / hits[ i / 4 ];
+	}
+}
 
+
+unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int numBin)
+{
+	return (numBin * (numBin + 1)) / 2;
+}
+
+
+void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
+{
+	_unloader = unloader;
 }
 
