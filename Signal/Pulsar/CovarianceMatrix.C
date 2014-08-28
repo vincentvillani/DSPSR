@@ -51,6 +51,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	bool firstIteration = false;
 
 
+
 	//first time this is called numBins may be zero
 	if(binNum == 0)
 		return;
@@ -58,6 +59,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	//Allocate memory on first use, once we know the amount of memory required
 	if(_covarianceMatrices == NULL && binNum != 0)
 	{
+
+
 		//This is the first iteration, we can take shortcuts
 		firstIteration = true;
 
@@ -85,21 +88,25 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		_tempMeanStokesData = new float[_binNum * _stokesLength];
 
 		//clone the first phase series
-		_phaseSeries = new PhaseSeries(*phaseSeriesData);
+		//_phaseSeries = new PhaseSeries(*phaseSeriesData);
 
 	}
 
 
 	// ------ HOST COMPUTE CODE ----------
 
+
+
 	//take shortcuts
 	if(firstIteration)
 	{
+
 		//For each channel
 		for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 		{
 
 			//------- AMPLITUDE DATA ------
+
 
 			//TODO: VINCENT: FIGURE OUT IF THE END OF STOKES-I IS NEXT TO THE START OF STOKES-Q
 			const float* stokesI = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to all the I stokes values
@@ -108,6 +115,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 			const float* stokesV = phaseSeriesData->get_datptr(channel, 3); //Get a pointer to all the V stokes values
 
 			const unsigned int* hits = phaseSeriesData->get_hits(channel); //Get a pointer to the hit data
+
 
 
 			//normalise the stokes data for this freq channel
@@ -120,12 +128,15 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 			//compute the covariance matrix
 			compute_covariance_matrix_host(channel);
 
+
 			// --------
 
 		}
 
 
 	}
+
+	printf("FINISHED UNLOAD\n\n\n");
 
 }
 
