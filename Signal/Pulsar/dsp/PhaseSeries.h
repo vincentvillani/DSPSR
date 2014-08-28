@@ -115,7 +115,7 @@ namespace dsp {
     void set_hits (unsigned value);
 
     //! Get the number of channels in the hits array
-    unsigned get_hits_nchan () { return hits_nchan; }
+    unsigned get_hits_nchan () const { return hits_nchan; }
 
     //! Set the number of channels in the hits array
     void set_hits_nchan (unsigned _hits_nchan) { hits_nchan = _hits_nchan; }
