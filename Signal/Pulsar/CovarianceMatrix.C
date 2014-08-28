@@ -24,6 +24,19 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 }
 
+dsp::CovarianceMatrix::~CovarianceMatrix()
+{
+	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
+	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+	delete [] _tempMeanStokesData;
+
+	for(int i = 0; i < _freqChanNum; ++i)
+		delete [] _covarianceMatrices[i];
+
+	delete [] _covarianceMatrices;
+
+}
+
 
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
@@ -61,6 +74,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		{
 			//Assign the amount of memory needed for a covariance matrix in each freq channel
 			_covarianceMatrices[i] = new float[ _covarianceMatrixLength ];
+			memset(_covarianceMatrices[i], 0, sizeof(float) * _covarianceMatrixLength); //Set all the values to zero
 
 			//Assign the amount of memory needed for the running total of mean stokes data in each freq channel
 			//_summedMeanStokesDatas[i] = new float[ numBins * _stokesLength ];
@@ -82,7 +96,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(firstIteration)
 	{
 		//For each channel
-		for(int channel = 0; channel < _freqChanNum; ++channel)
+		for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 		{
 
 			//------- AMPLITUDE DATA ------
@@ -96,13 +110,15 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 			const unsigned int* hits = phaseSeriesData->get_hits(channel); //Get a pointer to the hit data
 
 
+			//normalise the stokes data for this freq channel
 			mean_stokes_data_host(stokesI, hits, 0);
 			mean_stokes_data_host(stokesQ, hits, _binNum);
 			mean_stokes_data_host(stokesU, hits, _binNum * 2);
 			mean_stokes_data_host(stokesV, hits, _binNum * 3);
 
 
-
+			//compute the covariance matrix
+			compute_covariance_matrix_host(channel);
 
 			// --------
 
@@ -116,33 +132,16 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(unsigned int freqChan)
 {
-
-	/*
-	for(int i = 0; i < _covarianceMatrixLength; ++i)
+	for(int row = 0; row < _binNum; ++row)
 	{
-		for(int row = 0; )
-	}
-	*/
-
-	/*
-	int col = (blockIdx.x * blockDim.x) + threadIdx.x; //column
-	int row = (blockIdx.y * blockDim.y) + threadIdx.y; //row
-
-	//check bounds
-	if(row >= vectorLength || col >= vectorLength)
-		return;
-
-	//transpose
-	if(row > col)
-	{
-		row = vectorLength - row;
-		col = row + col;
+		for(int col = row; col < _binNum; ++col)
+		{
+			_covarianceMatrices[freqChan][ (row * _binNum + col) - covariance_matrix_length(row) ] +=
+					_tempMeanStokesData[row] * _tempMeanStokesData[col];
+		}
 	}
 
-	int index = (row * vectorLength + col) - (row * (row + 1)) / 2;
 
-	resultMatrix[index] += vec[row] * vec[col];
-	*/
 }
 
 

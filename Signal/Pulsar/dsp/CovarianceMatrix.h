@@ -58,7 +58,7 @@ namespace dsp
 		//constructors/destructors
 		CovarianceMatrix();
 		PhaseSeriesUnloader* clone () const{return NULL;} //TODO: VINCENT: ACTUALLY IMPLEMENT THIS
-		virtual ~CovarianceMatrix() {};
+		virtual ~CovarianceMatrix();
 
 		void unload(const PhaseSeries*);
 		void set_minimum_integration_length (double seconds){};
