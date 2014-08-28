@@ -18,7 +18,8 @@
 #include "OwnStream.h"
 #include "Reference.h"
 
-namespace dsp {
+namespace dsp
+{
 
   class PhaseSeries;
   class Operation;

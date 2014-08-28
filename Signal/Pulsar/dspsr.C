@@ -67,35 +67,36 @@ unsigned nthread = 0;
 
 int main (int argc, char** argv) try
 {
-  config = new dsp::LoadToFold::Config;
+	config = new dsp::LoadToFold::Config;
 
-  parse_options (argc, argv);
+	parse_options (argc, argv);
 
-  Reference::To<dsp::Pipeline> engine;
+	Reference::To<dsp::Pipeline> engine;
 
-  if (config->get_total_nthread() > 1)
-    engine = new dsp::LoadToFoldN (config);
-  else
-    engine = new dsp::LoadToFold (config);
+	if (config->get_total_nthread() > 1)
+	engine = new dsp::LoadToFoldN (config);
+	else
+	engine = new dsp::LoadToFold (config);
 
-  bool time_prep = dsp::Operation::record_time || config->get_cuda_ndevice();
+	bool time_prep = dsp::Operation::record_time || config->get_cuda_ndevice();
 
-  RealTimer preptime;
-  if (time_prep)
-    preptime.start();
+	RealTimer preptime;
+	if (time_prep)
+	preptime.start();
 
-  prepare (engine, config->open (argc, argv));
+	prepare (engine, config->open (argc, argv));
 
-  if (time_prep)
-  {
-    preptime.stop();
-    cerr << "dspsr: prepared in " << preptime << endl;
-  }
+	if (time_prep)
+	{
+	preptime.stop();
+	cerr << "dspsr: prepared in " << preptime << endl;
+	}
 
-  engine->run();
-  engine->finish();
 
-  return 0;
+	engine->run();
+	engine->finish();
+
+	return 0;
 } 
 catch (Error& error)
 {

@@ -16,7 +16,7 @@ using namespace std;
 
 dsp::SubFold::SubFold ()
 {
-  built = false;
+	built = false;
 }
 
 dsp::SubFold::~SubFold ()
@@ -42,6 +42,7 @@ void dsp::SubFold::set_cerr (std::ostream& os) const
 //! Set the file unloader
 void dsp::SubFold::set_unloader (dsp::PhaseSeriesUnloader* _unloader)
 {
+	//printf("UNLOADER SET!!!!\n");
   if (verbose)
     cerr << "dsp::SubFold::set_unloader this=" << this 
          << " unloader=" << _unloader << endl;
@@ -150,6 +151,8 @@ void dsp::SubFold::transformation () try
       continue;
 
     Fold::transformation ();
+
+    printf("TRANSFORMATION IS COMPLETE\n");
 
     if (!divider.get_end_reached())
       continue;

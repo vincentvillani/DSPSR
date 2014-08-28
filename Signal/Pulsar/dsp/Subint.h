@@ -338,6 +338,8 @@ catch (Error& error)
 template <class Op>
 void dsp::Subint<Op>::unload_partial () try
 {
+	printf("UNLOADING SUB INT!\n");
+
   if (Op::verbose)
     std::cerr << "dsp::Subint::unload_partial to callback" << std::endl;
 
@@ -351,6 +353,7 @@ void dsp::Subint<Op>::unload_partial () try
       std::cerr << "dsp::Subint::unload_partial this=" << this
            << " unloader=" << unloader.get() << std::endl;
 
+    printf("UNLOADER PARTIAL CALLED\n");
     unloader->partial (result);
   }
 

@@ -470,6 +470,8 @@ const Pulsar::Parameters* dsp::Fold::get_pulsar_ephemeris () const
 
 void dsp::Fold::set_input (const TimeSeries* _input)
 {
+	printf("SETTING INPUT\n");
+
   if (verbose)
     cerr << "dsp::Fold::set_input (TimeSeries* =" << _input << ")" << endl;
 
@@ -628,6 +630,9 @@ void dsp::Fold::fold (uint64_t nweights,
                       unsigned ndatperweight,
                       unsigned weight_idat)
 {
+
+	printf("FOLDING HAS BEGUN!!!!\n");
+
   if (!folding_nbin)
   {
     if (!requested_nbin)

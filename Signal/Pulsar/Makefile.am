@@ -8,7 +8,7 @@ dsp/UnloaderShare.h \
 dsp/LoadToFold1.h               dsp/PhaseLockedFilterbank.h \
 dsp/LoadToFoldConfig.h          dsp/PhaseSeries.h \
 dsp/LoadToFoldN.h               dsp/PhaseSeriesUnloader.h \
-dsp/CyclicFold.h
+dsp/CyclicFold.h   				dsp/CovarianceMatrix.h
 
 libdspsr_la_SOURCES = \
 Archiver.C                            \
@@ -17,7 +17,7 @@ Fold.C                  UnloaderShare.C \
 LoadToFold1.C           PhaseLockedFilterbank.C \
 LoadToFoldConfig.C      PhaseSeries.C  \
 LoadToFoldN.C           PhaseSeriesUnloader.C \
-CyclicFold.C
+CyclicFold.C 			CovarianceMatrix.C
 
 if HAVE_CUFFT
 

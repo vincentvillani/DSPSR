@@ -20,7 +20,8 @@
 #include "Phase.h"
 #include "Callback.h"
 
-namespace dsp {
+namespace dsp
+{
 
   class PhaseSeriesUnloader;
 
@@ -34,7 +35,8 @@ namespace dsp {
     vector.  If set, the SubFold class will call unloader->unload (output)
   */
 
-  class SubFold : public Fold {
+  class SubFold : public Fold
+  {
 
   public:
     

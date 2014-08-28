@@ -69,6 +69,8 @@
 #include "Error.h"
 #include "debug.h"
 
+#include "dsp/CovarianceMatrix.h"
+
 #include <assert.h>
 
 using namespace std;
@@ -242,6 +244,8 @@ void dsp::LoadToFold::construct () try
   TimeSeries* skoutput = 0;
   BitSeries * skzapmask = 0;
   Reference::To<OperationThread> skthread;
+
+
 
   if (config->sk_zap)
   {
@@ -963,6 +967,8 @@ void dsp::LoadToFold::build_fold (TimeSeries* to_fold)
 dsp::PhaseSeriesUnloader* 
 dsp::LoadToFold::get_unloader (unsigned ifold)
 {
+	printf("GETTING UNLOADER!!!!\n");
+
   if (ifold == unloader.size())
     unloader.push_back( NULL );
 
@@ -971,9 +977,21 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
     if (Operation::verbose)
       cerr << "dsp::LoadToFold::get_unloader prepare new Archiver" << endl;
 
+
+    /*
+     * NEW CODE
+     *
+     */
+
+    CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
+    unloader[ifold] = covarianceMatrix;
+    //prepare_archiver(covarianceMatrix);
+
+    /*
     Archiver* archiver = new Archiver;
     unloader[ifold] = archiver;
     prepare_archiver( archiver );
+    */
   }
 
   return unloader.at(ifold);
@@ -1032,6 +1050,8 @@ void dsp::LoadToFold::build_fold (Reference::To<Fold>& fold,
     
     subfold -> set_unloader (unloader);
 
+
+
     fold = subfold;
   }
   else 
@@ -1055,6 +1075,8 @@ void dsp::LoadToFold::build_fold (Reference::To<Fold>& fold,
     }
 
     subfold -> set_unloader (unloader);
+
+    printf("UNLOADER SET!\n");
 
     fold = subfold;
   }

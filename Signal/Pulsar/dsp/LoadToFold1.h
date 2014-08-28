@@ -16,6 +16,7 @@
 
 #include "dsp/SingleThread.h"
 #include "dsp/Filterbank.h"
+#include "dsp/CovarianceMatrix.h"
 
 namespace dsp {
 
