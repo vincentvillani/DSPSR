@@ -12,6 +12,14 @@
 #include "PhaseSeriesUnloader.h"
 #include "PhaseSeries.h"
 #include <vector.h>
+#include <iostream>
+
+#if HAVE_CUDA
+
+#include "dsp/CovarianceMatrixEngineCuda.h"
+
+#endif
+
 
 namespace dsp
 {
@@ -42,7 +50,7 @@ namespace dsp
 		//mean stokes data (i.e. stokes/host), for each freq channel
 		//float** _summedMeanStokesDatas; //Data is stored as all the I's across the phase bins, then all Q's across the phase bins etc, for each freq channel
 
-		float* _tempMeanStokesData;
+
 
 
 		//helper functions
@@ -50,8 +58,29 @@ namespace dsp
 		void compute_covariance_matrix_host(unsigned int freqChan);
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
-		void mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int offset);
+
 		//void add_temp_stokes_data_host(); //TODO: VINCENT: FIGURE OUT IF THIS IS THE CORRECT THING TO DO
+
+
+#if !(HAVE_CUDA)
+		//Host specific variables / functions
+
+		float* _tempMeanStokesData;
+
+		void setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
+		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
+		void mean_stokes_data_host(const float* stokesData, const unsigned int* hits);
+
+
+#else
+		//Device specific variables / functions
+		float* _d_resultVector;
+		float* _d_vector;
+		float* _d_tempMeanStokesData;
+
+		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
+		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
+#endif
 
 	public:
 
@@ -61,7 +90,7 @@ namespace dsp
 		virtual ~CovarianceMatrix();
 
 		void unload(const PhaseSeries*);
-		void set_minimum_integration_length (double seconds){};
+		void set_minimum_integration_length (double seconds){}; //if integration length is less than the minimum, discard it
 		void set_unloader(PhaseSeriesUnloader* unloader);
 
 	};
