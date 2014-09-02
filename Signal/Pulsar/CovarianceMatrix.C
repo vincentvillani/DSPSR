@@ -120,7 +120,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 		//AMPLITUDE DATA
 		//IQUV, IQUV, IQUV etc etc
-		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to all the I stokes values
+		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
 
 
 		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
@@ -168,8 +168,11 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 	}
 
 
+	cudaMalloc(&_d_amps, sizeof(float) * _binNum * _stokesLength);
+	cudaMalloc(&_d_hits, sizeof(float) * _binNum );
+
 	//Allocate scratch space for temporary stokes data on the device
-	cudaMalloc(&_d_tempMeanStokesData, sizeof(float) * _binNum * _stokesLength);
+	//cudaMalloc(&_d_tempMeanStokesData, sizeof(float) * _binNum * _stokesLength);
 
 
 	//Allocate space for all result vectors
@@ -178,12 +181,26 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 
 
 
-void dsp::CovarianceMatrix::doCalculationOnDevice(const PhaseSeries* phaseSeriesData)
+void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData)
 {
+	/*
+	computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteOffset,
+			float* h_amps, float* d_amps, unsigned int ampsLength,
+			 float* h_hits, float* d_hits, unsigned int hitsLength,
+			 unsigned int stokesLength, unsigned int blockDim2D = 16)
+			 */
 
-	//void computeCovarianceMatrixCUDA(float* d_resultVector, float* d_vector, unsigned int vectorLength,
-		//	unsigned int blockDim2D = 16);
-	//computeCovarianceMatrixCUDA(_d_resultVector);
+	for(int channel = 0; channel < _freqChanNum; ++i)
+	{
+		const float* h_amps = phaseSeriesData->get_datprt(channel, 0);
+		const float* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
+
+		computeCovarianceMatrixCuda
+			(_d_resultVector, i * _covarianceMatrixLength * sizeof(float),
+			h_amps, _d_amps, _binNum * _stokesLength,
+			h_hits, _d_hits, _binNum, _stokesLength);
+	}
+
 }
 
 

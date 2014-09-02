@@ -9,12 +9,11 @@
 #define COVARIANCEMATRIXENGINECUDA_H_
 
 #include "dsp/CovarianceMatrixCuda.h"
-#include <cuda_runtime.h>
 
-void computeCovarianceMatrixCUDA(float* d_resultVector, float* d_vector, unsigned int vectorLength,
-		unsigned int blockDim2D = 16);
 
-void computeMeanCUDA(float* amps, int ampsLength, float* hits);
+void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteOffset, float* amps, unsigned int ampsLength,
+		float* hits, unsigned int hitsLength, unsigned int blockDim2D = 16);
+
 
 
 

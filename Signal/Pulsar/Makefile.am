@@ -22,10 +22,12 @@ CyclicFold.C 			CovarianceMatrix.C
 if HAVE_CUFFT
 
 nobase_include_HEADERS += dsp/FoldCUDA.h dsp/TransferPhaseSeriesCUDA.h \
-			  dsp/CyclicFoldEngineCUDA.h
+			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixEngineCuda.h \
+			  dsp/CovarianceMatrixCuda
 
 libdspsr_la_SOURCES += FoldCUDA.cu TransferPhaseSeriesCUDA.C \
-		       CyclicFoldEngineCUDA.cu
+		       CyclicFoldEngineCUDA.cu CovarianceMatrixEngineCuda.cu \
+		       CovarianceMatrixCuda.cu
 
 endif
 

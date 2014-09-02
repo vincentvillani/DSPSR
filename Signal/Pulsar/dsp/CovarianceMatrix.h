@@ -46,20 +46,11 @@ namespace dsp
 		//For each freq channel
 		float** _covarianceMatrices;
 
-		//temp data that is reused over and over again
-		//mean stokes data (i.e. stokes/host), for each freq channel
-		//float** _summedMeanStokesDatas; //Data is stored as all the I's across the phase bins, then all Q's across the phase bins etc, for each freq channel
-
-
-
 
 		//helper functions
 
 		void compute_covariance_matrix_host(unsigned int freqChan);
 		unsigned int covariance_matrix_length(const unsigned int numBin);
-
-
-		//void add_temp_stokes_data_host(); //TODO: VINCENT: FIGURE OUT IF THIS IS THE CORRECT THING TO DO
 
 
 #if !(HAVE_CUDA)
@@ -76,7 +67,9 @@ namespace dsp
 		//Device specific variables / functions
 		float* _d_resultVector;
 		float* _d_vector;
-		float* _d_tempMeanStokesData;
+		//float* _d_tempMeanStokesData;
+		float* _d_amps;
+		float* _d_hits;
 
 		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
@@ -92,7 +85,6 @@ namespace dsp
 		void unload(const PhaseSeries*);
 		void set_minimum_integration_length (double seconds){}; //if integration length is less than the minimum, discard it
 		void set_unloader(PhaseSeriesUnloader* unloader);
-
 	};
 }
 
