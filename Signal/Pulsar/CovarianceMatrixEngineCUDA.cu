@@ -15,6 +15,8 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 		 unsigned int stokesLength, unsigned int blockDim2D = 16)
 {
 
+	printf("RUNNING KERNELS\n");
+
 	int meanBlockDim = 256;
 	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
 
