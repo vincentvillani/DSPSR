@@ -28,6 +28,12 @@ __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLe
 
 	//do the outer product calculation and add it too the correct element
 	resultMatrix[index] += vec[row] * vec[col];
+
+	if(col == 0 && row == 0)
+	{
+		printf("CUDARESULT: %f", resultMatrix[index]);
+		printf("CUDARESULT: %f", resultMatrix[0]);
+	}
 }
 
 
