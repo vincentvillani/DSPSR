@@ -31,7 +31,11 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
-	printf("After: amp zero: %f\n", h_amps[0]);
+	float ampZero;
+
+	cudaMemcpy(&ampZero, d_amps, sizeof(float), cudaMemcpyDeviceToHost);
+
+	printf("After: amp zero: %f\n", ampZero);
 	printf("After: hit zero: %d\n", h_hits[0]);
 
 
