@@ -50,12 +50,12 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 		return;
 
 	if(absoluteThreadIdx == 0)
-		printf("hitVal BEFORE: %f\n", d_hits[0]);
+		printf("hitVal BEFORE: %d\n", d_hits[0]);
 
 	float hitVal = d_hits[ absoluteThreadIdx / stokesLength ];
 
 	if(absoluteThreadIdx == 0)
-		printf("hitVal AFTER: %f\n", hitVal);
+		printf("hitVal AFTER: %d\n", hitVal);
 
 	//can't divide by zero so just return
 	if(hitVal == 0.0f)
