@@ -26,7 +26,7 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits);
 
 	//TODO: DEBUG
-	cudaError_t error = cudaPeakAtLastError();
+	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s", cudaGetErrorString(error));
@@ -47,7 +47,7 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 	outerProductKernel<<< grid, block >>>(d_resultVector, d_amps, ampsLength);
 
 	//TODO: DEBUG
-	error = cudaPeakAtLastError();
+	error = cudaPeekAtLastError()();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s", cudaGetErrorString(error));
