@@ -27,7 +27,7 @@ __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLe
 	int index = (row * vectorLength + col) - (row * (row + 1)) / 2;
 
 	//do the outer product calculation and add it too the correct element
-	resultMatrix[index] += vec[row] * vec[col];
+	resultMatrix[index] += 1;//vec[row] * vec[col];
 }
 
 
@@ -45,7 +45,7 @@ __global__ void meanStokesKernel(float* amps, unsigned int ampsLength, float* hi
 	if(hitVal == 0.0f)
 		return;
 
-	amps[absoluteThreadIdx] = 1;//amps[absoluteThreadIdx] / hitVal;
+	amps[absoluteThreadIdx] = amps[absoluteThreadIdx] / hitVal;
 
 }
 
