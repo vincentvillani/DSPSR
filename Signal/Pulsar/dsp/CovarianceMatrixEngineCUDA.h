@@ -12,8 +12,10 @@
 #include <stdio.h>
 
 
-void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultByteOffset, float* amps, unsigned int ampsLength,
-		float* hits, unsigned int hitsLength, unsigned int blockDim2D = 16);
+void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultByteOffset,
+		float* h_amps, float* d_amps, unsigned int ampsLength,
+		 float* h_hits, float* d_hits, unsigned int hitsLength,
+		 unsigned int stokesLength, unsigned int blockDim2D = 16);
 
 
 
