@@ -52,7 +52,7 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 	if(absoluteThreadIdx == 0)
 		printf("hitVal BEFORE: %d\n", d_hits[0]);
 
-	float hitVal = d_hits[ absoluteThreadIdx / stokesLength ];
+	unsigned int hitVal = d_hits[ absoluteThreadIdx / stokesLength ];
 
 	if(absoluteThreadIdx == 0)
 		printf("hitVal AFTER: %d\n", hitVal);
