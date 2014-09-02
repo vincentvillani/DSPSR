@@ -57,6 +57,9 @@ __global__ void meanStokesKernel(float* amps, unsigned int ampsLength, float* hi
 
 	amps[absoluteThreadIdx] = amps[absoluteThreadIdx] / hitVal;
 
+	if(absoluteThreadIdx == 0)
+		printf("AMPS MEAN[0]: %f\n", amps[0]);
+
 }
 
 
