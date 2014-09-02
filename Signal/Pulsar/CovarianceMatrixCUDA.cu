@@ -49,3 +49,15 @@ __global__ void meanStokesKernel(float* amps, unsigned int ampsLength, float* hi
 
 }
 
+
+
+__global__ void applyScale(float* amps, unsigned int ampsLength, double scaleFactor)
+{
+	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
+
+	if(absoluteThreadIdx >= ampsLength)
+		return;
+
+	amps[absoluteThreadIdx] = amps[absoluteThreadIdx] / scaleFactor;
+}
+

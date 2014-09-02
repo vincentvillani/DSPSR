@@ -12,7 +12,7 @@
 void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultByteOffset,
 		const float* h_amps, float* d_amps, unsigned int ampsLength,
 		 const unsigned int* h_hits, float* d_hits, unsigned int hitsLength,
-		 unsigned int stokesLength, unsigned int blockDim2D)
+		 unsigned int stokesLength, double scaleFactor, unsigned int blockDim2D)
 {
 
 	printf("RUNNING KERNELS\n");
@@ -23,6 +23,10 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	//Copy data to device
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_hits, h_hits, sizeof(float) * hitsLength, cudaMemcpyHostToDevice);
+
+
+	applyScale(d_amps, ampsLength, scaleFactor);
+
 
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 

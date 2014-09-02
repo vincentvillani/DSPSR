@@ -15,4 +15,7 @@ __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLe
 
 __global__ void meanStokesKernel(float* amps, unsigned int ampsLength, float* hits, unsigned int stokesLength);
 
+
+__global__ void applyScale(float* amps, unsigned int ampsLength, double scaleFactor);
+
 #endif /* COVARIANCEMATRIXCUDA_H_ */
