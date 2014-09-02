@@ -201,25 +201,19 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 
 	for(int channel = 0; channel < _freqChanNum; ++channel)
 	{
+		printf("\nFreq %d\n", channel);
+
 		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
 		const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
 
-		printf("Before: amp zero: %f\n", h_amps[0]);
-		printf("Before: hit zero: %d\n", h_hits[0]);
+		//printf("Before: amp zero: %f\n", h_amps[0]);
+		//printf("Before: hit zero: %d\n", h_hits[0]);
 
-		printf("scale: %f\n", phaseSeriesData->get_scale());
+		//printf("scale: %f\n", phaseSeriesData->get_scale());
 
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength * sizeof(float),
 			h_amps, _d_amps, _binNum * _stokesLength,
 			h_hits, _d_hits, _binNum, _stokesLength, phaseSeriesData->get_scale() );
-
-		//TODO: DEBUG
-		if(channel == 0)
-		{
-			copyAndPrint(_d_resultVector, _covarianceMatrixLength, _binNum);
-			exit(0);
-		}
-
 	}
 
 }

@@ -27,21 +27,21 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	unsigned int hitZero;
 	cudaMemcpy(&hitZero, d_hits, sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
-	printf("Hit Zero: %d\n", hitZero);
+	//printf("Hit Zero: %d\n", hitZero);
 
-	printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
+	//printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
 	applyScale <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, scaleFactor);
 
 
-	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
+	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
 	float ampZero;
 
 	cudaMemcpy(&ampZero, d_amps, sizeof(float), cudaMemcpyDeviceToHost);
 
-	printf("After: amp zero: %f\n", ampZero);
-	printf("After: hit zero: %d\n", h_hits[0]);
+	//printf("After: amp zero: %f\n", ampZero);
+	//printf("After: hit zero: %d\n", h_hits[0]);
 
 
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
