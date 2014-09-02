@@ -204,7 +204,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
 		const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
 
-		printf("amp zero: %d\n", h_amps[1]);
+		printf("amp zero: %f\n", h_amps[1]);
 		printf("hit zero: %d\n", h_hits[10]);
 
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength * sizeof(float),
