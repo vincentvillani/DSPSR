@@ -7,7 +7,7 @@
 
 
 
-#include "CovarianceMatrixEngineCuda.h"
+#include "dsp/CovarianceMatrixEngineCuda.h"
 
 void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteOffset,
 		float* h_amps, float* d_amps, unsigned int ampsLength,
