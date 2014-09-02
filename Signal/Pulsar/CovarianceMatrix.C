@@ -207,7 +207,9 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 
 		//TODO: DEBUG
 		if(channel == 0)
-			copyAndPrint(_d_resultVector + channel * _covarianceMatrixLength, _covarianceMatrixLength, _binNum);
+			copyAndPrint(_d_resultVector, _covarianceMatrixLength, _binNum);
+
+		exit(0);
 	}
 
 }
