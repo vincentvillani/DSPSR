@@ -184,6 +184,7 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData)
 {
 
+	printf("FreqChanNum: %d\n", _freqChanNum);
 
 	for(int channel = 0; channel < _freqChanNum; ++channel)
 	{
