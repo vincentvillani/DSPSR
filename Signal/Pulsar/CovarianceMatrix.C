@@ -207,6 +207,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 		printf("amp zero: %f\n", h_amps[1]);
 		printf("hit zero: %d\n", h_hits[10]);
 
+		printf("scale: %f", phaseSeriesData->get_scale());
+
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength * sizeof(float),
 			h_amps, _d_amps, _binNum * _stokesLength,
 			h_hits, _d_hits, _binNum, _stokesLength);
