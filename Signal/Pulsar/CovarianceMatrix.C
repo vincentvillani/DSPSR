@@ -146,6 +146,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
+	printf("Allocating device memory\n");
+
 	_binNum = binNum;
 	_freqChanNum = chanNum;
 	_stokesLength = nPol * nDim;
