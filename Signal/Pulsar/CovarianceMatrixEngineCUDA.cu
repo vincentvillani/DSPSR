@@ -24,6 +24,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_hits, h_hits, sizeof(float) * hitsLength, cudaMemcpyHostToDevice);
 
+	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
 
@@ -42,6 +43,9 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	dim3 grid = dim3(gridDimX, gridDimY);
 	dim3 block = dim3(blockDimX, blockDimY);
+
+	printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n",
+			grid.x, grid.y, block.x, block.y);
 
 	//Call the kernel
 	//Compute covariance matrix

@@ -44,8 +44,9 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
-	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_hits_nchan() << ", Binsize: "
+	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_nchan() << ", Binsize: "
 			<< binNum << ", NPol: " << phaseSeriesData->get_npol() << ", NDim: " << phaseSeriesData->get_ndim()
+			<< ", hit channels: " << phaseSeriesData->get_hits_nchan()
 			<< std::endl;
 
 
