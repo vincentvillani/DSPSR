@@ -13,6 +13,7 @@
 #include "PhaseSeries.h"
 #include <cstring>
 #include <iostream>
+#include "stdio.h"
 
 #if HAVE_CUDA
 
