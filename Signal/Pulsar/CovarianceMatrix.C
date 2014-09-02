@@ -178,6 +178,13 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 
 	//Allocate space for all result vectors
 	cudaMalloc(&_d_resultVector, sizeof(float) * _covarianceMatrixLength  * _freqChanNum);
+
+	//TODO: DEBUG
+	cudaError_t error = cudaDeviceSynchronize();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+	}
 }
 
 
