@@ -31,7 +31,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
-	applyScale <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, scaleFactor);
+	//applyScale <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, scaleFactor);
 
 
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);

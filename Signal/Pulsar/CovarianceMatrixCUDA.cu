@@ -58,7 +58,7 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 		printf("hitVal AFTER: %d\n", hitVal);
 
 	//can't divide by zero so just return
-	if(hitVal == 0.0f)
+	if(hitVal == 0)
 		return;
 
 	d_amps[absoluteThreadIdx] = d_amps[absoluteThreadIdx] / hitVal;
