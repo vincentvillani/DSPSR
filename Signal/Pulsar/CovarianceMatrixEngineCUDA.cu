@@ -1,5 +1,5 @@
 /*
- * CovarianceMatrixEngineCuda.C
+ * CovarianceMatrixEngineCUDA.C
  *
  *  Created on: 01/09/2014
  *      Author: vincentvillani
@@ -25,7 +25,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	cudaMemcpy(d_hits, h_hits, sizeof(float) * hitsLength, cudaMemcpyHostToDevice);
 
 
-	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits);
+	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
 
 	//TODO: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
