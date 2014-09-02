@@ -13,6 +13,6 @@
 
 __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLength);
 
-void meanStokesKernel(float* amps, unsigned int ampsLength, float* hits, unsigned int stokesLength);
+__global__ void meanStokesKernel(float* amps, unsigned int ampsLength, float* hits, unsigned int stokesLength);
 
 #endif /* COVARIANCEMATRIXCUDA_H_ */
