@@ -26,6 +26,9 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
+	printf("hit zero: %d\n", h_hits[0]);
+	printf("amp zero: %d\n", h_amps[0]);
+
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
 
 	//TODO: DEBUG
