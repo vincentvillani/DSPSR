@@ -24,6 +24,8 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_hits, h_hits, sizeof(float) * hitsLength, cudaMemcpyHostToDevice);
 
+	printf("HITSLENGTH: %d\n", hitsLength);
+
 	printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
 	applyScale <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, scaleFactor);
