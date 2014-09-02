@@ -8,7 +8,7 @@
 #ifndef COVARIANCEMATRIXENGINECUDA_H_
 #define COVARIANCEMATRIXENGINECUDA_H_
 
-#include "dsp/CovarianceMatrixCuda.h"
+#include "CovarianceMatrixCUDA.h"
 
 
 void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteOffset, float* amps, unsigned int ampsLength,
