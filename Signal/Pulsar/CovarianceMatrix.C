@@ -299,6 +299,8 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 			numZeros++;
 		}
 
+		fclose(file);
+
 	}
 
 	/*
