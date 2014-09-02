@@ -193,10 +193,9 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 	for(int channel = 0; channel < _freqChanNum; ++channel)
 	{
 		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
-		const float* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
+		const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
 
-		computeCovarianceMatrixCuda
-			(_d_resultVector, i * _covarianceMatrixLength * sizeof(float),
+		computeCovarianceMatrixCUDA (_d_resultVector, channel * _covarianceMatrixLength * sizeof(float),
 			h_amps, _d_amps, _binNum * _stokesLength,
 			h_hits, _d_hits, _binNum, _stokesLength);
 	}
