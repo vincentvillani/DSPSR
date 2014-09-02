@@ -291,7 +291,7 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 			//print array values
 			for(int k = 0; k < rowLength - numZeros; ++k)
 			{
-				fprintf(file, "%d, ", (int)result[iterator]);
+				fprintf(file, "%f, ", result[iterator]);
 				++iterator;
 			}
 
@@ -317,7 +317,7 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 		//print array values
 		for(int k = 0; k < rowLength - numZeros; ++k)
 		{
-			printf("%d, ", (int)result[iterator]);
+			printf("%f, ", result[iterator]);
 			++iterator;
 		}
 
