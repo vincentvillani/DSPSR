@@ -11,7 +11,6 @@
 
 #include "PhaseSeriesUnloader.h"
 #include "PhaseSeries.h"
-#include <vector.h>
 #include <iostream>
 
 #if HAVE_CUDA
