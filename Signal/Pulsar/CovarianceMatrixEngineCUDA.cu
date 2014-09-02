@@ -47,7 +47,7 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 	outerProductKernel<<< grid, block >>>(d_resultVector, d_amps, ampsLength);
 
 	//TODO: DEBUG
-	cudaError_t error = cudaPeakAtLastError();
+	error = cudaPeakAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s", cudaGetErrorString(error));
