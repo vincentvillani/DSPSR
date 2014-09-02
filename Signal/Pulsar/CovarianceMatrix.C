@@ -287,6 +287,7 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 
 	}
 
+	/*
 	numZeros = 0;
 	iterator = 0;
 
@@ -310,7 +311,9 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 		numZeros++;
 	}
 
+
 	printf("\n------------------------\n");
+	*/
 
 }
 
