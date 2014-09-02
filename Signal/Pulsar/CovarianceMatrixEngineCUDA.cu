@@ -25,6 +25,12 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits);
 
+	//TODO: DEBUG
+	cudaError_t error = cudaPeakAtLastError();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s", cudaGetErrorString(error));
+	}
 
 	//Compute the needed block and grid dimensions
 	int blockDimX = blockDim2D;
@@ -37,6 +43,14 @@ void computeCovarianceMatrixCUDA(float* d_resultVector, unsigned int resultByteO
 
 	//Call the kernel
 	//amps now contains the mean stokes elements
+
 	outerProductKernel<<< grid, block >>>(d_resultVector, d_amps, ampsLength);
+
+	//TODO: DEBUG
+	cudaError_t error = cudaPeakAtLastError();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s", cudaGetErrorString(error));
+	}
 
 }
