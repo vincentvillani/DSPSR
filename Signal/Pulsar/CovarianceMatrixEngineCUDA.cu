@@ -22,7 +22,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	//Copy data to device
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_hits, h_hits, sizeof(float) * hitsLength, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
 	printf("HITSLENGTH: %d\n", hitsLength);
 
