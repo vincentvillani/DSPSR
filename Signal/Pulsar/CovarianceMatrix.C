@@ -67,11 +67,11 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	}
 
 
-	#if !(HAVE_CUDA)
-		compute_covariance_matrix_host(phaseSeriesData);
-	#else
+	//#if !(HAVE_CUDA)
+	//	compute_covariance_matrix_host(phaseSeriesData);
+	//#else
 		compute_covariance_matrix_device(phaseSeriesData);
-	#endif
+	//#endif
 
 
 	printf("FINISHED UNLOAD\n\n\n");
@@ -141,7 +141,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 }
 
 
-#if HAS_CUDA
+//#if HAS_CUDA
 
 void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
@@ -204,7 +204,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 }
 
 
-#endif
+//#endif
 
 
 

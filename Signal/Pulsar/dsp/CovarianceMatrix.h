@@ -14,11 +14,11 @@
 #include <cstring>
 #include <iostream>
 
-#if HAVE_CUDA
+//#if HAVE_CUDA
 
 #include "dsp/CovarianceMatrixEngineCUDA.h"
 
-#endif
+//#endif
 
 
 namespace dsp
@@ -53,7 +53,7 @@ namespace dsp
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
 
-#if !(HAVE_CUDA)
+//#if !(HAVE_CUDA)
 		//Host specific variables / functions
 
 		float* _tempMeanStokesData;
@@ -63,7 +63,7 @@ namespace dsp
 		void mean_stokes_data_host(const float* stokesData, const unsigned int* hits);
 
 
-#else
+//#else
 		//Device specific variables / functions
 		float* _d_resultVector;
 		float* _d_vector;
@@ -73,7 +73,7 @@ namespace dsp
 
 		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
-#endif
+//#endif
 
 	public:
 
