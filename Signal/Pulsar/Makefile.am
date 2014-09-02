@@ -23,7 +23,7 @@ if HAVE_CUFFT
 
 nobase_include_HEADERS += dsp/FoldCUDA.h dsp/TransferPhaseSeriesCUDA.h \
 			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixEngineCuda.h \
-			  dsp/CovarianceMatrixCuda
+			  dsp/CovarianceMatrixCuda.h
 
 libdspsr_la_SOURCES += FoldCUDA.cu TransferPhaseSeriesCUDA.C \
 		       CyclicFoldEngineCUDA.cu CovarianceMatrixEngineCuda.cu \
