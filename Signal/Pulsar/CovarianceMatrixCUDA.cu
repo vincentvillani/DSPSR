@@ -27,7 +27,7 @@ __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLe
 	int index = (row * vectorLength + col) - (row * (row + 1)) / 2;
 
 	//do the outer product calculation and add it too the correct element
-	resultMatrix[index] += 1;//vec[row] * vec[col];
+	resultMatrix[index] += vec[row] * vec[col];
 }
 
 
