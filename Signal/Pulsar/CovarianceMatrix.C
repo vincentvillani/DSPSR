@@ -172,7 +172,7 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 
 
 	cudaMalloc(&_d_amps, sizeof(float) * _binNum * _stokesLength);
-	cudaMalloc(&_d_hits, sizeof(float) * _binNum );
+	cudaMalloc(&_d_hits, sizeof(unsigned int) * _binNum );
 
 	//Allocate scratch space for temporary stokes data on the device
 	//cudaMalloc(&_d_tempMeanStokesData, sizeof(float) * _binNum * _stokesLength);
