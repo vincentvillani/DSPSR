@@ -69,7 +69,7 @@ namespace dsp
 		float* _d_vector;
 		//float* _d_tempMeanStokesData;
 		float* _d_amps;
-		float* _d_hits;
+		unsigned int* _d_hits;
 
 		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);

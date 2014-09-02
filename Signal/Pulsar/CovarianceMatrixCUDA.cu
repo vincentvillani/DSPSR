@@ -42,7 +42,7 @@ __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLe
 
 
 
-__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, float* d_hits, unsigned int stokesLength)
+__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
 {
 	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
