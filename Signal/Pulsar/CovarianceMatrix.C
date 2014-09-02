@@ -204,6 +204,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength * sizeof(float),
 			h_amps, _d_amps, _binNum * _stokesLength,
 			h_hits, _d_hits, _binNum, _stokesLength);
+
+		copyAndPrint(_d_resultVector + channel * _covarianceMatrixLength, _covarianceMatrixLength, _binNum);
 	}
 
 }
@@ -251,6 +253,74 @@ unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int 
 void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 {
 	_unloader = unloader;
+}
+
+
+void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
+{
+	int numZeros = 0;
+	int iterator = 0;
+
+	if(genFile)
+	{
+		FILE* file = fopen("/mnt/home/vvillani/DSPSR/resultMatrix.txt", "w");
+
+		//for every row
+		for(int i = 0; i < rowLength; ++i)
+		{
+			//print preceding zeros
+			for(int j = 0; j < numZeros; ++j)
+			{
+				fprintf(file, "0, ");
+			}
+
+			//print array values
+			for(int k = 0; k < rowLength - numZeros; ++k)
+			{
+				fprintf(file, "%d, ", (int)result[iterator]);
+				++iterator;
+			}
+
+			fprintf(file, "\n");
+			numZeros++;
+		}
+
+	}
+
+	numZeros = 0;
+	iterator = 0;
+
+	//for every row
+	for(int i = 0; i < rowLength; ++i)
+	{
+		//print preceding zeros
+		for(int j = 0; j < numZeros; ++j)
+		{
+			printf("0, ");
+		}
+
+		//print array values
+		for(int k = 0; k < rowLength - numZeros; ++k)
+		{
+			printf("%d, ", (int)result[iterator]);
+			++iterator;
+		}
+
+		printf("\n");
+		numZeros++;
+	}
+
+	printf("\n------------------------\n");
+
+}
+
+
+
+void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int rowLength)
+{
+	float* hostData = (float*)malloc(sizeof(float) * arrayLength);
+	cudaMemcpy(hostData, deviceData, sizeof(float) * arrayLength, cudaMemcpyDeviceToHost);
+	printResultUpperTriangular(hostData, rowLength, false);
 }
 
 

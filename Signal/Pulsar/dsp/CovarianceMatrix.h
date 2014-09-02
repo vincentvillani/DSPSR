@@ -73,6 +73,9 @@ namespace dsp
 
 		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
+
+		void printResultUpperTriangular(float* result, int rowLength, bool genFile);
+		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 //#endif
 
 	public:
