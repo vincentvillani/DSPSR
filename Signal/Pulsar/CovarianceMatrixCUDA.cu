@@ -5,7 +5,7 @@
  *      Author: vincentvillani
  */
 
-#include "dsp/CovarianceMatrixCuda.h"
+#include "dsp/CovarianceMatrixCUDA.h"
 
 __global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLength)
 {

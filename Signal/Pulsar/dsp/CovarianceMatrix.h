@@ -16,7 +16,7 @@
 
 #if HAVE_CUDA
 
-#include "dsp/CovarianceMatrixEngineCuda.h"
+#include "dsp/CovarianceMatrixEngineCUDA.h"
 
 #endif
 
