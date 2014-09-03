@@ -201,6 +201,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 			h_hits, _d_hits, _binNum, _stokesLength, phaseSeriesData->get_scale() );
 	}
 
+	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
+
 }
 
 
@@ -278,9 +280,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		covariance_matrix_host(channel);
 	}
 
-	_phaseSeries->combine(phaseSeriesData);
+	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 
-	//printf("Covariance Matrix Computed\n");
 
 }
 
