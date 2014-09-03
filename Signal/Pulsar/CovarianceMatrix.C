@@ -188,9 +188,10 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 
 }
 
+#endif
 
-#else
 
+#if !(HAVE_CUDA)
 
 void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
