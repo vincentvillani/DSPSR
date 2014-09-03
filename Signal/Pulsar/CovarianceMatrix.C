@@ -137,7 +137,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		compute_covariance_matrix_host(channel);
 	}
 
-	printf("Covariance Matrix Computed\n");
+	//printf("Covariance Matrix Computed\n");
 
 }
 
@@ -239,6 +239,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(unsigned int freqChan
 
 
 
+
 void dsp::CovarianceMatrix::mean_stokes_data_host(const float* stokesData, const unsigned int* hits)
 {
 	int totalLength = _binNum * _stokesLength;
@@ -251,6 +252,7 @@ void dsp::CovarianceMatrix::mean_stokes_data_host(const float* stokesData, const
 
 
 
+
 unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int numBin)
 {
 	return (numBin * (numBin + 1)) / 2;
@@ -258,10 +260,12 @@ unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int 
 
 
 
+
 void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 {
 	_unloader = unloader;
 }
+
 
 
 void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
@@ -296,35 +300,6 @@ void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLen
 		fclose(file);
 
 	}
-
-	/*
-	numZeros = 0;
-	iterator = 0;
-
-	//for every row
-	for(int i = 0; i < rowLength; ++i)
-	{
-		//print preceding zeros
-		for(int j = 0; j < numZeros; ++j)
-		{
-			printf("0, ");
-		}
-
-		//print array values
-		for(int k = 0; k < rowLength - numZeros; ++k)
-		{
-			printf("%f, ", result[iterator]);
-			++iterator;
-		}
-
-		printf("\n");
-		numZeros++;
-	}
-
-
-	printf("\n------------------------\n");
-	*/
-
 }
 
 

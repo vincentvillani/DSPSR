@@ -24,8 +24,8 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
-	unsigned int hitZero;
-	cudaMemcpy(&hitZero, d_hits, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+	//unsigned int hitZero;
+	//cudaMemcpy(&hitZero, d_hits, sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
 	//printf("Hit Zero: %d\n", hitZero);
 
@@ -36,9 +36,9 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 
-	float ampZero;
+	//float ampZero;
 
-	cudaMemcpy(&ampZero, d_amps, sizeof(float), cudaMemcpyDeviceToHost);
+	//cudaMemcpy(&ampZero, d_amps, sizeof(float), cudaMemcpyDeviceToHost);
 
 	//printf("After: amp zero: %f\n", ampZero);
 	//printf("After: hit zero: %d\n", h_hits[0]);
@@ -67,7 +67,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	//Call the kernel
 	//Compute covariance matrix
-	outerProductKernel<<< grid, block >>>(d_resultVector, d_amps, ampsLength);
+	outerProductKernel<<< grid, block >>>(d_resultVector + resultByteOffset, d_amps, ampsLength);
 
 	//TODO: DEBUG
 	error = cudaDeviceSynchronize();
