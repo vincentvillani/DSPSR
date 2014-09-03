@@ -9,6 +9,10 @@
 #ifndef COVARIANCEMATRIX_H
 #define COVARIANCEMATRIX_H
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "PhaseSeriesUnloader.h"
 #include "PhaseSeries.h"
 #include <cstring>
