@@ -67,7 +67,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 
 	//Call the kernel
 	//Compute covariance matrix
-	outerProductKernel<<< grid, block >>>(d_resultVector + resultByteOffset, d_amps, ampsLength);
+	outerProductKernel<<< grid, block >>>(d_resultVector + resultElementOffset, d_amps, ampsLength);
 
 	//TODO: DEBUG
 	error = cudaDeviceSynchronize();
