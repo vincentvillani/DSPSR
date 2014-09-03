@@ -66,7 +66,7 @@ namespace dsp
 //#else
 		//Device specific variables / functions
 		float* _d_resultVector;
-		float* _d_vector;
+		//float* _d_vector;
 		float* _d_amps;
 		unsigned int* _d_hits;
 

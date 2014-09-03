@@ -23,7 +23,7 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 	_d_amps = NULL;
 	_d_hits = NULL;
-	_d_vector = NULL;
+	//_d_vector = NULL;
 	_d_resultVector = NULL;
 
 	_freqChanNum = 0;
@@ -65,9 +65,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
-#ifdef HAVE_CUDA
-	printf("THIS COMPUTER HAS CUDA!!!\n");
-#endif
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
