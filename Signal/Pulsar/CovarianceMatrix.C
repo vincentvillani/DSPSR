@@ -208,7 +208,7 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 {
 	float* hostData = (float*)malloc(sizeof(float) * arrayLength);
 	cudaMemcpy(hostData, deviceData, sizeof(float) * arrayLength, cudaMemcpyDeviceToHost);
-	printResultUpperTriangular(hostData, rowLength, true);
+	printUpperTriangularMatrix(hostData, rowLength, true);
 }
 
 
