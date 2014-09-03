@@ -71,7 +71,9 @@ namespace dsp
 		void printResultUpperTriangular(float* result, int rowLength, bool genFile);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 
-#else
+#endif
+
+#if !(HAVE_CUDA)
 		//Host specific variables / functions
 
 		float* _tempMeanStokesData;
