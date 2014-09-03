@@ -42,22 +42,23 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 
-	//Free host memory
-#ifndef HAVE_CUDA
-	delete [] _tempMeanStokesData;
 
-	for(int i = 0; i < _freqChanNum; ++i)
-		delete [] _covarianceMatrices[i];
-
-	delete [] _covarianceMatrices;
-
-#endif
 
 #ifdef HAVE_CUDA
 	cudaFree(_d_amps);
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
 	cudaFree(_d_amps);
+
+
+//Free host memory
+#else
+	delete [] _tempMeanStokesData;
+
+	for(int i = 0; i < _freqChanNum; ++i)
+		delete [] _covarianceMatrices[i];
+
+	delete [] _covarianceMatrices;
 
 #endif
 
