@@ -9,7 +9,7 @@
 
 #include "dsp/CovarianceMatrixEngineCUDA.h"
 
-void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultByteOffset,
+void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultElementOffset,
 		const float* h_amps, float* d_amps, unsigned int ampsLength,
 		 const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 		 unsigned int stokesLength, double scaleFactor, unsigned int blockDim2D)
