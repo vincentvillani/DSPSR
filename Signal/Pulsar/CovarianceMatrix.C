@@ -65,6 +65,27 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
+#ifdef HAVE_CUDA
+
+	printf("#Ifdef: HAVE_CUDA\n");
+
+#endif
+
+#ifndef HAVE_CUDA
+
+	printf("#Ifndef: HAVE_CUDA\n");
+
+#endif
+
+
+#if HAVE_CUDA
+	printf("#if HAVE_CUDA\n")
+#endif
+
+#if !(HAVE_CUDA)
+	printf("#ifnot HAVE_CUDA\n");
+
+#endif
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
