@@ -18,7 +18,7 @@
 #include <cstring>
 #include <iostream>
 
-#if HAS_CUDA
+#if HAVE_CUDA
 
 #include "dsp/CovarianceMatrixEngineCUDA.h"
 
@@ -57,7 +57,7 @@ namespace dsp
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
 
-#if HAS_CUDA
+#if HAVE_CUDA
 
 		//Device specific variables / functions
 		float* _d_resultVector;
