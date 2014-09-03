@@ -78,7 +78,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 
 #if HAVE_CUDA
-	printf("#if HAVE_CUDA\n")
+	printf("#if HAVE_CUDA\n");
 #endif
 
 #if !(HAVE_CUDA)
