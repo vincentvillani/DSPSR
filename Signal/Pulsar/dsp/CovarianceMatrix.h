@@ -34,6 +34,8 @@ namespace dsp
 		unsigned int _freqChanNum; //number of frequency channels
 		unsigned int _stokesLength; //Length of the stokes vector
 		unsigned int _covarianceMatrixLength;
+		unsigned int _hitChanNum;
+
 
 		//unloader that will write the data to disk, when the time comes
 		PhaseSeriesUnloader* _unloader;
@@ -63,7 +65,7 @@ namespace dsp
 		float* _d_amps;
 		unsigned int* _d_hits;
 
-		void setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
+		void setup_device(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using a device/cuda
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
 
 
@@ -74,7 +76,7 @@ namespace dsp
 
 		float* _tempMeanStokesData;
 
-		void setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
+		void setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
 		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
 		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale);
 		void covariance_matrix_host(unsigned int freqChan);
@@ -85,7 +87,10 @@ namespace dsp
 		void printSymmetricMatrix(float* symmetricMatrix, int rowLength, bool genFile);
 		void printUpperTriangularMatrix(float* result, int rowLength, bool genFile);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
+
 		unsigned int covariance_matrix_length(const unsigned int numBin);
+
+		const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan);
 
 
 	public:

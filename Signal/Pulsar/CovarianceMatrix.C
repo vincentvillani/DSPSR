@@ -95,9 +95,11 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	{
 
 		#if HAVE_CUDA
-			setup_device ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
+			setup_device ( phaseSeriesData->get_nchan(), phaseSeriesData->get_hits_nchan() , binNum,
+					phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
 		#else
-			setup_host ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
+			setup_host ( phaseSeriesData->get_nchan(),  phaseSeriesData->get_hits_nchan(),  binNum,
+					phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
 		#endif
 
 		//clone the first phase series
@@ -122,18 +124,27 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 #if HAVE_CUDA
 
-void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
+void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
-	printf("Allocating device memory\n");
 
 	_binNum = binNum;
 	_freqChanNum = chanNum;
-	_stokesLength = nPol * nDim;
+	_stokesLength = nDim; //TODO: VINCENT: CORRECT??
+	_hitChanNum = hitChanNum;
+
+	printf("Allocating device memory\n");
+
+	//Check for correct channels
+	if(hitChanNum != 1 && hitChanNum != chanNum)
+	{
+		//TODO: VINCENT: THROW AN EXCEPTION
+		printf("INVALID NUMBER OF HIT CHANNELS\n");
+		exit(2);
+	}
+
+
 
 	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
-
-	//Allocate memory to store the covarianceMatrix
-	//upper triangle * 4 stokes vector elements
 
 	//Allocate paged locked host memory for the pointer
 	cudaMallocHost(&_covarianceMatrices, sizeof(float*));
@@ -152,8 +163,6 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 	cudaMalloc(&_d_amps, sizeof(float) * _binNum * _stokesLength);
 	cudaMalloc(&_d_hits, sizeof(unsigned int) * _binNum );
 
-	//Allocate scratch space for temporary stokes data on the device
-	//cudaMalloc(&_d_tempMeanStokesData, sizeof(float) * _binNum * _stokesLength);
 
 	size_t totalResultByteNum = sizeof(float) * _covarianceMatrixLength  * _freqChanNum;
 
@@ -163,7 +172,7 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 	//Set all bytes to zero
 	cudaMemset(_d_resultVector, 0, totalResultByteNum);
 
-	//TODO: DEBUG
+	//TODO: VINCENT: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
 	{
@@ -183,7 +192,9 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 		printf("\nFreq %d\n", channel);
 
 		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
-		const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
+		//const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
+
+		const unsigned int* h_hits = getHitsPtr(phaseSeriesData, channel);
 
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength,
 			h_amps, _d_amps, _binNum * _stokesLength,
@@ -203,11 +214,21 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 
 #else
 
-void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
+void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
 	_binNum = binNum;
 	_freqChanNum = chanNum;
-	_stokesLength = nPol * nDim;
+	_stokesLength = nDim; //TODO: VINCENT: CORRECT??
+	_hitChanNum = hitChanNum;
+
+	//Check for correct channels
+	if(hitChanNum != 1 && hitChanNum != chanNum)
+	{
+		//TODO: VINCENT: THROW AN EXCEPTION
+		printf("INVALID NUMBER OF HIT CHANNELS\n");
+		exit(2);
+	}
+
 
 	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
 
@@ -235,6 +256,8 @@ void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum
 // ------ HOST COMPUTE CODE ----------
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
+
+
 	//For each channel
 	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 	{
@@ -243,9 +266,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		//IQUV, IQUV, IQUV etc etc
 		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
 
-
-		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
-		const unsigned int* hits = phaseSeriesData->get_hits(0); //Get a pointer to the hit data
+		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
 
 
 		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER RELATED TO ABOVE
@@ -346,6 +367,14 @@ void dsp::CovarianceMatrix::printUpperTriangularMatrix(float* result, int rowLen
 }
 
 
+const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
+{
+	//return the only channel
+	if(_hitChanNum == 1)
+		return phaseSeriesData->get_hits(0);
+	else
+		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
+}
 
 
 float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLength)
