@@ -18,7 +18,7 @@
 #include <cstring>
 #include <iostream>
 
-#if HAVE_CUDA
+#if HAS_CUDA
 
 #include "dsp/CovarianceMatrixEngineCUDA.h"
 
@@ -57,7 +57,7 @@ namespace dsp
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
 
-#if HAVE_CUDA
+#if HAS_CUDA
 
 		//Device specific variables / functions
 		float* _d_resultVector;
@@ -71,9 +71,7 @@ namespace dsp
 		void printResultUpperTriangular(float* result, int rowLength, bool genFile);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 
-#endif
-
-#if !(HAVE_CUDA)
+#else
 		//Host specific variables / functions
 
 		float* _tempMeanStokesData;

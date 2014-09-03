@@ -24,7 +24,7 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	_binNum = 0;
 	_covarianceMatrixLength = 0;
 
-#if HAVE_CUDA
+#if HAS_CUDA
 
 	_d_amps = NULL;
 	_d_hits = NULL;
@@ -53,7 +53,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #endif
 
-#ifdef HAVE_CUDA
+#ifdef HAS_CUDA
 	cudaFree(_d_amps);
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
@@ -68,7 +68,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
-#ifdef HAVE_CUDA
+#ifdef HAS_CUDA
 
 	printf("Has cuda!\n");
 #else
@@ -93,23 +93,18 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(_covarianceMatrices == NULL)
 	{
 
-		#if HAVE_CUDA
+		#if HAS_CUDA
 			setup_device ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
-
-		#endif
-
-		#if !(HAVE_CUDA)
+		#else
 			setup_host ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
 		#endif
 
 	}
 
 
-	#if HAVE_CUDA
+	#if HAS_CUDA
 		compute_covariance_matrix_device(phaseSeriesData);
-	#endif
-
-	#if !(HAVE_CUDA)
+	#else
 		compute_covariance_matrix_host(phaseSeriesData);
 	#endif
 
@@ -193,10 +188,10 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 
 }
 
-#endif
 
 
-#if !(HAVE_CUDA)
+
+#else
 
 void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
@@ -305,7 +300,7 @@ void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 
 //TODO: VINCENT, EVERYTHING BELOW HERE IS DEBUG ONLY
 
-#if HAVE_CUDA
+#if HAS_CUDA
 
 void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
 {
