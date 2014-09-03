@@ -100,6 +100,9 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 			setup_host ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
 		#endif
 
+		//clone the first phase series
+		_phaseSeries = new PhaseSeries(*phaseSeriesData);
+
 	}
 
 
@@ -225,9 +228,6 @@ void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum
 
 	//allocate scratch space for temporary data
 	_tempMeanStokesData = new float[_binNum * _stokesLength];
-
-	//clone the first phase series
-	_phaseSeries = new PhaseSeries(*phaseSeriesData);
 }
 
 
@@ -311,7 +311,7 @@ void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 
 
 
-void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
+void dsp::CovarianceMatrix::printUpperTriangularMatrix(float* result, int rowLength, bool genFile)
 {
 	int numZeros = 0;
 	int iterator = 0;
