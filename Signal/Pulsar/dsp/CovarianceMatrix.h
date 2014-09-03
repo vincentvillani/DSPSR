@@ -19,9 +19,7 @@
 #include <iostream>
 
 #if HAVE_CUDA
-
 #include "dsp/CovarianceMatrixEngineCUDA.h"
-
 #endif
 
 
@@ -54,7 +52,7 @@ namespace dsp
 		//helper functions
 
 
-		unsigned int covariance_matrix_length(const unsigned int numBin);
+
 
 
 #if HAVE_CUDA
@@ -69,7 +67,7 @@ namespace dsp
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
 
 		void printResultUpperTriangular(float* result, int rowLength, bool genFile);
-		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
+
 
 #else
 		//Host specific variables / functions
@@ -82,6 +80,12 @@ namespace dsp
 		void covariance_matrix_host(unsigned int freqChan);
 #endif
 
+		//Both cuda and normal methods
+		float* convertToSymmetric(float* upperTriangle, int rowLength);
+		void printSymmetricMatrix(float* symmetricMatrix, int rowLength, bool genFile);
+		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
+		unsigned int covariance_matrix_length(const unsigned int numBin);
+
 	public:
 
 		//constructors/destructors
@@ -90,7 +94,7 @@ namespace dsp
 		virtual ~CovarianceMatrix();
 
 		void unload(const PhaseSeries*);
-		void set_minimum_integration_length (double seconds){}; //if integration length is less than the minimum, discard it
+		void set_minimum_integration_length (double seconds){}; //TODO: VINCENT: ACTUALLY IMPLEMENT THIS //if integration length is less than the minimum, discard it
 		void set_unloader(PhaseSeriesUnloader* unloader);
 	};
 }
