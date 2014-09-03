@@ -53,21 +53,20 @@ namespace dsp
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
 
-//#if !(HAVE_CUDA)
+//#ifndef HAVE_CUDA
 		//Host specific variables / functions
 
 		float* _tempMeanStokesData;
 
 		void setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
 		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
-		void mean_stokes_data_host(const float* stokesData, const unsigned int* hits);
+		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale);
 
 
 //#else
 		//Device specific variables / functions
 		float* _d_resultVector;
 		float* _d_vector;
-		//float* _d_tempMeanStokesData;
 		float* _d_amps;
 		unsigned int* _d_hits;
 

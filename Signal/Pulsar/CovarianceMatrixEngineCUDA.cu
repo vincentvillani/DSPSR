@@ -15,7 +15,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 		 unsigned int stokesLength, double scaleFactor, unsigned int blockDim2D)
 {
 
-	printf("RUNNING KERNELS\n");
+	//printf("RUNNING KERNELS\n");
 
 	int meanBlockDim = 256;
 	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
@@ -24,26 +24,11 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
-	//unsigned int hitZero;
-	//cudaMemcpy(&hitZero, d_hits, sizeof(unsigned int), cudaMemcpyDeviceToHost);
-
-	//printf("Hit Zero: %d\n", hitZero);
-
-	//printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-
+	printf("Launching scale Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	applyScale <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, scaleFactor);
 
 
-	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-
-	//float ampZero;
-
-	//cudaMemcpy(&ampZero, d_amps, sizeof(float), cudaMemcpyDeviceToHost);
-
-	//printf("After: amp zero: %f\n", ampZero);
-	//printf("After: hit zero: %d\n", h_hits[0]);
-
-
+	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
 
 	//TODO: DEBUG
@@ -51,6 +36,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
 	}
 
 	//Compute the needed block and grid dimensions
@@ -62,11 +48,10 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	dim3 grid = dim3(gridDimX, gridDimY);
 	dim3 block = dim3(blockDimX, blockDimY);
 
-	printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n",
-			grid.x, grid.y, block.x, block.y);
-
 	//Call the kernel
 	//Compute covariance matrix
+	printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
+			grid.x, grid.y, block.x, block.y);
 	outerProductKernel<<< grid, block >>>(d_resultVector + resultElementOffset, d_amps, ampsLength);
 
 	//TODO: DEBUG
@@ -74,6 +59,7 @@ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resul
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
 	}
 
 }

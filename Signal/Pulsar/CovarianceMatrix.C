@@ -15,12 +15,21 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 {
 	_stokesLength = 4; //TODO: VINCENT - MAKE THIS THIS VARIABLE SOMEHOW
 
-
 	//initially set pointers to null
 	_phaseSeries = NULL;
 	_covarianceMatrices = NULL;
 	_tempMeanStokesData = NULL;
 	_unloader = NULL;
+
+	_d_amps = NULL;
+	_d_hits = NULL;
+	_d_vector = NULL;
+	_d_resultVector = NULL;
+
+	_freqChanNum = 0;
+	_binNum = 0;
+	_covarianceMatrixLength = 0;
+
 }
 
 
@@ -28,6 +37,9 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 {
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+
+	//Free host memory
+#ifndef HAVE_CUDA
 	delete [] _tempMeanStokesData;
 
 	for(int i = 0; i < _freqChanNum; ++i)
@@ -35,12 +47,27 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	delete [] _covarianceMatrices;
 
+#endif
+
+#ifdef HAVE_CUDA
+	cudaFree(_d_amps);
+	cudaFree(_d_hits);
+	cudaFree(_d_vector);
+	cudaFree(_d_resultVector);
+	cudaFree(_d_amps);
+
+#endif
+
 }
 
 
 
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
+
+#ifdef HAVE_CUDA
+	printf("THIS COMPUTER HAS CUDA!!!\n");
+#endif
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
@@ -55,7 +82,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		return;
 
 	//Allocate memory on first use, once we know the amount of memory required
-	if(_covarianceMatrices == NULL) //&& binNum != 0)
+	if(_covarianceMatrices == NULL)
 	{
 
 		//#if !(HAVE_CUDA)
@@ -130,7 +157,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER RELATED TO ABOVE
 		//normalise the stokes data for this freq channel
-		mean_stokes_data_host(stokes, hits);
+		scale_and_mean_stokes_data_host(stokes, hits, phaseSeriesData->get_scale() );
 
 
 		//compute the covariance matrix
@@ -177,12 +204,13 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binN
 	//Allocate scratch space for temporary stokes data on the device
 	//cudaMalloc(&_d_tempMeanStokesData, sizeof(float) * _binNum * _stokesLength);
 
+	unsigned int totalResultByteNum = sizeof(float) * _covarianceMatrixLength  * _freqChanNum;
 
 	//Allocate space for all result vectors
-	cudaMalloc(&_d_resultVector, sizeof(float) * _covarianceMatrixLength  * _freqChanNum);
+	cudaMalloc(&_d_resultVector, totalResultByteNum);
 
 	//Set all bytes to zero
-	cudaMemset(_d_resultVector, 0, sizeof(float) * _covarianceMatrixLength  * _freqChanNum);
+	cudaMemset(_d_resultVector, 0, totalResultByteNum);
 
 	//TODO: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
@@ -206,11 +234,6 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
 		const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
 
-		//printf("Before: amp zero: %f\n", h_amps[0]);
-		//printf("Before: hit zero: %d\n", h_hits[0]);
-
-		//printf("scale: %f\n", phaseSeriesData->get_scale());
-
 		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength,
 			h_amps, _d_amps, _binNum * _stokesLength,
 			h_hits, _d_hits, _binNum, _stokesLength, phaseSeriesData->get_scale() );
@@ -233,20 +256,18 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(unsigned int freqChan
 					_tempMeanStokesData[row] * _tempMeanStokesData[col];
 		}
 	}
-
-
 }
 
 
 
 
-void dsp::CovarianceMatrix::mean_stokes_data_host(const float* stokesData, const unsigned int* hits)
+void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale)
 {
 	int totalLength = _binNum * _stokesLength;
 
 	for(int i = 0; i < totalLength; ++i)
 	{
-		_tempMeanStokesData[ i ] = stokesData[ i ] / hits[ i / 4 ];
+		_tempMeanStokesData[ i ] = (stokesData[ i ] / scale) / hits[ i / 4 ];
 	}
 }
 
@@ -267,6 +288,8 @@ void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 }
 
 
+
+//TODO: VINCENT, EVERYTHING BELOW HERE IS DEBUG ONLY
 
 void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
 {
