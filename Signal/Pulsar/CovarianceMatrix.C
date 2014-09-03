@@ -102,21 +102,21 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(_covarianceMatrices == NULL)
 	{
 
-		//#if !(HAVE_CUDA)
-			//setup_host ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
-		//#else
+		#if !(HAVE_CUDA)
+			setup_host ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
+		#else
 			setup_device ( phaseSeriesData->get_nchan(), binNum, phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
 
-		//#endif
+		#endif
 
 	}
 
 
-	//#if !(HAVE_CUDA)
-	//	compute_covariance_matrix_host(phaseSeriesData);
-	//#else
+	#if !(HAVE_CUDA)
+		compute_covariance_matrix_host(phaseSeriesData);
+	#else
 		compute_covariance_matrix_device(phaseSeriesData);
-	//#endif
+	#endif
 
 
 	printf("FINISHED UNLOAD\n\n\n");
@@ -186,7 +186,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 }
 
 
-//#if HAS_CUDA
+#if HAS_CUDA
 
 void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
@@ -259,7 +259,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 }
 
 
-//#endif
+#endif
 
 
 
@@ -308,6 +308,8 @@ void dsp::CovarianceMatrix::set_unloader(PhaseSeriesUnloader* unloader)
 
 //TODO: VINCENT, EVERYTHING BELOW HERE IS DEBUG ONLY
 
+#if HAVE_CUDA
+
 void dsp::CovarianceMatrix::printResultUpperTriangular(float* result, int rowLength, bool genFile)
 {
 	int numZeros = 0;
@@ -351,4 +353,4 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 	printResultUpperTriangular(hostData, rowLength, true);
 }
 
-
+#endif
