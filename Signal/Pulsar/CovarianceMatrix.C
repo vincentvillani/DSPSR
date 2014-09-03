@@ -52,7 +52,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 #ifdef HAVE_CUDA
 	cudaFree(_d_amps);
 	cudaFree(_d_hits);
-	cudaFree(_d_vector);
 	cudaFree(_d_resultVector);
 	cudaFree(_d_amps);
 
