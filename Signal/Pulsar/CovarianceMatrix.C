@@ -66,25 +66,12 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 #ifdef HAVE_CUDA
 
-	printf("#Ifdef: HAVE_CUDA\n");
+	printf("Has cuda!\n");
+#else
+	printf("Does not have cuda\n");
 
 #endif
 
-#ifndef HAVE_CUDA
-
-	printf("#Ifndef: HAVE_CUDA\n");
-
-#endif
-
-
-#if HAVE_CUDA
-	printf("#if HAVE_CUDA\n");
-#endif
-
-#if !(HAVE_CUDA)
-	printf("#ifnot HAVE_CUDA\n");
-
-#endif
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
@@ -259,7 +246,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 }
 
 
-#endif
+#else
 
 
 
@@ -289,7 +276,7 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 }
 
 
-
+#endif
 
 unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int numBin)
 {

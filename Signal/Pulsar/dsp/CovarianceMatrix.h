@@ -57,7 +57,7 @@ namespace dsp
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
 
-//#ifndef HAVE_CUDA
+#ifndef HAVE_CUDA
 		//Host specific variables / functions
 
 		float* _tempMeanStokesData;
@@ -67,7 +67,7 @@ namespace dsp
 		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale);
 
 
-//#else
+#else
 		//Device specific variables / functions
 		float* _d_resultVector;
 		//float* _d_vector;
@@ -79,7 +79,7 @@ namespace dsp
 
 		void printResultUpperTriangular(float* result, int rowLength, bool genFile);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
-//#endif
+#endif
 
 	public:
 
