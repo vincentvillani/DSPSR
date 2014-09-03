@@ -115,66 +115,6 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 
 
-void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
-{
-	_binNum = binNum;
-	_freqChanNum = chanNum;
-	_stokesLength = nPol * nDim;
-
-	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
-
-	//Allocate memory to store the covarianceMatrix
-	//upper triangle * 4 stokes vector elements
-	_covarianceMatrices = new float*[_freqChanNum]; //allocate a pointer for each channel
-	//_summedMeanStokesDatas = new float*[numChannels]; //allocate a pointer for each channel
-
-	for(int i = 0; i < _freqChanNum; ++i)
-	{
-		//Assign the amount of memory needed for a covariance matrix in each freq channel
-		_covarianceMatrices[i] = new float[ _covarianceMatrixLength ];
-
-		//Set all the values to zero
-		memset(_covarianceMatrices[i], 0, sizeof(float) * _covarianceMatrixLength);
-	}
-
-
-	//allocate scratch space for temporary data
-	_tempMeanStokesData = new float[_binNum * _stokesLength];
-
-	//clone the first phase series
-	//_phaseSeries = new PhaseSeries(*phaseSeriesData);
-}
-
-
-
-// ------ HOST COMPUTE CODE ----------
-void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
-{
-	//For each channel
-	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
-	{
-
-		//AMPLITUDE DATA
-		//IQUV, IQUV, IQUV etc etc
-		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
-
-
-		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
-		const unsigned int* hits = phaseSeriesData->get_hits(0); //Get a pointer to the hit data
-
-
-		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER RELATED TO ABOVE
-		//normalise the stokes data for this freq channel
-		scale_and_mean_stokes_data_host(stokes, hits, phaseSeriesData->get_scale() );
-
-
-		//compute the covariance matrix
-		compute_covariance_matrix_host(channel);
-	}
-
-	//printf("Covariance Matrix Computed\n");
-
-}
 
 
 #if HAS_CUDA
@@ -253,8 +193,69 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 #else
 
 
+void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
+{
+	_binNum = binNum;
+	_freqChanNum = chanNum;
+	_stokesLength = nPol * nDim;
 
-void dsp::CovarianceMatrix::compute_covariance_matrix_host(unsigned int freqChan)
+	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
+
+	//Allocate memory to store the covarianceMatrix
+	//upper triangle * 4 stokes vector elements
+	_covarianceMatrices = new float*[_freqChanNum]; //allocate a pointer for each channel
+	//_summedMeanStokesDatas = new float*[numChannels]; //allocate a pointer for each channel
+
+	for(int i = 0; i < _freqChanNum; ++i)
+	{
+		//Assign the amount of memory needed for a covariance matrix in each freq channel
+		_covarianceMatrices[i] = new float[ _covarianceMatrixLength ];
+
+		//Set all the values to zero
+		memset(_covarianceMatrices[i], 0, sizeof(float) * _covarianceMatrixLength);
+	}
+
+
+	//allocate scratch space for temporary data
+	_tempMeanStokesData = new float[_binNum * _stokesLength];
+
+	//clone the first phase series
+	//_phaseSeries = new PhaseSeries(*phaseSeriesData);
+}
+
+
+
+// ------ HOST COMPUTE CODE ----------
+void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
+{
+	//For each channel
+	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
+	{
+
+		//AMPLITUDE DATA
+		//IQUV, IQUV, IQUV etc etc
+		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
+
+
+		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
+		const unsigned int* hits = phaseSeriesData->get_hits(0); //Get a pointer to the hit data
+
+
+		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER RELATED TO ABOVE
+		//normalise the stokes data for this freq channel
+		scale_and_mean_stokes_data_host(stokes, hits, phaseSeriesData->get_scale() );
+
+
+		//compute the covariance matrix
+		covariance_matrix_host(channel);
+	}
+
+	//printf("Covariance Matrix Computed\n");
+
+}
+
+
+void dsp::CovarianceMatrix::covariance_matrix_host(unsigned int freqChan)
 {
 	for(int row = 0; row < _binNum; ++row)
 	{
