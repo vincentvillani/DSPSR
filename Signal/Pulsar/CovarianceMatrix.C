@@ -18,17 +18,21 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	//initially set pointers to null
 	_phaseSeries = NULL;
 	_covarianceMatrices = NULL;
-	_tempMeanStokesData = NULL;
 	_unloader = NULL;
-
-	_d_amps = NULL;
-	_d_hits = NULL;
-	//_d_vector = NULL;
-	_d_resultVector = NULL;
 
 	_freqChanNum = 0;
 	_binNum = 0;
 	_covarianceMatrixLength = 0;
+
+#if HAVE_CUDA
+
+	_d_amps = NULL;
+	_d_hits = NULL;
+	_d_resultVector = NULL;
+#else
+	_tempMeanStokesData = NULL;
+
+#endif
 
 }
 
