@@ -18,11 +18,11 @@
 #include <cstring>
 #include <iostream>
 
-//#if HAVE_CUDA
+#if HAVE_CUDA
 
 #include "dsp/CovarianceMatrixEngineCUDA.h"
 
-//#endif
+#endif
 
 
 namespace dsp
