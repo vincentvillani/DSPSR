@@ -13,7 +13,7 @@
 
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
-	_stokesLength = 4; //TODO: VINCENT - MAKE THIS THIS VARIABLE SOMEHOW
+	_stokesLength = 0;
 
 	//initially set pointers to null
 	_phaseSeries = NULL;
@@ -24,14 +24,13 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	_binNum = 0;
 	_covarianceMatrixLength = 0;
 
+	_tempMeanStokesData = NULL;
+
 #if HAVE_CUDA
 
 	_d_amps = NULL;
 	_d_hits = NULL;
 	_d_resultVector = NULL;
-#else
-	_tempMeanStokesData = NULL;
-
 #endif
 
 }
@@ -42,23 +41,33 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 
+	if(_tempMeanStokesData != NULL)
+	{
+		//Free everything on the host side
+		delete [] _tempMeanStokesData;
+
+		for(int i = 0; i < _freqChanNum; ++i)
+			delete [] _covarianceMatrices[i];
+
+		delete [] _covarianceMatrices;
+	}
 
 
-#ifdef HAVE_CUDA
-	cudaFree(_d_amps);
+
+
+
+#if HAVE_CUDA
+
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
 	cudaFree(_d_amps);
 
-
-//Free host memory
-#else
-	delete [] _tempMeanStokesData;
-
+	//Free pinned host memory
 	for(int i = 0; i < _freqChanNum; ++i)
-		delete [] _covarianceMatrices[i];
+		cudaFreeHost(_covarianceMatrices[i]);
 
-	delete [] _covarianceMatrices;
+	//Free pointers
+	cudaFreeHost(_covarianceMatrices);
 
 #endif
 
@@ -214,7 +223,7 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 }
 
 
-#else
+#endif
 
 void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
@@ -312,7 +321,7 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 }
 
 
-#endif
+
 
 unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int numBin)
 {
