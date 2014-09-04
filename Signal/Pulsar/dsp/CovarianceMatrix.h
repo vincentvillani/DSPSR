@@ -75,7 +75,7 @@ namespace dsp
 		//Both cuda and normal methods
 		float* convertToSymmetric(float* upperTriangle, int rowLength);
 		void printSymmetricMatrix(float* symmetricMatrix, int rowLength, bool genFile);
-		void printSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file);
+		void outputSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file);
 		void printUpperTriangularMatrix(float* result, int rowLength, bool genFile);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 

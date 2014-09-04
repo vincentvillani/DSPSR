@@ -84,7 +84,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		file = fopen("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n", "w");
 
 
-		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
+		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
 
 		free(fullMatrix);
@@ -498,7 +498,7 @@ void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int row
 }
 
 
-void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file)
+void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file)
 {
 
 	for(int i = 0; i < rowLength * rowLength; ++i)
