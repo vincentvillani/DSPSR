@@ -514,8 +514,9 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
             if(diagonalIndex + (rowLength * indexOffset) >= (rowLength * rowLength) - 1)
             {
                 printf("INVALID COL INDEX!!\n");
+                printf("Outer loop: %d, Inner loop: %d\n", row, printIdx);
                 printf("diagonalIndex: %d\n", diagonalIndex);
-                printf("COL INDEX: %d\n", diagonalIndex + (rowLength * indexOffset));
+                printf("COL INDEX: %d\n\n", diagonalIndex + (rowLength * indexOffset));
             }
 
 			int upperTriIndex = triDiagonalIndex + indexOffset;
