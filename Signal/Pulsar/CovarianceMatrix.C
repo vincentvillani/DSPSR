@@ -97,7 +97,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	printf("FreqChanNum: %u\n", _freqChanNum);
 
-	FILE* file = NULL;
+	file = NULL;
 	//std::stringstream filename;
 
 	//Copy data back to the host
