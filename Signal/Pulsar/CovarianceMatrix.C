@@ -194,7 +194,7 @@ void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int hitC
 	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
 
 	//Allocate paged locked host memory for the pointer
-	cudaMallocHost(&_covarianceMatrices, sizeof(float*));
+	cudaMallocHost(&_covarianceMatrices, sizeof(float*) * _freqChanNum);
 
 
 	for(int i = 0; i < _freqChanNum; ++i)
@@ -453,7 +453,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 			//place in row
 			fullMatrix[diagonalIndex + indexOffset] = upperTriangle[upperTriIndex];
 
-            if(diagonalIndex + (rowLength * indexOffset) == (rowLength * rowLength))
+            if(diagonalIndex + (rowLength * indexOffset) == (rowLength * rowLength) - 1)
                 break;
 
 			//place in col
