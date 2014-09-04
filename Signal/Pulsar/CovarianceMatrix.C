@@ -75,10 +75,11 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
 				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
-		printf("resultMatrixChan.txt\n");
+		//printf("resultMatrixChan.txt\n");
 
 		//Convert to symmetric representation
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
+		printf("resultMatrixChan.txt\n");
 
 		//write it out to a file
 		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
