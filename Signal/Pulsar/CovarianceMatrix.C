@@ -59,8 +59,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 #if HAVE_CUDA
 
 	printf("DESTRUCTOR IS CALLED CUDA\n");
+	printf("FreqChanNum: %u\n", _freqChanNum);
 	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
 	cudaDeviceSynchronize(); //wait for all kernels to complete
+
 
 	FILE* file = NULL;
 	std::stringstream filename;
