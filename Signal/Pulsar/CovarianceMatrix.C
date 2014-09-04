@@ -62,7 +62,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	cudaDeviceSynchronize(); //wait for all kernels to complete
 
 	FILE* file = NULL;
-	std::stringstream filename;
+	//std::stringstream filename;
 
 	//Copy data back to the host
 	for(int i = 0; i < _freqChanNum; ++i)
@@ -74,10 +74,13 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
 
 		//write it out to a file
-		filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
-		printf(filename.str().c_str());
+		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
+		//printf(filename.str().c_str());
+		std::string filename("/mnt/home/vvillani/DSPSR/resultMatrixChan" + i + ".txt");
 
-		file = fopen(filename.str().c_str(), "w");
+		printf(filename.c_str());
+
+		file = fopen(filename.c_str(), "w");
 		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
 
