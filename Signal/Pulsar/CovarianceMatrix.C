@@ -84,6 +84,27 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	}
 
 
+	//TODO: VINCENT: DEBUG
+	std::stringstream ss;
+
+	//Write out data to a file
+	for(int j = 0; j < _freqChanNum; ++j)
+	{
+
+		//Convert to symmetric representation
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum);
+
+		//write it out to a file
+		ss << "resultMatrixChan" << j << ".txt";
+		outputSymmetricMatrix(fullMatrix, _binNum, ss.str());
+		ss.str("");
+
+		delete[] fullMatrix;
+
+
+	}
+
+
 
 #if HAVE_CUDA
 	//printf("DESTRUCTOR IS CALLED CUDA\n");
@@ -332,6 +353,11 @@ void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitCha
 
 	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
 
+	printf("STOKES: %u\n", _stokesLength);
+	printf("BIN NUM: %u\n", _binNum);
+	printf("LENGTH: %u\n", _covarianceMatrixLength);
+	//exit(1);
+
 	//Allocate memory to store the covarianceMatrix
 	//upper triangle * 4 stokes vector elements
 	_covarianceMatrices = new float*[_freqChanNum]; //allocate a pointer for each channel
@@ -381,39 +407,6 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 
 
-	std::stringstream ss;
-
-	//TODO: VINCENT: DEBUG
-	FILE* file = NULL;
-
-	//std::stringstream filename;
-
-	//Copy data back to the host
-	for(int j = 0; j < _freqChanNum; ++j)
-	{
-		printf("before\n");
-
-		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
-
-		printf("after\n");
-
-		//write it out to a file
-		ss << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
-
-
-		file = fopen(ss.str().c_str(), "w");
-		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
-		fclose(file);
-
-		ss.flush();
-
-		delete[] fullMatrix;
-
-
-	}
-
-
 	//printf("REFERENCE COUNT: %u\n", get_reference_count() );
 
 }
@@ -447,7 +440,7 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 
 
 
-unsigned int dsp::CovarianceMatrix::covariance_matrix_length(const unsigned int numBin)
+unsigned int dsp::CovarianceMatrix::covariance_matrix_length(unsigned int numBin)
 {
 	return (numBin * (numBin + 1)) / 2;
 }
@@ -511,9 +504,11 @@ const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSe
 }
 
 
-float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLength)
+float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, unsigned int rowLength)
 {
 	//rowLength == colLength
+
+	//printf("ROW LENGTH: %u\n", rowLength);
 
 	float* fullMatrix = new float[rowLength * rowLength];
 
@@ -524,23 +519,24 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 	}
 
 	//For each row
-	for(int row = 0; row < rowLength; ++row)
+	for(unsigned int row = 0; row < rowLength; ++row)
 	{
 		// ---- FULL MATRIX INDEXES ----
 
 		//Compute the diagonalIdx
-		int diagonalIndex = (row * rowLength) + row;
+		unsigned int diagonalIndex = (row * rowLength) + row;
 
         //printf("DiagonalIndex: %d\n", diagonalIndex);
 
 		// ---- TRI MATRIX INDEXES ----
-		int triDiagonalIndex = diagonalIndex - ( (row * (row + 1)) / 2);
+		unsigned int triDiagonalIndex = diagonalIndex - ( (row * (row + 1)) / 2);
 
-		int indexOffset = 0;
+		unsigned int indexOffset = 0;
 		//print down the corresponding row and column
-		for(int printIdx = row; printIdx < rowLength; ++printIdx)
+		for(unsigned int printIdx = row; printIdx < rowLength; ++printIdx)
 		{
-            if(diagonalIndex + indexOffset >= (rowLength * rowLength) - 1)
+			//TODO: VINCENT DEBUG
+            if(diagonalIndex + indexOffset > (rowLength * rowLength) - 1)
 			{
 				printf("INVALID ROW INDEX!!\n");
                 printf("diagonalIndex: %d\n", diagonalIndex);
@@ -548,7 +544,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 
 			}
 
-            if(diagonalIndex + (rowLength * indexOffset) >= (rowLength * rowLength) - 1)
+            if(diagonalIndex + (rowLength * indexOffset) > (rowLength * rowLength) - 1)
             {
                 printf("INVALID COL INDEX!!\n");
                 printf("Outer loop: %d, Inner loop: %d\n", row, printIdx);
@@ -556,7 +552,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
                 printf("COL INDEX: %d\n\n", diagonalIndex + (rowLength * indexOffset));
             }
 
-			int upperTriIndex = triDiagonalIndex + indexOffset;
+			unsigned int upperTriIndex = triDiagonalIndex + indexOffset;
 
 			//place in row
 			fullMatrix[diagonalIndex + indexOffset] = upperTriangle[upperTriIndex];
@@ -610,8 +606,9 @@ void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int row
 }
 
 
-void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file)
+void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int rowLength, std::string filename)
 {
+	FILE* file = fopen(filename.c_str(), "w");
 
 	for(int i = 0; i < rowLength * rowLength; ++i)
 	{
@@ -620,4 +617,6 @@ void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int ro
 
 		fprintf(file, "%f ", symmetricMatrix[i]);
 	}
+
+	fclose(file);
 }
