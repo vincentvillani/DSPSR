@@ -71,6 +71,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//Copy data back to the host
 	for(int j = 0; j < _freqChanNum; ++j)
 	{
+		printf("resultMatrixChan.txt\n");
 		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
 				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
@@ -79,7 +80,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 		//write it out to a file
 		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
-		printf("resultMatrixChan.txt\n");
+
 
 		file = fopen("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n", "w");
 
