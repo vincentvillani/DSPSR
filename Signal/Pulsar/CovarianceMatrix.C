@@ -36,7 +36,7 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 }
 
 
-virtual dsp::CovarianceMatrix::~CovarianceMatrix()
+dsp::CovarianceMatrix::~CovarianceMatrix()
 {
 	printf("DESTRUCTOR IS CALLED\n");
 
