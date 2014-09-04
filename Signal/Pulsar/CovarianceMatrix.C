@@ -433,7 +433,7 @@ void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int row
 			if(i != 0 && (i % rowLength) == 0)
 				fprintf(file, "\n");
 
-			fprintf(file, "%f, ", symmetricMatrix[i]);
+			fprintf(file, "%f ", symmetricMatrix[i]);
 		}
 
 	    fclose(file);
