@@ -69,16 +69,16 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//std::stringstream filename;
 
 	//Copy data back to the host
-	for(int i = 0; i < _freqChanNum; ++i)
+	for(int j = 0; j < _freqChanNum; ++j)
 	{
-		cudaMemcpy(_covarianceMatrices[i], _d_resultVector + (i * _covarianceMatrixLength),
+		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
 				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
 		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
 
 		//write it out to a file
-		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
+		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
 		printf("resultMatrixChan.txt\n");
 
 		file = fopen("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n", "w");
