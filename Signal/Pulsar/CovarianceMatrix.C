@@ -77,12 +77,12 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	if(_tempMeanStokesData != NULL)
 	{
 		//Free everything on the host side
-		delete [] _tempMeanStokesData;
+		free(_tempMeanStokesData);
 
 		for(int i = 0; i < _freqChanNum; ++i)
-			delete [] _covarianceMatrices[i];
+			free(_covarianceMatrices[i]);
 
-		delete [] _covarianceMatrices;
+		free (_covarianceMatrices);
 	}
 
 
@@ -471,12 +471,13 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 {
 	//rowLength == colLength
 
-	printf("BEFORE MALLOC\n");
 	float* fullMatrix = (float*)malloc(sizeof(float) * rowLength * rowLength);
-	printf("AFTER MALLOC\n");
 
 	if(fullMatrix == NULL)
+	{
 		printf("MALLOC ERROR\n");
+		exit(5);
+	}
 
 	//For each row
 	for(int row = 0; row < rowLength; ++row)
