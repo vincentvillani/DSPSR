@@ -84,12 +84,20 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	}
 
 
+
+
+
+#if HAVE_CUDA
+
+
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
 	//Write out data to a file
 	for(int j = 0; j < _freqChanNum; ++j)
 	{
+
+		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength), sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
 		//Convert to symmetric representation
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum);
@@ -104,59 +112,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	}
 
-
-
-#if HAVE_CUDA
-	//printf("DESTRUCTOR IS CALLED CUDA\n");
-
-
-	/*
-	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
-	cudaDeviceSynchronize(); //wait for all kernels to complete
-
-
-	printf("FreqChanNum: %u\n", _freqChanNum);
-
-	file = NULL;
-	//std::stringstream filename;
-
-	//Copy data back to the host
-	for(int j = 0; j < _freqChanNum; ++j)
-	{
-
-		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
-				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
-
-		//TODO: VINCENT: DEBUG
-		cudaError_t error = cudaDeviceSynchronize();
-		if(error != cudaSuccess)
-		{
-			printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		}
-
-
-		printf("resultMatrixChan.txt\n");
-
-		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
-		//printf("resultMatrixChan.txt\n");
-
-		//write it out to a file
-		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
-
-
-		file = fopen("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n", "w");
-
-
-		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
-		fclose(file);
-
-		free(fullMatrix);
-		//filename.flush(); //Clear string stream contents
-
-	}
-
-*/
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
 	cudaFree(_d_amps);
@@ -171,6 +126,26 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 #else
+
+	//TODO: VINCENT: DEBUG
+	std::stringstream ss;
+
+	//Write out data to a file
+	for(int j = 0; j < _freqChanNum; ++j)
+	{
+		//Convert to symmetric representation
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum);
+
+		//write it out to a file
+		ss << "resultMatrixChan" << j << ".txt";
+		outputSymmetricMatrix(fullMatrix, _binNum, ss.str());
+		ss.str("");
+
+		delete[] fullMatrix;
+
+
+	}
+
 
 	for(int i = 0; i < _freqChanNum; ++i)
 		delete[] _covarianceMatrices[i];
