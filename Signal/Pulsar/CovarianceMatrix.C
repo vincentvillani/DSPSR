@@ -83,11 +83,11 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		}
 
 
-		//printf("resultMatrixChan.txt\n");
+		printf("resultMatrixChan.txt\n");
 
 		//Convert to symmetric representation
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
-		printf("resultMatrixChan.txt\n");
+		//printf("resultMatrixChan.txt\n");
 
 		//write it out to a file
 		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
