@@ -37,7 +37,7 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
-	printf("DESTRUCTOR IS CALLED\n");
+
 
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
@@ -58,11 +58,12 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #if HAVE_CUDA
 
+	printf("DESTRUCTOR IS CALLED CUDA\n");
 	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
 	cudaDeviceSynchronize(); //wait for all kernels to complete
 
 	FILE* file = NULL;
-	//std::stringstream filename;
+	std::stringstream filename;
 
 	//Copy data back to the host
 	for(int i = 0; i < _freqChanNum; ++i)
@@ -74,13 +75,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
 
 		//write it out to a file
-		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
-		//printf(filename.str().c_str());
-		std::string filename("/mnt/home/vvillani/DSPSR/resultMatrixChan" + i + ".txt");
+		filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
+		printf(filename.str().c_str());
 
-		printf(filename.c_str());
-
-		file = fopen(filename.c_str(), "w");
+		file = fopen(filename.str().c_str(), "w");
 		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
 
