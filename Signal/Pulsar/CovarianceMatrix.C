@@ -75,6 +75,14 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
 				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
+		//TODO: VINCENT: DEBUG
+		cudaError_t error = cudaDeviceSynchronize();
+		if(error != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		}
+
+
 		//printf("resultMatrixChan.txt\n");
 
 		//Convert to symmetric representation
