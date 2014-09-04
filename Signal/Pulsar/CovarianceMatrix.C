@@ -55,8 +55,33 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 
-
 #if HAVE_CUDA
+
+	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
+	cudaDeviceSynchronize(); //wait for all kernels to complete
+
+	FILE* file = NULL;
+	std::stringstream filename;
+
+	//Copy data back to the host
+	for(int i = 0; i < _freqChanNum; ++i)
+	{
+		cudaMemcpy(_covarianceMatrices[i], _d_resultVector + (i * _covarianceMatrixLength),
+				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
+
+		//Convert to symmetric representation
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
+
+		//write it out to a file
+		filename << "resultMatrixChan" << i << ".txt";
+		file = fopen(filename.str().c_str(), "w");
+		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
+		fclose(file);
+
+		free(fullMatrix);
+		filename.flush(); //Clear string stream contents
+	}
+
 
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
@@ -460,4 +485,18 @@ void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int row
 	    printf("\n\n");
 	}
 
+
+}
+
+
+void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int rowLength, FILE* file)
+{
+
+	for(int i = 0; i < rowLength * rowLength; ++i)
+	{
+		if(i != 0 && (i % rowLength) == 0)
+			fprintf(file, "\n");
+
+		fprintf(file, "%f ", symmetricMatrix[i]);
+	}
 }
