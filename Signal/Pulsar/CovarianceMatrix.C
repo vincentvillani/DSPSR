@@ -27,7 +27,6 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	_tempMeanStokesData = NULL;
 
 #if HAVE_CUDA
-
 	_d_amps = NULL;
 	_d_hits = NULL;
 	_d_resultVector = NULL;
