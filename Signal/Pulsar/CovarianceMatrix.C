@@ -23,6 +23,7 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	_freqChanNum = 0;
 	_binNum = 0;
 	_covarianceMatrixLength = 0;
+	_hitChanNum = 0;
 
 	_tempMeanStokesData = NULL;
 
@@ -37,8 +38,8 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
-	//printf("CALLED!!?!>>!>!>\n");
 
+/*
 	printf("CALLED!!?!>>!>!>\n");
 	std::stringstream ss;
 
@@ -71,7 +72,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 	}
-
+*/
 
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
@@ -80,16 +81,15 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	{
 		//Free everything on the host side
 		delete[] _tempMeanStokesData;
-
-
 	}
 
 
 
 #if HAVE_CUDA
-	printf("DESTRUCTOR IS CALLED CUDA\n");
+	//printf("DESTRUCTOR IS CALLED CUDA\n");
 
 
+	/*
 	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
 	cudaDeviceSynchronize(); //wait for all kernels to complete
 
@@ -135,6 +135,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	}
 
+*/
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
 	cudaFree(_d_amps);
@@ -146,7 +147,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//Free pointers
 	cudaFreeHost(_covarianceMatrices);
 
-	printf("DESTRUCTOR ENDED CUDA\n");
+
 
 #else
 
@@ -156,6 +157,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	delete[] _covarianceMatrices;
 
 #endif
+
+	printf("DESTRUCTOR ENDED\n");
 
 }
 
@@ -377,7 +380,41 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 
-	printf("REFERENCE COUNT: %u\n", get_reference_count() );
+
+	std::stringstream ss;
+
+	//TODO: VINCENT: DEBUG
+	FILE* file = NULL;
+
+	//std::stringstream filename;
+
+	//Copy data back to the host
+	for(int j = 0; j < _freqChanNum; ++j)
+	{
+		printf("before\n");
+
+		//Convert to symmetric representation
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
+
+		printf("after\n");
+
+		//write it out to a file
+		ss << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
+
+
+		file = fopen(ss.str().c_str(), "w");
+		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
+		fclose(file);
+
+		ss.flush();
+
+		delete[] fullMatrix;
+
+
+	}
+
+
+	//printf("REFERENCE COUNT: %u\n", get_reference_count() );
 
 }
 
