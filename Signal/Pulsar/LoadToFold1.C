@@ -952,6 +952,7 @@ void dsp::LoadToFold::build_fold (TimeSeries* to_fold)
   {
     build_fold (fold[ifold], get_unloader(ifold));
 
+    printf("REFERENCE SUPER AFTER: %u\n",  unloader[ifold]->get_reference_count());
     /*
       path must be built before fold[ifold] is added to operations vector
       so that each path will contain only one Fold instance.
@@ -988,8 +989,10 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
     //prepare_archiver( archiver );
 
     CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
+    printf("REFERENCE BEFORE: %u\n", covarianceMatrix->get_reference_count());
     //covarianceMatrix->set_unloader (archiver);
     unloader[ifold] = covarianceMatrix;
+    printf("REFERENCE AFTER: %u\n", covarianceMatrix->get_reference_count());
   }
 
   return unloader.at(ifold);

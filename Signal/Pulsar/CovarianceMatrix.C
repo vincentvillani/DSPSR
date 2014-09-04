@@ -37,6 +37,38 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
+	//printf("CALLED!!?!>>!>!>\n");
+
+	printf("CALLED!!?!>>!>!>\n");
+	std::stringstream ss;
+
+	//TODO: VINCENT: DEBUG
+	FILE* file = NULL;
+
+	//std::stringstream filename;
+
+	//Copy data back to the host
+	for(int j = 0; j < _freqChanNum; ++j)
+	{
+		printf("before\n");
+
+		//Convert to symmetric representation
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
+
+		printf("after\n");
+
+		//write it out to a file
+		ss << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
+
+
+		file = fopen(ss.str().c_str(), "w");
+		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
+		fclose(file);
+
+		free(fullMatrix);
+		//filename.flush(); //Clear string stream contents
+
+	}
 
 
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
@@ -55,14 +87,14 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 
-
 #if HAVE_CUDA
+	printf("DESTRUCTOR IS CALLED CUDA\n");
 
 
 	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
 	cudaDeviceSynchronize(); //wait for all kernels to complete
 
-	printf("DESTRUCTOR IS CALLED CUDA\n");
+
 	printf("FreqChanNum: %u\n", _freqChanNum);
 
 	FILE* file = NULL;
@@ -101,8 +133,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 		free(fullMatrix);
 		//filename.flush(); //Clear string stream contents
-	}
 
+	}
 
 	cudaFree(_d_hits);
 	cudaFree(_d_resultVector);
@@ -115,6 +147,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//Free pointers
 	cudaFreeHost(_covarianceMatrices);
 
+	printf("DESTRUCTOR ENDED CUDA\n");
 #endif
 
 }
@@ -337,6 +370,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 
+	printf("REFERENCE COUNT: %u\n", get_reference_count() );
 
 }
 
@@ -437,7 +471,12 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 {
 	//rowLength == colLength
 
+	printf("BEFORE MALLOC\n");
 	float* fullMatrix = (float*)malloc(sizeof(float) * rowLength * rowLength);
+	printf("AFTER MALLOC\n");
+
+	if(fullMatrix == NULL)
+		printf("MALLOC ERROR\n");
 
 	//For each row
 	for(int row = 0; row < rowLength; ++row)
@@ -456,6 +495,12 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 		//print down the corresponding row and column
 		for(int printIdx = row; printIdx < rowLength; ++printIdx)
 		{
+			if(diagonalIndex + indexOffset > (rowLength * rowLength) - 1 ||
+					diagonalIndex + (rowLength * indexOffset) > (rowLength * rowLength) - 1)
+			{
+				printf("INVALID INDEX!!\n");
+			}
+
 			int upperTriIndex = triDiagonalIndex + indexOffset;
 
 			//place in row
