@@ -507,7 +507,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 			{
 				printf("INVALID ROW INDEX!!\n");
                 printf("diagonalIndex: %d\n", diagonalIndex);
-                printf("ROW INDEX: %d", diagonalIndex + indexOffset);
+                printf("ROW INDEX: %d\n", diagonalIndex + indexOffset);
 
 			}
 
@@ -515,7 +515,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
             {
                 printf("INVALID COL INDEX!!\n");
                 printf("diagonalIndex: %d\n", diagonalIndex);
-                printf("COL INDEX: %d", diagonalIndex + (rowLength * indexOffset));
+                printf("COL INDEX: %d\n", diagonalIndex + (rowLength * indexOffset));
             }
 
 			int upperTriIndex = triDiagonalIndex + indexOffset;
@@ -523,8 +523,8 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 			//place in row
 			fullMatrix[diagonalIndex + indexOffset] = upperTriangle[upperTriIndex];
 
-            if(diagonalIndex + (rowLength * indexOffset) == (rowLength * rowLength) - 1)
-                break;
+            if(diagonalIndex + (rowLength * indexOffset) >= (rowLength * rowLength) - 1)
+                continue;
 
 			//place in col
 			fullMatrix[diagonalIndex + (rowLength * indexOffset)] = upperTriangle[upperTriIndex];
