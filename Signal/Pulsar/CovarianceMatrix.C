@@ -36,8 +36,10 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 }
 
 
-dsp::CovarianceMatrix::~CovarianceMatrix()
+virtual dsp::CovarianceMatrix::~CovarianceMatrix()
 {
+	printf("DESTRUCTOR IS CALLED\n");
+
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 
