@@ -65,8 +65,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
 
-		free(fullMatrix);
-		//filename.flush(); //Clear string stream contents
+		ss.flush();
+
+		delete[] fullMatrix;
+
 
 	}
 
@@ -77,12 +79,9 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	if(_tempMeanStokesData != NULL)
 	{
 		//Free everything on the host side
-		free(_tempMeanStokesData);
+		delete[] _tempMeanStokesData;
 
-		for(int i = 0; i < _freqChanNum; ++i)
-			free(_covarianceMatrices[i]);
 
-		free (_covarianceMatrices);
 	}
 
 
@@ -148,6 +147,14 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	cudaFreeHost(_covarianceMatrices);
 
 	printf("DESTRUCTOR ENDED CUDA\n");
+
+#else
+
+	for(int i = 0; i < _freqChanNum; ++i)
+		delete[] _covarianceMatrices[i];
+
+	delete[] _covarianceMatrices;
+
 #endif
 
 }
@@ -296,7 +303,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* 
 
 void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int rowLength)
 {
-	float* hostData = (float*)malloc(sizeof(float) * arrayLength);
+	float* hostData = new float [arrayLength];
 	cudaMemcpy(hostData, deviceData, sizeof(float) * arrayLength, cudaMemcpyDeviceToHost);
 	printUpperTriangularMatrix(hostData, rowLength, true);
 }
@@ -471,7 +478,7 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, int rowLe
 {
 	//rowLength == colLength
 
-	float* fullMatrix = (float*)malloc(sizeof(float) * rowLength * rowLength);
+	float* fullMatrix = new float[rowLength * rowLength];
 
 	if(fullMatrix == NULL)
 	{
