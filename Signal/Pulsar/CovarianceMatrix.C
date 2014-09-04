@@ -58,14 +58,15 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #if HAVE_CUDA
 
-	printf("DESTRUCTOR IS CALLED CUDA\n");
-	printf("FreqChanNum: %u\n", _freqChanNum);
+
 	//TODO: VINCENT DEBUG: WRITE OUT DATA PROPERLY
 	cudaDeviceSynchronize(); //wait for all kernels to complete
 
+	printf("DESTRUCTOR IS CALLED CUDA\n");
+	printf("FreqChanNum: %u\n", _freqChanNum);
 
 	FILE* file = NULL;
-	std::stringstream filename;
+	//std::stringstream filename;
 
 	//Copy data back to the host
 	for(int i = 0; i < _freqChanNum; ++i)
@@ -77,15 +78,17 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
 
 		//write it out to a file
-		filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
-		printf("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n");
+		//filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
+		printf("resultMatrixChan.txt\n");
 
 		file = fopen("/mnt/home/vvillani/DSPSR/resultMatrixChan.txt\n", "w");
+
+
 		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
 
 		free(fullMatrix);
-		filename.flush(); //Clear string stream contents
+		//filename.flush(); //Clear string stream contents
 	}
 
 
