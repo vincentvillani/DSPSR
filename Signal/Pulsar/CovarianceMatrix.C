@@ -71,9 +71,11 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//Copy data back to the host
 	for(int j = 0; j < _freqChanNum; ++j)
 	{
-		printf("resultMatrixChan.txt\n");
+
 		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength),
 				sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
+
+		printf("resultMatrixChan.txt\n");
 
 		//Convert to symmetric representation
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
