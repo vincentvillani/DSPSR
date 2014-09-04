@@ -74,7 +74,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		float* fullMatrix = convertToSymmetric(_covarianceMatrices[i], _covarianceMatrixLength);
 
 		//write it out to a file
-		filename << "resultMatrixChan" << i << ".txt";
+		filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
 		file = fopen(filename.str().c_str(), "w");
 		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
