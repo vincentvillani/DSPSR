@@ -413,7 +413,7 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 		if(hit == 0)
 			continue;
 
-		_tempMeanStokesData[ i ] = (stokesData[ i ] / scale) / hits[ i / 4 ];
+		_tempMeanStokesData[ i ] = (stokesData[ i ] / scale) / hit;
 	}
 }
 
