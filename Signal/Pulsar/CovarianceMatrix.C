@@ -75,6 +75,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 		//write it out to a file
 		filename << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << i << ".txt";
+		printf(filename.str());
+
 		file = fopen(filename.str().c_str(), "w");
 		printSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
 		fclose(file);
