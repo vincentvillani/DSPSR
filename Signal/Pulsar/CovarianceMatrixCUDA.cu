@@ -48,7 +48,7 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 		return;
 	}
 
-	d_amps[absoluteThreadIdx] = d_amps[absoluteThreadIdx] / hitVal;
+	d_amps[absoluteThreadIdx] = d_amps[absoluteThreadIdx] / (float)hitVal;
 
 }
 
