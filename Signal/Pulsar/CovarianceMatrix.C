@@ -100,11 +100,11 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength), sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
 
 		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum);
+		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum * _stokesLength);
 
 		//write it out to a file
 		ss << "resultMatrixChan" << j << ".txt";
-		outputSymmetricMatrix(fullMatrix, _binNum, ss.str());
+		outputSymmetricMatrix(fullMatrix, _binNum * _stokesLength, ss.str());
 		ss.str("");
 
 		delete[] fullMatrix;
