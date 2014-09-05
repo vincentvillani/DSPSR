@@ -37,6 +37,7 @@ namespace dsp
 		unsigned int _stokesLength; //Length of the stokes vector
 		unsigned int _covarianceMatrixLength;
 		unsigned int _hitChanNum;
+		unsigned int _unloadCalledNum;
 
 
 		//unloader that will write the data to disk, when the time comes
@@ -71,12 +72,15 @@ namespace dsp
 		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
 		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale);
 		void covariance_matrix_host(unsigned int freqChan);
+		void compute_final_covariance_matrices_host();
+		float** compute_outer_product_phase_series_host();
 
 		//Both cuda and normal methods
 		float* convertToSymmetric(float* upperTriangle, unsigned int rowLength);
 		void printSymmetricMatrix(float* symmetricMatrix, int rowLength, bool genFile);
-		void outputSymmetricMatrix(float* symmetricMatrix, int rowLength, std::string filename);
+		void outputSymmetricMatrix(float* symmetricMatrix, unsigned int rowLength, std::string filename);
 		void printUpperTriangularMatrix(float* result, int rowLength, bool genFile);
+		void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 
 		unsigned int covariance_matrix_length(const unsigned int numBin);

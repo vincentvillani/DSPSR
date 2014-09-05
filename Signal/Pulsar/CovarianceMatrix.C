@@ -25,6 +25,8 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 	_covarianceMatrixLength = 0;
 	_hitChanNum = 0;
 
+	_unloadCalledNum = 0;
+
 	_tempMeanStokesData = NULL;
 
 #if HAVE_CUDA
@@ -130,18 +132,22 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
+	compute_final_covariance_matrices_host();
+
 	//Write out data to a file
 	for(int j = 0; j < _freqChanNum; ++j)
 	{
 		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum * _stokesLength);
+		//float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum * _stokesLength);
 
 		//write it out to a file
 		ss << "resultMatrixChan" << j << ".txt";
-		outputSymmetricMatrix(fullMatrix, _binNum * _stokesLength, ss.str());
+
+		outputUpperTriangularMatrix(_covarianceMatrices[j], _binNum * _stokesLength, ss.str());
+		//outputSymmetricMatrix(fullMatrix, _binNum * _stokesLength, ss.str());
 		ss.str("");
 
-		delete[] fullMatrix;
+		//delete[] fullMatrix;
 
 
 	}
@@ -173,6 +179,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
+	_unloadCalledNum += 1;
 
 	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_nchan() << ", Binsize: "
 			<< binNum << ", NPol: " << phaseSeriesData->get_npol() << ", NDim: " << phaseSeriesData->get_ndim()
@@ -357,8 +364,6 @@ void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitCha
 // ------ HOST COMPUTE CODE ----------
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
-
-
 	//For each channel
 	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 	{
@@ -381,24 +386,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 
-
-	//printf("REFERENCE COUNT: %u\n", get_reference_count() );
-
 }
-
-
-void dsp::CovarianceMatrix::covariance_matrix_host(unsigned int freqChan)
-{
-	for(int row = 0; row < _binNum; ++row)
-	{
-		for(int col = row; col < _binNum; ++col)
-		{
-			_covarianceMatrices[freqChan][ (row * _binNum + col) - covariance_matrix_length(row) ] +=
-					_tempMeanStokesData[row] * _tempMeanStokesData[col];
-		}
-	}
-}
-
 
 
 
@@ -406,9 +394,9 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 {
 	int totalLength = _binNum * _stokesLength;
 
-	for(int i = 0; i < totalLength; ++i)
+	for(unsigned int i = 0; i < totalLength; ++i)
 	{
-		unsigned int hit = hits[ i / 4 ];
+		unsigned int hit = hits[ i / _stokesLength ];
 
 		if(hit == 0)
 		{
@@ -418,6 +406,96 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 
 		_tempMeanStokesData[ i ] = (stokesData[ i ] / scale) / hit;
 	}
+}
+
+
+
+void dsp::CovarianceMatrix::covariance_matrix_host(unsigned int freqChan)
+{
+	//ColLength == rowLength
+	unsigned int rowLength = _binNum * _stokesLength;
+
+	for(unsigned int row = 0; row < rowLength; ++row)
+	{
+		for(unsigned int col = row; col < rowLength; ++col)
+		{
+			_covarianceMatrices[freqChan][ (row * rowLength + col) - covariance_matrix_length(row) ] +=
+					_tempMeanStokesData[row] * _tempMeanStokesData[col];
+		}
+	}
+}
+
+
+
+void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
+{
+
+	//Get the phase series outer product
+	float** phaseSeriesOuterProduct = compute_outer_product_phase_series_host();
+
+	for(int i = 0; i < _freqChanNum; ++i)
+	{
+		for(int j = 0; j < _covarianceMatrixLength; ++j)
+		{
+			//Divide by the number of times called
+			_covarianceMatrices[i][j] /= _unloadCalledNum;
+
+			_covarianceMatrices[i][j] -= phaseSeriesOuterProduct[i][j];
+		}
+
+		delete[] phaseSeriesOuterProduct[i];
+	}
+
+
+	delete[] phaseSeriesOuterProduct;
+}
+
+
+
+float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
+{
+	unsigned int ampsLength = _binNum * _stokesLength;
+	float** outerProduct = new float*[_freqChanNum];
+
+
+	//For each freq channel
+	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
+	{
+
+		//allocate memory for this channel
+		outerProduct[channel] = new float[_covarianceMatrixLength];
+
+		float* amps = _phaseSeries->get_datptr(channel, 0);
+		const unsigned int* hits = getHitsPtr(_phaseSeries, channel);
+
+		//divide amps by hits
+		for(int i = 0; i < ampsLength; ++i)
+		{
+			unsigned int currentHit = hits[i / _stokesLength];
+
+			if(currentHit == 0)
+			{
+				amps[i] = 0;
+				continue;
+			}
+			else
+				amps[i] /= currentHit;
+		}
+
+
+		//Do the outer product
+		for(unsigned int row = 0; row < ampsLength; ++row)
+		{
+			for(unsigned int col = row; col < ampsLength; ++col)
+			{
+				outerProduct[channel][ (row * ampsLength + col) - covariance_matrix_length(row) ] =
+						amps[row] * amps[col];
+			}
+		}
+
+	}
+
+	return outerProduct;
 }
 
 
@@ -589,13 +667,13 @@ void dsp::CovarianceMatrix::printSymmetricMatrix(float* symmetricMatrix, int row
 }
 
 
-void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int rowLength, std::string filename)
+void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, unsigned int rowLength, std::string filename)
 {
 	FILE* file = fopen(filename.c_str(), "w");
 
 	for(int i = 0; i < rowLength * rowLength; ++i)
 	{
-		if(i != 0 && (i % rowLength) == 0)
+		if((i % rowLength) == 0 && i != 0)
 			fprintf(file, "\n");
 
 		fprintf(file, "%f ", symmetricMatrix[i]);
@@ -603,3 +681,37 @@ void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, int ro
 
 	fclose(file);
 }
+
+
+void dsp::CovarianceMatrix::outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename)
+{
+	FILE* file = fopen(filename.c_str(), "w");
+
+	int numZeros = 0;
+	int iterator = 0;
+
+	//for every row
+	for(int i = 0; i < rowLength; ++i)
+	{
+		//print preceding zeros
+		for(int j = 0; j < numZeros; ++j)
+		{
+			fprintf(file, "0 ");
+		}
+
+		//print array values
+		for(int k = 0; k < rowLength - numZeros; ++k)
+		{
+			fprintf(file, "%f ", result[iterator]);
+			++iterator;
+		}
+
+		fprintf(file, "\n");
+		numZeros++;
+	}
+
+	fclose(file);
+
+
+}
+
