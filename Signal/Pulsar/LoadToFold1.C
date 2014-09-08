@@ -543,11 +543,19 @@ void dsp::LoadToFold::construct () try
   }
 #endif
 
+  //TODO: VINCENT: HARDCODED THE STATE TO STOKES, REVERT THIS
   if (manager->get_info()->get_npol() == 1) 
   {
     cerr << "Only single polarization detection available" << endl;
     detect->set_output_state( Signal::PP_State );
   }
+  else
+  {
+	  detect->set_output_state (Signal::Stokes);
+	  detect->set_output_ndim (4);
+  }
+
+  /*
   else
   {
     if (config->fourth_moment)
@@ -571,6 +579,7 @@ void dsp::LoadToFold::construct () try
                    "invalid npol config=%d input=%d",
                    config->npol, manager->get_info()->get_npol() );
   }
+  */
 
 
   if (detect->get_order_supported (TimeSeries::OrderTFP)
@@ -984,15 +993,15 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
      *
      */
 
-    //Archiver* archiver = new Archiver;
-    //unloader[ifold] = archiver;
-    //prepare_archiver( archiver );
+    Archiver* archiver = new Archiver;
+    unloader[ifold] = archiver;
+    prepare_archiver(archiver);
 
     CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
-    printf("REFERENCE BEFORE: %u\n", covarianceMatrix->get_reference_count());
-    //covarianceMatrix->set_unloader (archiver);
+    //printf("REFERENCE BEFORE: %u\n", covarianceMatrix->get_reference_count());
+    covarianceMatrix->set_unloader (archiver);
     unloader[ifold] = covarianceMatrix;
-    printf("REFERENCE AFTER: %u\n", covarianceMatrix->get_reference_count());
+    //printf("REFERENCE AFTER: %u\n", covarianceMatrix->get_reference_count());
   }
 
   return unloader.at(ifold);

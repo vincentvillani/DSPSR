@@ -76,16 +76,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	}
 */
 
-	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
-	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
-
-	if(_tempMeanStokesData != NULL)
-	{
-		//Free everything on the host side
-		delete[] _tempMeanStokesData;
-	}
-
-
 
 
 
@@ -132,6 +122,9 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
+	//output summed phase series, before normalisation
+	_unloader->unload(_phaseSeries);
+
 	compute_final_covariance_matrices_host();
 
 	//Write out data to a file
@@ -158,7 +151,19 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	delete[] _covarianceMatrices;
 
+
+	if(_tempMeanStokesData != NULL)
+	{
+		//Free everything on the host side
+		delete[] _tempMeanStokesData;
+	}
+
+
 #endif
+
+
+	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
+	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 
 	printf("DESTRUCTOR ENDED\n");
 
@@ -179,11 +184,11 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
-	_unloadCalledNum += 1;
+	_unloadCalledNum++;
 
 	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_nchan() << ", Binsize: "
 			<< binNum << ", NPol: " << phaseSeriesData->get_npol() << ", NDim: " << phaseSeriesData->get_ndim()
-			<< ", hit channels: " << phaseSeriesData->get_hits_nchan()
+			<< std::endl << ", hit channels: " << phaseSeriesData->get_hits_nchan() <<  ", State: " << phaseSeriesData->get_state()
 			<< std::endl;
 
 
@@ -433,6 +438,8 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 	//Get the phase series outer product
 	float** phaseSeriesOuterProduct = compute_outer_product_phase_series_host();
 
+	//printf("here 2\n");
+
 	for(int i = 0; i < _freqChanNum; ++i)
 	{
 		for(int j = 0; j < _covarianceMatrixLength; ++j)
@@ -446,8 +453,11 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 		delete[] phaseSeriesOuterProduct[i];
 	}
 
+	//printf("here 3\n");
 
 	delete[] phaseSeriesOuterProduct;
+
+	//printf("here 4\n");
 }
 
 
@@ -457,29 +467,39 @@ float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 	unsigned int ampsLength = _binNum * _stokesLength;
 	float** outerProduct = new float*[_freqChanNum];
 
+	//printf("here 0\n");
 
 	//For each freq channel
 	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 	{
-
+		//printf("here 1\n");
 		//allocate memory for this channel
 		outerProduct[channel] = new float[_covarianceMatrixLength];
 
+		//printf("here 2\n");
 		float* amps = _phaseSeries->get_datptr(channel, 0);
+		//printf("here 3\n");
 		const unsigned int* hits = getHitsPtr(_phaseSeries, channel);
 
+
 		//divide amps by hits
-		for(int i = 0; i < ampsLength; ++i)
+		for(unsigned int i = 0; i < ampsLength; ++i)
 		{
+			//printf("here 4\n");
 			unsigned int currentHit = hits[i / _stokesLength];
 
 			if(currentHit == 0)
 			{
+				//printf("mean if i: %u\n", i);
 				amps[i] = 0;
 				continue;
 			}
 			else
+			{
+				//printf("else if i: %u\n", i);
 				amps[i] /= currentHit;
+			}
+
 		}
 
 
@@ -488,12 +508,15 @@ float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 		{
 			for(unsigned int col = row; col < ampsLength; ++col)
 			{
+				//printf("Outer product row: %u, col: %u\n", row, col);
 				outerProduct[channel][ (row * ampsLength + col) - covariance_matrix_length(row) ] =
 						amps[row] * amps[col];
 			}
 		}
 
 	}
+
+	//printf("here 1\n");
 
 	return outerProduct;
 }
@@ -683,8 +706,10 @@ void dsp::CovarianceMatrix::outputSymmetricMatrix(float* symmetricMatrix, unsign
 }
 
 
+
 void dsp::CovarianceMatrix::outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename)
 {
+
 	FILE* file = fopen(filename.c_str(), "w");
 
 	int numZeros = 0;
@@ -711,7 +736,6 @@ void dsp::CovarianceMatrix::outputUpperTriangularMatrix(float* result, unsigned 
 	}
 
 	fclose(file);
-
 
 }
 

@@ -41,7 +41,7 @@ namespace dsp
 
 
 		//unloader that will write the data to disk, when the time comes
-		PhaseSeriesUnloader* _unloader;
+		Reference::To<PhaseSeriesUnloader> _unloader;
 
 
 
