@@ -41,44 +41,6 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
 
-/*
-	printf("CALLED!!?!>>!>!>\n");
-	std::stringstream ss;
-
-	//TODO: VINCENT: DEBUG
-	FILE* file = NULL;
-
-	//std::stringstream filename;
-
-	//Copy data back to the host
-	for(int j = 0; j < _freqChanNum; ++j)
-	{
-		printf("before\n");
-
-		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _covarianceMatrixLength);
-
-		printf("after\n");
-
-		//write it out to a file
-		ss << "/mnt/home/vvillani/DSPSR/resultMatrixChan" << j << ".txt";
-
-
-		file = fopen(ss.str().c_str(), "w");
-		outputSymmetricMatrix(fullMatrix, _covarianceMatrixLength * _covarianceMatrixLength, file);
-		fclose(file);
-
-		ss.flush();
-
-		delete[] fullMatrix;
-
-
-	}
-*/
-
-
-
-
 #if HAVE_CUDA
 
 
@@ -324,6 +286,8 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 
 #endif
 
+
+
 void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
 	_binNum = binNum;
@@ -379,8 +343,6 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
 	{
 
-
-
 		//AMPLITUDE DATA
 		//IQUV, IQUV, IQUV etc etc
 		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
@@ -388,18 +350,15 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
 
 
-		//TODO: VINCENT: REMOVE!!!!
+		//check for no hits, if they exist discard this whole phase-series
 		for(int i = 0; i < _binNum; ++i)
 		{
 			if(hits[i] == 0)
 				return;
 		}
 
-
-		//TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER RELATED TO ABOVE
 		//normalise the stokes data for this freq channel
 		scale_and_mean_stokes_data_host(stokes, hits, channel); //phaseSeriesData->get_scale() );
-
 
 		//compute the covariance matrix
 		covariance_matrix_host(channel);
@@ -417,19 +376,23 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
+		//No longer necessary because this check is done before this step
+		/*
 		unsigned int hit = hits[ i / _stokesLength ];
+
 
 		if(hit == 0)
 		{
 			printf("ZERO!!!!!!!!!\n");
 			_tempMeanStokesData[ i ] = 0;
-			continue;
 		}
+		*/
 
-		_tempMeanStokesData[ i ] = stokesData[ i ] / hit;
+		_tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / _stokesLength ]);
 
 		_runningMeanSum[ chan ][ i ] += _tempMeanStokesData[ i ];
 	}
+
 }
 
 
