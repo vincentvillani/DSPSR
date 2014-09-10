@@ -20,8 +20,10 @@
 #include <string>
 #include <sstream>
 
+#include "CovarianceMatrixResult.h"
+
 #if HAVE_CUDA
-#include "dsp/CovarianceMatrixEngineCUDA.h"
+#include "dsp/CovarianceMatrixCUDAEngine.h"
 #endif
 
 
@@ -32,31 +34,16 @@ namespace dsp
 
 	protected:
 
-		unsigned int _binNum; //number of bins
-		unsigned int _freqChanNum; //number of frequency channels
-		unsigned int _stokesLength; //Length of the stokes vector
-		unsigned int _covarianceMatrixLength;
-		unsigned int _hitChanNum;
-		unsigned int _unloadCalledNum;
-
-
 		//unloader that will write the data to disk, when the time comes
 		Reference::To<PhaseSeriesUnloader> _unloader;
 
-
-
 		//----- result data  ------
-		//may need to keep a running total of everything, use a phase series and the += operator to do it
 		PhaseSeries* _phaseSeries;
-
-		//pointer to the upper triangular data that constitutes the covariance matrix
-		//For each freq channel
-		float** _covarianceMatrices;
-		float** _runningMeanSum;
-		float* _tempMeanStokesData;
+		CovarianceMatrixResult* _covarianceMatrixResult;
 
 
 
+/*
 #if HAVE_CUDA
 
 		//Device specific variables / functions
@@ -69,14 +56,15 @@ namespace dsp
 		void compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData);
 
 #endif
+*/
 
-		void setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
-		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
-		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan);
-		void covariance_matrix_host(unsigned int freqChan);
-		void compute_final_covariance_matrices_host();
-		float** compute_outer_product_phase_series_host_old();
-		float** compute_outer_product_phase_series_host_new();
+		//void setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
+		//void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
+		//void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan);
+		//void covariance_matrix_host(unsigned int freqChan);
+		//void compute_final_covariance_matrices_host();
+		//float** compute_outer_product_phase_series_host_old();
+		//float** compute_outer_product_phase_series_host_new();
 
 		//Both cuda and normal methods
 		float* convertToSymmetric(float* upperTriangle, unsigned int rowLength);
@@ -88,7 +76,7 @@ namespace dsp
 
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
-		const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan);
+		//const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan);
 
 
 	public:

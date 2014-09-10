@@ -8,7 +8,8 @@ dsp/UnloaderShare.h \
 dsp/LoadToFold1.h               dsp/PhaseLockedFilterbank.h \
 dsp/LoadToFoldConfig.h          dsp/PhaseSeries.h \
 dsp/LoadToFoldN.h               dsp/PhaseSeriesUnloader.h \
-dsp/CyclicFold.h   				dsp/CovarianceMatrix.h
+dsp/CyclicFold.h   				dsp/CovarianceMatrix.h \
+dsp/CovarianceMatrixResult.h
 
 libdspsr_la_SOURCES = \
 Archiver.C                            \
@@ -17,17 +18,18 @@ Fold.C                  UnloaderShare.C \
 LoadToFold1.C           PhaseLockedFilterbank.C \
 LoadToFoldConfig.C      PhaseSeries.C  \
 LoadToFoldN.C           PhaseSeriesUnloader.C \
-CyclicFold.C 			CovarianceMatrix.C
+CyclicFold.C 			CovarianceMatrix.C \
+CovarianceMatrixResult.C 
 
 if HAVE_CUFFT
 
 nobase_include_HEADERS += dsp/FoldCUDA.h dsp/TransferPhaseSeriesCUDA.h \
-			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixEngineCUDA.h \
-			  dsp/CovarianceMatrixCUDA.h
+			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixCUDAEngine.h \
+			 
 
 libdspsr_la_SOURCES += FoldCUDA.cu TransferPhaseSeriesCUDA.C \
-		       CyclicFoldEngineCUDA.cu CovarianceMatrixEngineCUDA.cu \
-		       CovarianceMatrixCUDA.cu
+		       CyclicFoldEngineCUDA.cu CovarianceMatrixCUDAEngine.cu \
+		      
 
 endif
 

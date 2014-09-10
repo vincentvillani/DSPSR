@@ -13,74 +13,17 @@
 
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
-	_stokesLength = 0;
 
 	//initially set pointers to null
 	_phaseSeries = NULL;
-	_covarianceMatrices = NULL;
+	_covarianceMatrixResult = NULL;
 	_unloader = NULL;
-
-	_freqChanNum = 0;
-	_binNum = 0;
-	_covarianceMatrixLength = 0;
-	_hitChanNum = 0;
-
-	_unloadCalledNum = 0;
-
-	_tempMeanStokesData = NULL;
-
-#if HAVE_CUDA
-	_d_amps = NULL;
-	_d_hits = NULL;
-	_d_resultVector = NULL;
-#endif
-
 }
 
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
-
-#if HAVE_CUDA
-
-
-	//TODO: VINCENT: DEBUG
-	std::stringstream ss;
-
-	//Write out data to a file
-	for(int j = 0; j < _freqChanNum; ++j)
-	{
-
-		cudaMemcpy(_covarianceMatrices[j], _d_resultVector + (j * _covarianceMatrixLength), sizeof(float) * _covarianceMatrixLength, cudaMemcpyDeviceToHost);
-
-		//Convert to symmetric representation
-		float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum * _stokesLength);
-
-		//write it out to a file
-		ss << "resultMatrixChan" << j << ".txt";
-		outputSymmetricMatrix(fullMatrix, _binNum * _stokesLength, ss.str());
-		ss.str("");
-
-		delete[] fullMatrix;
-
-
-	}
-
-	cudaFree(_d_hits);
-	cudaFree(_d_resultVector);
-	cudaFree(_d_amps);
-
-	//Free pinned host memory
-	for(int i = 0; i < _freqChanNum; ++i)
-		cudaFreeHost(_covarianceMatrices[i]);
-
-	//Free pointers
-	cudaFreeHost(_covarianceMatrices);
-
-
-
-#else
-
+	/*
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
@@ -121,13 +64,13 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		//Free everything on the host side
 		delete[] _tempMeanStokesData;
 	}
+	*/
 
-
-#endif
 
 
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+	delete _covarianceMatrixResult;
 
 	printf("DESTRUCTOR ENDED\n");
 
@@ -137,7 +80,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
-
+/*
 #ifdef HAVE_CUDA
 
 	printf("Has cuda!\n");
@@ -186,12 +129,13 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 
 	printf("FINISHED UNLOAD\n\n\n");
+	*/
 }
 
 
 
 
-
+/*
 #if HAVE_CUDA
 
 void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
@@ -285,9 +229,9 @@ void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int
 
 
 #endif
+*/
 
-
-
+/*
 void dsp::CovarianceMatrix::setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
 {
 	_binNum = binNum;
@@ -386,7 +330,7 @@ void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesD
 			printf("ZERO!!!!!!!!!\n");
 			_tempMeanStokesData[ i ] = 0;
 		}
-		*/
+
 
 		_tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / _stokesLength ]);
 
@@ -530,6 +474,17 @@ float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host_new()
 
 
 
+const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
+{
+	//return the only channel
+	if(_hitChanNum == 1)
+		return phaseSeriesData->get_hits(0);
+	else
+		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
+}
+*/
+
+
 unsigned int dsp::CovarianceMatrix::covariance_matrix_length(unsigned int numBin)
 {
 	return (numBin * (numBin + 1)) / 2;
@@ -584,14 +539,7 @@ void dsp::CovarianceMatrix::printUpperTriangularMatrix(float* result, int rowLen
 }
 
 
-const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
-{
-	//return the only channel
-	if(_hitChanNum == 1)
-		return phaseSeriesData->get_hits(0);
-	else
-		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
-}
+
 
 
 float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, unsigned int rowLength)
