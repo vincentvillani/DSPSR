@@ -16,6 +16,10 @@
 
 #include "dsp/TimeSeries.h"
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 namespace Pulsar {
   class Predictor;
   class Parameters;

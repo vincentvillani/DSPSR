@@ -338,9 +338,11 @@ void dsp::TimeSeries::copy_configuration (const Observation* copy)
 	 << endl;
 }
 
+
+
 dsp::TimeSeries& dsp::TimeSeries::operator += (const TimeSeries& add)
 {
-  if( get_ndat()==0 )
+  if( get_ndat() == 0 )
     return operator=( add );
 
   if (!combinable (add))
@@ -365,20 +367,22 @@ dsp::TimeSeries& dsp::TimeSeries::operator += (const TimeSeries& add)
     return *this;
   }
 
-  for (unsigned ichan=0; ichan<get_nchan(); ichan++)
+  for (unsigned ichan = 0; ichan < get_nchan(); ichan++)
   {
-    for (unsigned ipol=0; ipol<get_npol(); ipol++)
+    for (unsigned ipol = 0; ipol < get_npol(); ipol++)
     {
       float* data1 = get_datptr (ichan, ipol);
       const float* data2 = add.get_datptr (ichan, ipol);
 
-      for (uint64_t ipt=0; ipt<npt; ipt++)
+      for (uint64_t ipt = 0; ipt < npt; ipt++)
         data1[ipt] += data2[ipt];
     }
   }
 
   return *this;
 }
+
+
 
 dsp::TimeSeries& dsp::TimeSeries::operator *= (float mult){
   if( verbose )

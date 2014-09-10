@@ -52,7 +52,9 @@ namespace dsp
 		//pointer to the upper triangular data that constitutes the covariance matrix
 		//For each freq channel
 		float** _covarianceMatrices;
+		float** _runningMeanSum;
 		float* _tempMeanStokesData;
+
 
 
 #if HAVE_CUDA
@@ -70,10 +72,11 @@ namespace dsp
 
 		void setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
 		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
-		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, double scale);
+		void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan);
 		void covariance_matrix_host(unsigned int freqChan);
 		void compute_final_covariance_matrices_host();
-		float** compute_outer_product_phase_series_host();
+		float** compute_outer_product_phase_series_host_old();
+		float** compute_outer_product_phase_series_host_new();
 
 		//Both cuda and normal methods
 		float* convertToSymmetric(float* upperTriangle, unsigned int rowLength);

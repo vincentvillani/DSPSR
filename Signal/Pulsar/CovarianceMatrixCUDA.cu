@@ -64,3 +64,29 @@ __global__ void applyScale(float* amps, unsigned int ampsLength, double scaleFac
 	amps[absoluteThreadIdx] = amps[absoluteThreadIdx] / scaleFactor;
 }
 
+
+
+//----PHASE SERIES COMBINE STUFF----
+
+
+//Kernel for generically adding things on the GPU
+__global__ void genericAdd(uint64_t n, float* original, const float* add)
+{
+	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	{
+		originalTS[absIdx] += addTS[absIdx];
+	}
+}
+
+
+//Kernel for generically adding things on the GPU
+__global__ void genericAdd(unsigned int n, unsigned int* original, const unsigned int* add)
+{
+	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	{
+		originalTS[absIdx] += addTS[absIdx];
+	}
+}
+
+
+

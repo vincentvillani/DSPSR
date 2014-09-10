@@ -442,46 +442,47 @@ dsp::PhaseSeries::operator = (const PhaseSeries& prof) try
 void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 {
   if (verbose)
-    cerr << "dsp::PhaseSeries::combine"
-            " this=" << this << " that=" << prof << endl;
+	cerr << "dsp::PhaseSeries::combine"
+			" this=" << this << " that=" << prof << endl;
 
   if (!prof || prof->get_nbin() == 0)
-    return;
+	return;
 
   if (verbose)
-    cerr << "dsp::PhaseSeries::combine length add=" 
-         << prof->integration_length 
-         << " current=" << integration_length << endl;
+	cerr << "dsp::PhaseSeries::combine length add="
+		 << prof->integration_length
+		 << " current=" << integration_length << endl;
 
   if (!integration_length)
   {
-    if (verbose)
-      cerr << "dsp::PhaseSeries::combine this is empty" << endl;
+	if (verbose)
+	  cerr << "dsp::PhaseSeries::combine this is empty" << endl;
 
-    *this = *prof;
-    return;
+	*this = *prof;
+	return;
   }
 
   if (!mixable (*prof, prof->get_nbin()))
-    throw Error (InvalidParam, "PhaseSeries::combine",
+	throw Error (InvalidParam, "PhaseSeries::combine",
 		 "PhaseSeries !mixable");
 
   TimeSeries::operator += (*prof);
 
   const unsigned nhits = get_nbin() * hits_nchan;
   for (unsigned ihit=0; ihit<nhits; ihit++)
-    hits[ihit] += prof->hits[ihit];
-  
+	hits[ihit] += prof->hits[ihit];
+
   integration_length += prof->integration_length;
   ndat_total += prof->ndat_total;
 
   if (!ndat_expected)
-    ndat_expected = prof->ndat_expected;
+	ndat_expected = prof->ndat_expected;
 }
  catch (Error& error)
    {
      throw error += "dsp::PhaseSeries::combine";
    }
+
 
 //! Return the total number of time samples
 uint64_t dsp::PhaseSeries::get_ndat_total () const

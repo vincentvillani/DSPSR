@@ -182,6 +182,9 @@ void dsp::Archiver::unload (const PhaseSeries* _profiles) try
     cerr << "dsp::Archiver::unload folded " << ndat_folded << " out of "
          << ndat_total << " total samples: " << percent << "%" << endl;
 
+
+  //TODO: VINCENT: FIGURE OUT WHATS UP WITH THIS AND FIX IT!
+  /*
   uint64_t ndat_expected = profiles->get_ndat_expected();
   if (ndat_expected && ndat_expected < 0.9 * ndat_total)
   {
@@ -189,7 +192,7 @@ void dsp::Archiver::unload (const PhaseSeries* _profiles) try
       ndat_expected is the number of samples expected to be totalled in
       the sub-integration.  This number can possibly differ from ndat_total
       due to different rounding in different thread (an untested assertion).
-    */
+
 
     if (verbose > 2)
       cerr << "dsp::Archiver::unload ignoring incomplete sub-integration \n\t"
@@ -197,6 +200,7 @@ void dsp::Archiver::unload (const PhaseSeries* _profiles) try
 
     return;
   }
+*/
 
   if (profiles->get_integration_length() < minimum_integration_length)
   {
