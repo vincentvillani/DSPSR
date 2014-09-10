@@ -8,10 +8,13 @@
 #ifndef COVARIANCEMATRIXRESULT_H_
 #define COVARIANCEMATRIXRESULT_H_
 
+#include <iostream>
+#include "dsp/DataSeries.h"
+
+
 namespace dsp
 {
-
-	class CovarianceMatrixResult
+	class CovarianceMatrixResult : public DataSeries
 	{
 
 	private:
@@ -22,18 +25,19 @@ namespace dsp
 		unsigned int _hitChanNum; //Number of hit channels
 		unsigned int _unloadCalledNum; //Number of times unload has been called
 
+		//TODO: VINCENT: DO THIS PROPERLY - REMOVE THIS
+		bool _useCUDA;
 
-		//pointer to the upper triangular data that constitutes the covariance matrix
-		//For each freq channel
-		float* _covarianceMatrices;
-		float* _runningMeanSum;
-		float* _tempMeanStokesData;
+		float* _runningMeanSum; //Running total of the mean for each freq channel
+		float* _tempMeanStokesData; //scratch space for one covariance matrix length
 
 
 	public:
 		CovarianceMatrixResult();
 		~CovarianceMatrixResult();
 
+		void setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
+					unsigned int covarianceMatrixLength, unsigned int hitChannelNumber);
 		void setup(); //Allocate memory, once everything has been set
 
 
@@ -59,8 +63,6 @@ namespace dsp
 
 		unsigned int getUnloadCallCount();
 		void incrementUnloadCallCount();
-
-
 
 	};
 

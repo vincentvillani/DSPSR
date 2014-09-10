@@ -18,18 +18,17 @@ Fold.C                  UnloaderShare.C \
 LoadToFold1.C           PhaseLockedFilterbank.C \
 LoadToFoldConfig.C      PhaseSeries.C  \
 LoadToFoldN.C           PhaseSeriesUnloader.C \
-CyclicFold.C 			CovarianceMatrix.C \
-CovarianceMatrixResult.C 
+CyclicFold.C 			CovarianceMatrix.C CovarianceMatrixResult.C 
 
 if HAVE_CUFFT
 
 nobase_include_HEADERS += dsp/FoldCUDA.h dsp/TransferPhaseSeriesCUDA.h \
-			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixCUDAEngine.h \
-			 
+			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixCUDAEngine.h
+
 
 libdspsr_la_SOURCES += FoldCUDA.cu TransferPhaseSeriesCUDA.C \
-		       CyclicFoldEngineCUDA.cu CovarianceMatrixCUDAEngine.cu \
-		      
+		       CyclicFoldEngineCUDA.cu CovarianceMatrixCUDAEngine.cu
+
 
 endif
 

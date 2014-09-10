@@ -13,17 +13,17 @@
 #include <config.h>
 #endif
 
-#include "PhaseSeriesUnloader.h"
-#include "PhaseSeries.h"
 #include <cstring>
 #include <iostream>
 #include <string>
 #include <sstream>
 
 #include "CovarianceMatrixResult.h"
+#include "PhaseSeriesUnloader.h"
+#include "PhaseSeries.h"
 
 #if HAVE_CUDA
-#include "dsp/CovarianceMatrixCUDAEngine.h"
+#include "CovarianceMatrixCUDAEngine.h"
 #endif
 
 

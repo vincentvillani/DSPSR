@@ -71,7 +71,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
-
 	printf("DESTRUCTOR ENDED\n");
 
 }

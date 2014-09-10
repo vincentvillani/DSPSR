@@ -16,49 +16,78 @@
 		_hitChanNum = 0;
 		_unloadCalledNum = 0;
 
-		_covarianceMatrices = NULL;
 		_runningMeanSum = NULL;
 		_tempMeanStokesData = NULL;
+
+		_useCUDA = false;
 	}
 
 
 
 	dsp::CovarianceMatrixResult::~CovarianceMatrixResult()
 	{
-
-		if(_covarianceMatrices != NULL) //Free covariance matrix memory
+		if(_useCUDA)
 		{
-			for(int i = 0; i < _freqChanNum; ++i)
-				delete[] _covarianceMatrices[i];
 
-			delete[] _covarianceMatrices;
 		}
-
-
-		if(_runningMeanSum != NULL) //Free running mean sum memory
+		else
 		{
-			for(int i = 0; i < _freqChanNum; ++i)
-				delete[] _runningMeanSum[i];
+			if(_runningMeanSum != NULL) //Free running mean sum memory
+				delete[] _runningMeanSum;
 
-			delete[] _runningMeanSum;
+			if(_tempMeanStokesData != NULL) //Free temp mean stokes data
+				delete[] _tempMeanStokesData;
 		}
-
-		delete[] _tempMeanStokesData; //Free temp mean stokes data
 
 	}
 
+
+
+	void dsp::CovarianceMatrixResult::setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
+			unsigned int covarianceMatrixLength, unsigned int hitChannelNumber)
+	{
+		_binNum = binNum;
+		_freqChanNum = freqChanNum;
+		_stokesLength = stokesLength;
+		_covarianceMatrixLength = covarianceMatrixLength;
+		_hitChanNum = hitChannelNumber;
+
+		set_ndim(1);
+		set_nchan(_freqChanNum);
+		set_npol(1);
+		set_nbit(32);
+		resize(_covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
+
+		if(_useCUDA)
+		{
+
+		}
+		else
+		{
+			_runningMeanSum = new float[_freqChanNum * _binNum * _covarianceMatrixLength];
+			_tempMeanStokesData = new float[_covarianceMatrixLength];
+		}
+
+	}
 
 
 	void dsp::CovarianceMatrixResult::setup()
 	{
+		set_ndim(1);
+		set_nchan(_freqChanNum);
+		set_npol(1);
+		set_nbit(32);
+		resize(_covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
 
-	}
+		if(_useCUDA)
+		{
 
-
-
-	float* dsp::CovarianceMatrixResult::getCovarianceMatrices()
-	{
-		return _covarianceMatrices;
+		}
+		else
+		{
+			_runningMeanSum = new float[_freqChanNum * _binNum * _covarianceMatrixLength];
+			_tempMeanStokesData = new float[_covarianceMatrixLength];
+		}
 	}
 
 
