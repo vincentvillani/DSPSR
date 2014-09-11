@@ -182,6 +182,8 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
 	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
 
+	printf("StokesData: %f\n", stokesData[0]);
+	printf("hit: %u\n", hits[0]);
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
