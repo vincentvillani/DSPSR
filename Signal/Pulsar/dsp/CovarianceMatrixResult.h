@@ -66,6 +66,8 @@ namespace dsp
 		unsigned int getNumberOfHitChans();
 		unsigned int getUnloadCallCount();
 
+		void iterateUnloadCallCount();
+
 		bool hasBeenSetup();
 
 	};

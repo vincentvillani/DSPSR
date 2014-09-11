@@ -86,7 +86,6 @@
 		{
 			_runningMeanSum = new float[_freqChanNum * _binNum * _stokesLength];
 			_tempMeanStokesData = new float[_binNum * _stokesLength];
-
 		}
 
 
@@ -103,7 +102,7 @@
 
 	float* dsp::CovarianceMatrixResult::getRunningMeanSum(unsigned int channelOffset)
 	{
-		return _runningMeanSum + (channelOffset * _covarianceMatrixLength);
+		return _runningMeanSum + (channelOffset * _binNum * _stokesLength);
 	}
 
 
@@ -158,6 +157,12 @@
 		return _unloadCalledNum;
 	}
 
+
+
+	void dsp::CovarianceMatrixResult::iterateUnloadCallCount()
+	{
+		++_unloadCalledNum;
+	}
 
 
 	bool dsp::CovarianceMatrixResult::hasBeenSetup()

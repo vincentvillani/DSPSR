@@ -110,7 +110,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		compute_covariance_matrix_host(phaseSeriesData);
 	}
 
-
+	_covarianceMatrixResult->iterateUnloadCallCount();
 
 	printf("FINISHED UNLOAD\n\n\n");
 }
@@ -119,12 +119,12 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
+
 	unsigned int chanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 
 	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
-
 
 	for(unsigned int channel = 0; channel < chanNum; ++channel)
 	{
@@ -133,8 +133,6 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
 		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
 		float* covarianceMatrix =  _covarianceMatrixResult->getCovarianceMatrix(channel);
-
-		//printf("Address: %p\n", covarianceMatrix);
 
 		//check for no hits, if they exist discard this whole phase-series
 		for(int i = 0; i < binNum; ++i)
@@ -159,12 +157,6 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
 						tempMeanStokesData[row] * tempMeanStokesData[col];
 
-				/*
-				if(row == 0 && col == 0)
-				{
-					printf("tempVal: %f\n", tempMeanStokesData[row]);
-				}
-				*/
 			}
 		}
 
@@ -184,27 +176,15 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
 	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
 
-	//printf("StokesData: %f\n", stokesData[0]);
-	//printf("hit: %u\n", hits[0]);
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
+
 		tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / stokesLength ]);
 
 		runningMeanSum[ i ] += tempMeanStokesData[ i ];
-	}
 
-	if( isnan(stokesData[0]) )
-	{
-		printf("Stokes! NAN DETECTED!\n");
 	}
-
-	if( isnan(hits[0]))
-	{
-		printf("hits! NAN DETECTED!\n");
-	}
-
-	//printf("RunningMean: %f\n", runningMeanSum[0]);
 }
 
 
