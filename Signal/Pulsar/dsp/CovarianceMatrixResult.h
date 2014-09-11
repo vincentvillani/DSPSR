@@ -9,6 +9,7 @@
 #define COVARIANCEMATRIXRESULT_H_
 
 #include <iostream>
+#include <cstring>
 #include "dsp/DataSeries.h"
 //#include "memory.h"
 //#include "ReferenceTo.h"

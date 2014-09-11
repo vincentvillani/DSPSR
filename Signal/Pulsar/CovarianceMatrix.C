@@ -159,10 +159,12 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
 						tempMeanStokesData[row] * tempMeanStokesData[col];
 
+				/*
 				if(row == 0 && col == 0)
 				{
 					printf("tempVal: %f\n", tempMeanStokesData[row]);
 				}
+				*/
 			}
 		}
 
@@ -182,8 +184,8 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
 	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
 
-	printf("StokesData: %f\n", stokesData[0]);
-	printf("hit: %u\n", hits[0]);
+	//printf("StokesData: %f\n", stokesData[0]);
+	//printf("hit: %u\n", hits[0]);
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
@@ -192,6 +194,17 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 		runningMeanSum[ i ] += tempMeanStokesData[ i ];
 	}
 
+	if( isnan(stokesData[0]) )
+	{
+		printf("Stokes! NAN DETECTED!\n");
+	}
+
+	if( isnan(hits[0]))
+	{
+		printf("hits! NAN DETECTED!\n");
+	}
+
+	//printf("RunningMean: %f\n", runningMeanSum[0]);
 }
 
 
