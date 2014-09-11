@@ -62,7 +62,7 @@ AC_PROG_LIBTOOL
 #
 # Disable the debugging information option, -g
 #
-#SWIN_DEBUG
+SWIN_DEBUG
 SWIN_LOCAL
 
 #
