@@ -20,6 +20,13 @@
 		_tempMeanStokesData = NULL;
 
 		_useCUDA = false;
+		_setup = false;
+
+
+		//TODO: VINCENT: REMOVE THIS
+#if HAVE_CUDA
+		_useCUDA = true;
+#endif
 	}
 
 
@@ -46,17 +53,27 @@
 	void dsp::CovarianceMatrixResult::setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
 			unsigned int covarianceMatrixLength, unsigned int hitChannelNumber)
 	{
+		//Set everything first
 		_binNum = binNum;
 		_freqChanNum = freqChanNum;
 		_stokesLength = stokesLength;
 		_covarianceMatrixLength = covarianceMatrixLength;
 		_hitChanNum = hitChannelNumber;
+		_setup = true;
 
 		set_ndim(1);
 		set_nchan(_freqChanNum);
 		set_npol(1);
 		set_nbit(32);
+
+		//Allocate memory
 		resize(_covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
+
+		//const Memory* mem = get_memory();
+
+		//_runningMeanSum = mem->allocate(_freqChanNum * _binNum * _covarianceMatrixLength * sizeof(float));
+		//_tempMeanStokesData = mem->allocate(_covarianceMatrixLength * sizeof(float));
+
 
 		if(_useCUDA)
 		{
@@ -64,37 +81,25 @@
 		}
 		else
 		{
-			_runningMeanSum = new float[_freqChanNum * _binNum * _covarianceMatrixLength];
-			_tempMeanStokesData = new float[_covarianceMatrixLength];
+			_runningMeanSum = new float[_freqChanNum * _binNum * _stokesLength];
+			_tempMeanStokesData = new float[_binNum * _stokesLength];
 		}
+
 
 	}
 
 
-	void dsp::CovarianceMatrixResult::setup()
+
+	float* dsp::CovarianceMatrixResult::getCovarianceMatrix(unsigned int channelOffset)
 	{
-		set_ndim(1);
-		set_nchan(_freqChanNum);
-		set_npol(1);
-		set_nbit(32);
-		resize(_covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
-
-		if(_useCUDA)
-		{
-
-		}
-		else
-		{
-			_runningMeanSum = new float[_freqChanNum * _binNum * _covarianceMatrixLength];
-			_tempMeanStokesData = new float[_covarianceMatrixLength];
-		}
+		return (float*)(get_data() + (sizeof(float) * channelOffset * _covarianceMatrixLength));
 	}
 
 
 
-	float* dsp::CovarianceMatrixResult::getRunningMeanSum()
+	float* dsp::CovarianceMatrixResult::getRunningMeanSum(unsigned int channelOffset)
 	{
-		return _runningMeanSum;
+		return _runningMeanSum + (channelOffset * _covarianceMatrixLength);
 	}
 
 
@@ -113,23 +118,9 @@
 
 
 
-	void dsp::CovarianceMatrixResult::setBinNum(unsigned int binNum)
-	{
-		_binNum = binNum;
-	}
-
-
-
 	unsigned int dsp::CovarianceMatrixResult::getNumberOfFreqChans()
 	{
 		return _freqChanNum;
-	}
-
-
-
-	void dsp::CovarianceMatrixResult::setNumberOfFreqChans(unsigned int freqChan)
-	{
-		_freqChanNum = freqChan;
 	}
 
 
@@ -141,24 +132,12 @@
 
 
 
-	void dsp::CovarianceMatrixResult::setStokesLength(unsigned int stokesLength)
-	{
-		_stokesLength = stokesLength;
-	}
-
-
 
 	unsigned int dsp::CovarianceMatrixResult::getCovarianceMatrixLength()
 	{
 		return _covarianceMatrixLength;
 	}
 
-
-
-	void dsp::CovarianceMatrixResult::setCovarianceMatrixLength(unsigned int covLength)
-	{
-		_covarianceMatrixLength = covLength;
-	}
 
 
 
@@ -169,12 +148,6 @@
 
 
 
-	void dsp::CovarianceMatrixResult::setNumberOfHitChans(unsigned int hitChanNum)
-	{
-		_hitChanNum = hitChanNum;
-	}
-
-
 
 	unsigned int dsp::CovarianceMatrixResult::getUnloadCallCount()
 	{
@@ -183,7 +156,7 @@
 
 
 
-	void dsp::CovarianceMatrixResult::incrementUnloadCallCount()
+	bool dsp::CovarianceMatrixResult::hasBeenSetup()
 	{
-		++_unloadCalledNum;
+		return _setup;
 	}

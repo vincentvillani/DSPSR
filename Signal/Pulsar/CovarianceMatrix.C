@@ -13,17 +13,16 @@
 
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
-
 	//initially set pointers to null
 	_phaseSeries = NULL;
 	_covarianceMatrixResult = NULL;
 	_unloader = NULL;
+	_engine = NULL;
 }
 
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
-	/*
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
@@ -34,43 +33,29 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	compute_final_covariance_matrices_host();
 
-	//Write out data to a file
-	for(int j = 0; j < _freqChanNum; ++j)
-	{
-		//Convert to symmetric representation
-		//float* fullMatrix = convertToSymmetric(_covarianceMatrices[j], _binNum * _stokesLength);
 
+	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int binNum = _covarianceMatrixResult->getBinNum();
+	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+
+	//Write out data to a file
+	for(int j = 0; j < freqChanNum; ++j)
+	{
 		//write it out to a file
 		ss << "resultMatrixChan" << j << ".txt";
-
-		outputUpperTriangularMatrix(_covarianceMatrices[j], _binNum * _stokesLength, ss.str());
-		//outputSymmetricMatrix(fullMatrix, _binNum * _stokesLength, ss.str());
+		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j), binNum * stokesLength, ss.str());
 		ss.str("");
-
-		//delete[] fullMatrix;
-
-
 	}
-
-
-	for(int i = 0; i < _freqChanNum; ++i)
-		delete[] _covarianceMatrices[i];
-
-	delete[] _covarianceMatrices;
-
-
-	if(_tempMeanStokesData != NULL)
-	{
-		//Free everything on the host side
-		delete[] _tempMeanStokesData;
-	}
-	*/
 
 
 
 	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
+
+	if(_engine != NULL)
+		delete _engine;
+
 	printf("DESTRUCTOR ENDED\n");
 
 }
@@ -79,7 +64,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
-/*
+
 #ifdef HAVE_CUDA
 
 	printf("Has cuda!\n");
@@ -89,8 +74,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 #endif
 
 
+
 	unsigned int binNum = phaseSeriesData->get_nbin();
-	_unloadCalledNum++;
 
 	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_nchan() << ", Binsize: "
 			<< binNum << ", NPol: " << phaseSeriesData->get_npol() << ", NDim: " << phaseSeriesData->get_ndim()
@@ -103,33 +88,196 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		return;
 
 	//Allocate memory on first use, once we know the amount of memory required
-	if(_covarianceMatrices == NULL)
+	if(!_covarianceMatrixResult->hasBeenSetup())
 	{
-
-		#if HAVE_CUDA
-			setup_device ( phaseSeriesData->get_nchan(), phaseSeriesData->get_hits_nchan() , binNum,
-					phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
-		#else
-			setup_host ( phaseSeriesData->get_nchan(),  phaseSeriesData->get_hits_nchan(),  binNum,
-					phaseSeriesData->get_npol(), phaseSeriesData->get_ndim() );
-		#endif
+		//Setup the covariance matrix
+		_covarianceMatrixResult->setup(binNum, phaseSeriesData->get_nchan(), phaseSeriesData->get_npol(),
+				covariance_matrix_length( phaseSeriesData->get_npol() * binNum),   phaseSeriesData->get_hits_nchan());
 
 		//clone the first phase series
 		_phaseSeries = new PhaseSeries(*phaseSeriesData);
 
 	}
 
-
+	/*
 	#if HAVE_CUDA
 		compute_covariance_matrix_device(phaseSeriesData);
 	#else
 		compute_covariance_matrix_host(phaseSeriesData);
 	#endif
+	*/
 
+	if(_engine)
+	{
+
+	}
+	else
+	{
+		//compute the covariance matrix
+		compute_covariance_matrix_host(phaseSeriesData);
+	}
 
 	printf("FINISHED UNLOAD\n\n\n");
-	*/
 }
+
+
+
+void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
+{
+	unsigned int chanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int binNum = _covarianceMatrixResult->getBinNum();
+	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+
+	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
+
+	for(unsigned int channel = 0; channel < chanNum; ++channel)
+	{
+		//AMPLITUDE DATA
+		//IQUV, IQUV, IQUV etc etc
+		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
+		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
+		float* covarianceMatrix =  _covarianceMatrixResult->getCovarianceMatrix(channel);
+
+		//check for no hits, if they exist discard this whole phase-series
+		for(int i = 0; i < binNum; ++i)
+		{
+			if(hits[i] == 0)
+				return;
+		}
+
+		//normalise the stokes data for this freq channel
+		norm_stokes_data_host(stokes, hits, channel);
+
+		//Compute the covariance matrix
+		//ColLength == rowLength
+		unsigned int rowLength = binNum * stokesLength;
+
+		for(unsigned int row = 0; row < rowLength; ++row)
+		{
+			for(unsigned int col = row; col < rowLength; ++col)
+			{
+				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
+						tempMeanStokesData[row] * tempMeanStokesData[col];
+			}
+		}
+	}
+
+	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
+}
+
+
+
+void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan)
+{
+	unsigned int totalLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength();
+	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+
+	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
+	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
+
+
+	for(unsigned int i = 0; i < totalLength; ++i)
+	{
+		tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / stokesLength ]);
+
+		runningMeanSum[ i ] += tempMeanStokesData[ i ];
+	}
+
+}
+
+
+
+void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
+{
+	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int covarianceMatrixLength = _covarianceMatrixResult->getCovarianceMatrixLength();
+	unsigned int unloadCalledNum = _covarianceMatrixResult->getUnloadCallCount();
+
+	//Get the phase series outer product
+	float* phaseSeriesOuterProduct =  compute_outer_product_phase_series_host(); //compute_outer_product_phase_series_host();
+
+
+	for(int i = 0; i < freqChanNum; ++i)
+	{
+		float* covarianceMatrix = _covarianceMatrixResult->getCovarianceMatrix(i);
+
+		for(int j = 0; j < covarianceMatrixLength; ++j)
+		{
+
+			covarianceMatrix[j] /= unloadCalledNum;
+			covarianceMatrix[j] -= phaseSeriesOuterProduct[(i * covarianceMatrixLength) + j];
+
+			//Divide by the number of times called
+			//_covarianceMatrices[i][j] /= _unloadCalledNum;
+			//_covarianceMatrices[i][j] -= phaseSeriesOuterProduct[i][j];
+		}
+	}
+
+	delete[] phaseSeriesOuterProduct;
+}
+
+
+
+float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
+{
+	unsigned int unloadCallCount = _covarianceMatrixResult->getUnloadCallCount();
+	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
+	unsigned int ampsLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(); //_binNum * _stokesLength;
+
+
+	float* outerProduct = new float [freqChanNum * covarianceLength];
+
+
+	//For each freq channel
+	for(unsigned int channel = 0; channel < freqChanNum; ++channel)
+	{
+
+		float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(channel);
+
+		//divide running mean sum by number of times called
+		for(unsigned int i = 0; i < ampsLength; ++i)
+		{
+			runningMeanSum[i] /= unloadCallCount;
+		}
+
+
+		//Do the outer product
+		for(unsigned int row = 0; row < ampsLength; ++row)
+		{
+			for(unsigned int col = row; col < ampsLength; ++col)
+			{
+				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - covariance_matrix_length(row)) ] =
+						runningMeanSum[row] * runningMeanSum[col]; //amps[row] * amps[col];
+			}
+		}
+
+	}
+
+
+	return outerProduct;
+}
+
+
+
+const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
+{
+	//return the only channel
+	if(_covarianceMatrixResult->getNumberOfHitChans() == 1)
+		return phaseSeriesData->get_hits(0);
+	else
+		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
+}
+
+
+
+void dsp::CovarianceMatrix::set_engine(CovarianceMatrixCUDAEngine* engine)
+{
+	_engine = engine;
+}
+
+
+
 
 
 
@@ -313,30 +461,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 
 
-void dsp::CovarianceMatrix::scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan)
-{
-	int totalLength = _binNum * _stokesLength;
 
-	for(unsigned int i = 0; i < totalLength; ++i)
-	{
-		//No longer necessary because this check is done before this step
-		/*
-		unsigned int hit = hits[ i / _stokesLength ];
-
-
-		if(hit == 0)
-		{
-			printf("ZERO!!!!!!!!!\n");
-			_tempMeanStokesData[ i ] = 0;
-		}
-
-
-		_tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / _stokesLength ]);
-
-		_runningMeanSum[ chan ][ i ] += _tempMeanStokesData[ i ];
-	}
-
-}
 
 
 
@@ -357,28 +482,6 @@ void dsp::CovarianceMatrix::covariance_matrix_host(unsigned int freqChan)
 
 
 
-void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
-{
-
-	//Get the phase series outer product
-	float** phaseSeriesOuterProduct =  compute_outer_product_phase_series_host_new(); //compute_outer_product_phase_series_host();
-
-
-	for(int i = 0; i < _freqChanNum; ++i)
-	{
-		for(int j = 0; j < _covarianceMatrixLength; ++j)
-		{
-			//Divide by the number of times called
-			_covarianceMatrices[i][j] /= _unloadCalledNum;
-
-			_covarianceMatrices[i][j] -= phaseSeriesOuterProduct[i][j];
-		}
-
-		delete[] phaseSeriesOuterProduct[i];
-	}
-
-	delete[] phaseSeriesOuterProduct;
-}
 
 
 
@@ -435,53 +538,12 @@ float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host_old()
 }
 
 
-float** dsp::CovarianceMatrix::compute_outer_product_phase_series_host_new()
-{
-	unsigned int ampsLength = _binNum * _stokesLength;
-	float** outerProduct = new float*[_freqChanNum];
-
-	//For each freq channel
-	for(unsigned int channel = 0; channel < _freqChanNum; ++channel)
-	{
-
-		//allocate memory for this channel
-		outerProduct[channel] = new float[_covarianceMatrixLength];
-
-
-		//divide running mean sum by number of times called
-		for(unsigned int i = 0; i < ampsLength; ++i)
-		{
-			_runningMeanSum[channel][i] /= _unloadCalledNum;
-		}
-
-
-		//Do the outer product
-		for(unsigned int row = 0; row < ampsLength; ++row)
-		{
-			for(unsigned int col = row; col < ampsLength; ++col)
-			{
-				outerProduct[channel][ (row * ampsLength + col) - covariance_matrix_length(row) ] =
-						_runningMeanSum[channel][row] * _runningMeanSum[channel][col]; //amps[row] * amps[col];
-			}
-		}
-
-	}
-
-
-	return outerProduct;
-}
 
 
 
-const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
-{
-	//return the only channel
-	if(_hitChanNum == 1)
-		return phaseSeriesData->get_hits(0);
-	else
-		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
-}
 */
+
+
 
 
 unsigned int dsp::CovarianceMatrix::covariance_matrix_length(unsigned int numBin)

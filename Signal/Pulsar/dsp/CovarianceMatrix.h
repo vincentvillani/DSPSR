@@ -26,6 +26,7 @@
 #include "CovarianceMatrixCUDAEngine.h"
 #endif
 
+class CovarianceMatrixCUDAEngine;
 
 namespace dsp
 {
@@ -40,6 +41,8 @@ namespace dsp
 		//----- result data  ------
 		PhaseSeries* _phaseSeries;
 		CovarianceMatrixResult* _covarianceMatrixResult;
+
+		CovarianceMatrixCUDAEngine* _engine;
 
 
 
@@ -58,13 +61,18 @@ namespace dsp
 #endif
 */
 
+		void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
+		const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan);
+		void norm_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan);
+		void compute_final_covariance_matrices_host();
+		float* compute_outer_product_phase_series_host();
+
 		//void setup_host(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim); //allocate memory if we are using the host
-		//void compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData);
-		//void scale_and_mean_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan);
+
 		//void covariance_matrix_host(unsigned int freqChan);
-		//void compute_final_covariance_matrices_host();
+
 		//float** compute_outer_product_phase_series_host_old();
-		//float** compute_outer_product_phase_series_host_new();
+
 
 		//Both cuda and normal methods
 		float* convertToSymmetric(float* upperTriangle, unsigned int rowLength);
@@ -76,7 +84,7 @@ namespace dsp
 
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 
-		//const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan);
+
 
 
 	public:
@@ -89,6 +97,10 @@ namespace dsp
 		void unload(const PhaseSeries*);
 		void set_minimum_integration_length (double seconds){}; //TODO: VINCENT: ACTUALLY IMPLEMENT THIS //if integration length is less than the minimum, discard it
 		void set_unloader(PhaseSeriesUnloader* unloader);
+
+		void set_engine(CovarianceMatrixCUDAEngine* engine);
+
+
 	};
 }
 

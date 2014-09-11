@@ -10,10 +10,14 @@
 
 #include <iostream>
 #include "dsp/DataSeries.h"
+//#include "memory.h"
+//#include "ReferenceTo.h"
+//#include "ReferenceTo.h"
 
 
 namespace dsp
 {
+
 	class CovarianceMatrixResult : public DataSeries
 	{
 
@@ -24,6 +28,8 @@ namespace dsp
 		unsigned int _covarianceMatrixLength; //Array length of a covariance matrix
 		unsigned int _hitChanNum; //Number of hit channels
 		unsigned int _unloadCalledNum; //Number of times unload has been called
+
+		bool _setup;
 
 		//TODO: VINCENT: DO THIS PROPERLY - REMOVE THIS
 		bool _useCUDA;
@@ -41,28 +47,21 @@ namespace dsp
 		void setup(); //Allocate memory, once everything has been set
 
 
-		//Getters and Setters
-		float* getCovarianceMatrices();
-		float* getRunningMeanSum();
+
+
+		//Getters
+		float* getCovarianceMatrix(unsigned int channelOffset);
+		float* getRunningMeanSum(unsigned int channelOffset);
 		float* getTempMeanStokesData();
 
 		unsigned int getBinNum();
-		void setBinNum(unsigned int binNum);
-
 		unsigned int getNumberOfFreqChans();
-		void setNumberOfFreqChans(unsigned int freqChan);
-
 		unsigned int getStokesLength();
-		void setStokesLength(unsigned int stokesLength);
-
 		unsigned int getCovarianceMatrixLength();
-		void setCovarianceMatrixLength(unsigned int covLength);
-
 		unsigned int getNumberOfHitChans();
-		void setNumberOfHitChans(unsigned int hitChanNum);
-
 		unsigned int getUnloadCallCount();
-		void incrementUnloadCallCount();
+
+		bool hasBeenSetup();
 
 	};
 
