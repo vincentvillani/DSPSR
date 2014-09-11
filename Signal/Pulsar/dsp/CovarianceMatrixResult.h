@@ -42,6 +42,10 @@ namespace dsp
 		CovarianceMatrixResult();
 		~CovarianceMatrixResult();
 
+		//TODO: VINCENT: DO THIS PROPERLY
+		CovarianceMatrixResult* null_clone() const {return NULL;}
+		CovarianceMatrixResult* clone() const {return NULL;}
+
 		void setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
 					unsigned int covarianceMatrixLength, unsigned int hitChannelNumber);
 		void setup(); //Allocate memory, once everything has been set

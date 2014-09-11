@@ -8,14 +8,11 @@
 
 #include "dsp/CovarianceMatrix.h"
 
-
-
-
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
 	//initially set pointers to null
 	_phaseSeries = NULL;
-	_covarianceMatrixResult = NULL;
+	_covarianceMatrixResult = new CovarianceMatrixResult();
 	_unloader = NULL;
 	_engine = NULL;
 }
@@ -62,6 +59,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 
+
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
@@ -99,13 +97,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 	}
 
-	/*
-	#if HAVE_CUDA
-		compute_covariance_matrix_device(phaseSeriesData);
-	#else
-		compute_covariance_matrix_host(phaseSeriesData);
-	#endif
-	*/
+
+	printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
 
 	if(_engine)
 	{
@@ -116,6 +109,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		//compute the covariance matrix
 		compute_covariance_matrix_host(phaseSeriesData);
 	}
+
+
 
 	printf("FINISHED UNLOAD\n\n\n");
 }
@@ -130,6 +125,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
 
+
 	for(unsigned int channel = 0; channel < chanNum; ++channel)
 	{
 		//AMPLITUDE DATA
@@ -138,6 +134,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
 		float* covarianceMatrix =  _covarianceMatrixResult->getCovarianceMatrix(channel);
 
+		//printf("Address: %p\n", covarianceMatrix);
+
 		//check for no hits, if they exist discard this whole phase-series
 		for(int i = 0; i < binNum; ++i)
 		{
@@ -145,8 +143,10 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 				return;
 		}
 
+
 		//normalise the stokes data for this freq channel
 		norm_stokes_data_host(stokes, hits, channel);
+
 
 		//Compute the covariance matrix
 		//ColLength == rowLength
@@ -158,12 +158,19 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 			{
 				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
 						tempMeanStokesData[row] * tempMeanStokesData[col];
+
+				if(row == 0 && col == 0)
+				{
+					printf("tempVal: %f\n", tempMeanStokesData[row]);
+				}
 			}
 		}
+
 	}
 
 	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 }
+
 
 
 
@@ -184,6 +191,7 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 	}
 
 }
+
 
 
 
@@ -215,6 +223,7 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 
 	delete[] phaseSeriesOuterProduct;
 }
+
 
 
 
@@ -260,6 +269,7 @@ float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 
 
 
+
 const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
 {
 	//return the only channel
@@ -271,13 +281,11 @@ const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSe
 
 
 
+
 void dsp::CovarianceMatrix::set_engine(CovarianceMatrixCUDAEngine* engine)
 {
 	_engine = engine;
 }
-
-
-
 
 
 

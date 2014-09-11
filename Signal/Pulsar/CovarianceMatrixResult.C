@@ -53,6 +53,7 @@
 	void dsp::CovarianceMatrixResult::setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
 			unsigned int covarianceMatrixLength, unsigned int hitChannelNumber)
 	{
+
 		//Set everything first
 		_binNum = binNum;
 		_freqChanNum = freqChanNum;
@@ -66,8 +67,10 @@
 		set_npol(1);
 		set_nbit(32);
 
+
 		//Allocate memory
 		resize(_covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
+		memset(get_data(), 0,  sizeof(float) * _covarianceMatrixLength * _freqChanNum); //Set to 0
 
 		//const Memory* mem = get_memory();
 
@@ -83,6 +86,7 @@
 		{
 			_runningMeanSum = new float[_freqChanNum * _binNum * _stokesLength];
 			_tempMeanStokesData = new float[_binNum * _stokesLength];
+
 		}
 
 
@@ -92,7 +96,7 @@
 
 	float* dsp::CovarianceMatrixResult::getCovarianceMatrix(unsigned int channelOffset)
 	{
-		return (float*)(get_data() + (sizeof(float) * channelOffset * _covarianceMatrixLength));
+		return ( (float*)(get_data()) + (channelOffset * _covarianceMatrixLength));
 	}
 
 
