@@ -89,8 +89,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(!_covarianceMatrixResult->hasBeenSetup())
 	{
 		//Setup the covariance matrix
-		_covarianceMatrixResult->setup(binNum, phaseSeriesData->get_nchan(), phaseSeriesData->get_npol(),
-				covariance_matrix_length( phaseSeriesData->get_npol() * binNum),   phaseSeriesData->get_hits_nchan());
+		_covarianceMatrixResult->setup(binNum, phaseSeriesData->get_nchan(), phaseSeriesData->get_ndim(),
+				covariance_matrix_length( phaseSeriesData->get_ndim() * binNum),   phaseSeriesData->get_hits_nchan());
 
 		//clone the first phase series
 		_phaseSeries = new PhaseSeries(*phaseSeriesData);
@@ -98,6 +98,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	}
 
 
+	printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
 	printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
 
 	if(_engine)
