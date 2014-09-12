@@ -21,7 +21,7 @@ class CovarianceMatrixCUDAEngine
 	__global__ void genericAdd(unsigned int n, unsigned int* original, const unsigned int* add);
 
 
-	void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultElementOffset,
+	__host__ void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultElementOffset,
 			const float* h_amps, float* d_amps, unsigned int ampsLength,
 			 const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 			 unsigned int stokesLength, double scaleFactor, unsigned int blockDim2D = 16);
