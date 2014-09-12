@@ -129,7 +129,7 @@ __global__ void CovarianceMatrixCUDAEngine::applyScale(float* amps, unsigned int
 
 
 //Kernel for generically adding things on the GPU
-__global__ void CovarianceMatrixCUDAEngine::genericAdd(uint64_t n, float* original, const float* add)
+__global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, float* original, const float* add)
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
