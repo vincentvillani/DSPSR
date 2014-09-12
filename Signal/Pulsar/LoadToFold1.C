@@ -43,6 +43,7 @@
 #include "dsp/MemoryCUDA.h"
 #include "dsp/SKMaskerCUDA.h"
 #include "dsp/CyclicFoldEngineCUDA.h"
+#include "dsp/CovarianceMatrixCUDAEngine.h"
 #endif
 
 #include "dsp/SampleDelay.h"
@@ -998,10 +999,13 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
     prepare_archiver(archiver);
 
     CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
-    //printf("REFERENCE BEFORE: %u\n", covarianceMatrix->get_reference_count());
     covarianceMatrix->set_unloader (archiver);
     unloader[ifold] = covarianceMatrix;
-    //printf("REFERENCE AFTER: %u\n", covarianceMatrix->get_reference_count());
+
+#if HAVE_CUDA
+    covarianceMatrix->set_engine(new CovarianceMatrixCUDAEngine());
+#endif
+
   }
 
   return unloader.at(ifold);
