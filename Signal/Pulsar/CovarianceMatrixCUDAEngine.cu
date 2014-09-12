@@ -66,7 +66,7 @@ __host__ void CovarianceMatrixCUDAEngine::computeCovarianceMatrixCUDAEngine(floa
 
 
 
-__global__ void CovarianceMatrixCUDAEngine::outerProductKernel(float* resultMatrix, float* vec, int vectorLength)
+__global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLength)
 {
 	int col = (blockIdx.x * blockDim.x) + threadIdx.x; //column
 	int row = (blockIdx.y * blockDim.y) + threadIdx.y; //row
@@ -91,7 +91,7 @@ __global__ void CovarianceMatrixCUDAEngine::outerProductKernel(float* resultMatr
 
 
 
-__global__ void CovarianceMatrixCUDAEngine::meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
+__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
 {
 	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -113,7 +113,7 @@ __global__ void CovarianceMatrixCUDAEngine::meanStokesKernel(float* d_amps, unsi
 
 
 
-__global__ void CovarianceMatrixCUDAEngine::applyScale(float* amps, unsigned int ampsLength, double scaleFactor)
+__global__ void applyScale(float* amps, unsigned int ampsLength, double scaleFactor)
 {
 	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -129,7 +129,7 @@ __global__ void CovarianceMatrixCUDAEngine::applyScale(float* amps, unsigned int
 
 
 //Kernel for generically adding things on the GPU
-__global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, float* original, const float* add)
+__global__ void genericAdd(unsigned int n, float* original, const float* add)
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
@@ -139,7 +139,7 @@ __global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, float* or
 
 
 //Kernel for generically adding things on the GPU
-__global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, unsigned int* original, const unsigned int* add)
+__global__ void genericAdd(unsigned int n, unsigned int* original, const unsigned int* add)
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
