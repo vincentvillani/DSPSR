@@ -133,7 +133,7 @@ __global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, float* or
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
-		originalTS[absIdx] += addTS[absIdx];
+		original[absIdx] += add[absIdx];
 	}
 }
 
@@ -143,7 +143,7 @@ __global__ void CovarianceMatrixCUDAEngine::genericAdd(unsigned int n, unsigned 
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
-		originalTS[absIdx] += addTS[absIdx];
+		original[absIdx] += add[absIdx];
 	}
 }
 
