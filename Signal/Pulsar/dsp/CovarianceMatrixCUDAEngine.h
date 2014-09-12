@@ -14,11 +14,11 @@
 class CovarianceMatrixCUDAEngine
 {
 	//Cuda Kernels
-	__global__ void outerProductKernel(float* resultMatrix, float* vec, int vectorLength);
-	__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
-	__global__ void applyScale(float* amps, unsigned int ampsLength, double scaleFactor);
-	__global__ void genericAdd(uint64_t n, float* original, const float* add);
-	__global__ void genericAdd(unsigned int n, unsigned int* original, const unsigned int* add);
+	void outerProductKernel(float* resultMatrix, float* vec, int vectorLength);
+	void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
+	void applyScale(float* amps, unsigned int ampsLength, double scaleFactor);
+	void genericAdd(uint64_t n, float* original, const float* add);
+	void genericAdd(unsigned int n, unsigned int* original, const unsigned int* add);
 
 
 	void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultElementOffset,
