@@ -37,6 +37,7 @@ namespace dsp
 
 		//unloader that will write the data to disk, when the time comes
 		Reference::To<PhaseSeriesUnloader> _unloader;
+		//Reference::To<Memory> _memory;
 
 		//----- result data  ------
 		PhaseSeries* _phaseSeries;
@@ -81,6 +82,8 @@ namespace dsp
 		void printUpperTriangularMatrix(float* result, int rowLength, bool genFile);
 		void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
+
+		bool engine_set();
 
 		unsigned int covariance_matrix_length(const unsigned int numBin);
 

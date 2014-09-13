@@ -23,12 +23,14 @@ namespace dsp
 	{
 
 	private:
-		unsigned int _binNum; //number of bins
-		unsigned int _freqChanNum; //number of frequency channels
-		unsigned int _stokesLength; //Length of the stokes vector
-		unsigned int _covarianceMatrixLength; //Array length of a covariance matrix
-		unsigned int _hitChanNum; //Number of hit channels
-		unsigned int _unloadCalledNum; //Number of times unload has been called
+		unsigned int* _binNum; //number of bins
+		unsigned int* _freqChanNum; //number of frequency channels
+		unsigned int* _stokesLength; //Length of the stokes vector
+		unsigned int* _covarianceMatrixLength; //Array length of a covariance matrix
+		unsigned int* _hitChanNum; //Number of hit channels
+		unsigned int* _unloadCalledNum; //Number of times unload has been called
+
+		float* d_outerProducts;
 
 		bool _setup;
 
@@ -65,6 +67,8 @@ namespace dsp
 		unsigned int getCovarianceMatrixLength();
 		unsigned int getNumberOfHitChans();
 		unsigned int getUnloadCallCount();
+
+
 
 		void iterateUnloadCallCount();
 
