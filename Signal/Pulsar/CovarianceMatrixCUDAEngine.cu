@@ -243,7 +243,7 @@ __global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigne
 
 
 
-__global__ void checkForZeroesKernel(float* d_hits, unsigned int hitsLength, bool* d_zeroes)
+__global__ void checkForZeroesKernel(unsigned int* d_hits, unsigned int hitsLength, bool* d_zeroes)
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < hitsLength; absIdx += gridDim.x * blockDim.x)
 	{
