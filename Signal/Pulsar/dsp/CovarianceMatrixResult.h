@@ -31,14 +31,19 @@ namespace dsp
 		unsigned int _unloadCalledNum; //Number of times unload has been called
 
 
+		float* d_amps;
+		unsigned int _ampsLength;
+
+		float* d_hits;
+		unsigned int _hitsLength;
+
 		float* d_outerProducts; //Pointer to device memory to store summed outer products
 		unsigned int _outerProductsLength; //Total outer product length
 
 		float* _runningMeanSum; //Running total of the mean for each freq channel
 		unsigned int _runningMeanSumLength; //total runningMeanSumLength
 
-		float* _tempMeanStokesData; //scratch space for one covariance matrix length
-		unsigned int _tempMeanStokesDataLength; //total _tempMeanStokesDataLength length
+		float* _tempNormalisedAmps; //scratch space for ONE covariance matrix (length == covarianceMatrixLength)
 
 
 

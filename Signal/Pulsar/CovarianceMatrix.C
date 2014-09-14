@@ -115,7 +115,21 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 	if(_engine)
 	{
+		/*
+		 * void CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
+	const float* h_amps, float* d_amps, unsigned int ampsLength,
+	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
+	unsigned int stokesLength, unsigned int blockDim2D)
+		 */
 
+		for(int i = 0; i < _covarianceMatrixResult->getNumberOfFreqChans(); ++i)
+		{
+			//_engine->computeCovarianceMatrix(
+			//		_covarianceMatrixResult->getCovarianceMatrix(i),
+			//		phaseSeriesData->get_datptr(i, 0), _covarianceMatrixResult->)
+		}
+
+		//_engine->compute_final_covariance_matrices_device(_covarianceMatrixResult->getCovarianceMatrix(0), )
 	}
 	else
 	{

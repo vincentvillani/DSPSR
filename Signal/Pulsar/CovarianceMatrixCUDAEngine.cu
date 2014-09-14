@@ -25,7 +25,7 @@ CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 
 
 
-void CovarianceMatrixCUDAEngine::computeCovarianceMatrixCUDAEngine(float* d_result, unsigned int resultElementOffset,
+void CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	const float* h_amps, float* d_amps, unsigned int ampsLength,
 	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 	unsigned int stokesLength, unsigned int blockDim2D)
@@ -71,7 +71,7 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatrixCUDAEngine(float* d_resu
 	//Compute covariance matrix
 	printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
 			grid.x, grid.y, block.x, block.y);
-	outerProductKernel<<< grid, block >>>(d_result + resultElementOffset, d_amps, ampsLength);
+	outerProductKernel<<< grid, block >>>(d_result, d_amps, ampsLength);
 
 	//TODO: DEBUG
 	error = cudaDeviceSynchronize();

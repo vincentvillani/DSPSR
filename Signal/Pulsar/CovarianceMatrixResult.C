@@ -17,10 +17,10 @@
 		_unloadCalledNum = 0;
 
 		_runningMeanSumLength = 0;
-		_tempMeanStokesDataLength = 0;
+		_tempNormalisedAmps = 0;
 
 		_runningMeanSum = NULL;
-		_tempMeanStokesData = NULL;
+		_tempNormalisedAmps = NULL;
 
 		d_outerProducts = NULL;
 		_outerProductsLength = 0;
@@ -43,7 +43,7 @@
 		{
 #if HAVE_CUDA
 			cudaFree(_runningMeanSum);
-			cudaFree(_tempMeanStokesData);
+			cudaFree(_tempNormalisedAmps);
 			cudaFree(d_outerProducts);
 #endif
 		}
@@ -52,11 +52,11 @@
 			if(_runningMeanSum != NULL) //Free running mean sum memory
 				delete[] _runningMeanSum;
 
-			if(_tempMeanStokesData != NULL) //Free temp mean stokes data
-				delete[] _tempMeanStokesData;
+			if(_tempNormalisedAmps != NULL) //Free temp mean stokes data
+				delete[] _tempNormalisedAmps;
 
 			_runningMeanSum = NULL;
-			_tempMeanStokesData = NULL;
+			_tempNormalisedAmps = NULL;
 		}
 
 	}
@@ -76,8 +76,11 @@
 		_unloadCalledNum = 0;
 
 		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
-		_tempMeanStokesDataLength = binNum * stokesLength;
+		//_tempMeanStokesDataLength = binNum * stokesLength;
 		_outerProductsLength = freqChanNum * covarianceMatrixLength;
+
+		_hitsLength = binNum;
+		_ampsLength = _binNum * stokesLength;
 
 
 		//TODO: VINCENT: FIX THIS
@@ -103,9 +106,9 @@
 
 
 			cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength);
-			cudaMalloc(&_tempMeanStokesData, sizeof(float) * _tempMeanStokesDataLength);
+			cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength);
 
-			cudaMemset(_tempMeanStokesData, 0, sizeof(float) * _tempMeanStokesDataLength);
+			cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength);
 
 #endif
 
@@ -123,7 +126,7 @@
 			memset(get_data(), 0,  sizeof(float) * _outerProductsLength); //Set to 0
 
 			_runningMeanSum = new float[_runningMeanSumLength];
-			_tempMeanStokesData = new float[_tempMeanStokesDataLength];
+			_tempNormalisedAmps = new float[_covarianceMatrixLength];
 		}
 
 
@@ -147,7 +150,7 @@
 
 	float* dsp::CovarianceMatrixResult::getTempMeanStokesData()
 	{
-		return _tempMeanStokesData;
+		return _tempNormalisedAmps;
 	}
 
 

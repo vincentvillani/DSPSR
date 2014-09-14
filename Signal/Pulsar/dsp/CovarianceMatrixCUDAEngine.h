@@ -20,7 +20,7 @@ public:
 	CovarianceMatrixCUDAEngine();
 	~CovarianceMatrixCUDAEngine();
 
-	void computeCovarianceMatrixCUDAEngine(float* d_resultVector, unsigned int resultElementOffset,
+	void computeCovarianceMatrix(float* d_resultVector,
 		const float* h_amps, float* d_amps, unsigned int ampsLength,
 		 const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 		 unsigned int stokesLength, unsigned int blockDim2D = 16);
@@ -38,6 +38,9 @@ private:
 
 	bool* d_zeroes; //Are zeroes present?
 	bool* h_zeroes;
+
+	//float* d_amps; //scratch space for amps and hits on the device
+	//float* d_hits;
 
 	float* h_tempOuterProducts;
 	float* h_tempPhaseOuterProducts;
