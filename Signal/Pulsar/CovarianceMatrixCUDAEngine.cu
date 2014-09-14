@@ -134,7 +134,7 @@ float* CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(flo
 
 
 
-bool CovarianceMatrixCUDAEngine::hitsContainsZeroes(float* d_hits, unsigned int hitLength)
+bool CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
 {
 	int blockDim = 256;
 	int gridDim = ceil((float) hitLength / blockDim);

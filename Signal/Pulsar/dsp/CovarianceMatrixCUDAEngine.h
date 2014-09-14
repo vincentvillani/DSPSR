@@ -46,7 +46,7 @@ private:
 			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength,
 			unsigned int ampsLength);
 
-	bool hitsContainsZeroes(float* d_hits, unsigned int hitLength);
+	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
 
 
 };
