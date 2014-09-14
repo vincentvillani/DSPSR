@@ -34,7 +34,7 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatrixCUDAEngine(float* d_resu
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
 	//If there are bins with zeroes, discard everything
-	if ( hitsContainsZeroes() )
+	if ( hitsContainsZeroes(d_hits, hitsLength) )
 		return;
 
 
@@ -136,13 +136,13 @@ float* CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(flo
 
 bool CovarianceMatrixCUDAEngine::hitsContainsZeroes(float* d_hits, unsigned int hitLength)
 {
-	int blockDim = blockDim2D * blockDim2D;
+	int blockDim = 256;
 	int gridDim = ceil((float) hitLength / blockDim);
 
 	//Reset d_zeroes to false
 	cudaMemset(d_zeroes, 0, sizeof(bool));
 
-	hitsContainsZeroes<<< gridDim, blockDim >>>(d_hits, hitLength, d_zeroes);
+	checkForZeroesKernel<<< gridDim, blockDim >>>(d_hits, hitLength, d_zeroes);
 	cudaMemcpy(h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
 
 	return h_zeroes;
@@ -243,7 +243,7 @@ __global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigne
 
 
 
-__global__ void hitsContainsZeroes(float* d_hits, unsigned int hitsLength, bool* d_zeroes)
+__global__ void checkForZeroesKernel(float* d_hits, unsigned int hitsLength, bool* d_zeroes)
 {
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < hitsLength; absIdx += gridDim.x * blockDim.x)
 	{
