@@ -9,17 +9,21 @@
 
 	dsp::CovarianceMatrixResult::CovarianceMatrixResult()
 	{
-		_binNum = NULL;
-		_freqChanNum = NULL;
-		_stokesLength = NULL;
-		_covarianceMatrixLength = NULL;
-		_hitChanNum = NULL;
-		_unloadCalledNum = NULL;
+		_binNum = 0;
+		_freqChanNum = 0;
+		_stokesLength = 0;
+		_covarianceMatrixLength = 0;
+		_hitChanNum = 0;
+		_unloadCalledNum = 0;
+
+		_runningMeanSumLength = 0;
+		_tempMeanStokesDataLength = 0;
 
 		_runningMeanSum = NULL;
 		_tempMeanStokesData = NULL;
 
 		d_outerProducts = NULL;
+		_outerProductsLength = 0;
 
 		_useCUDA = false;
 		_setup = false;
@@ -40,13 +44,6 @@
 #if HAVE_CUDA
 			cudaFree(_runningMeanSum);
 			cudaFree(_tempMeanStokesData);
-			cudaFree(_binNum);
-			cudaFree(_freqChanNum);
-			cudaFree(_stokesLength);
-			cudaFree(_covarianceMatrixLength);
-			cudaFree(_unloadCalledNum);
-			cudaFree(_runningMeanSum);
-			cudaFree(_tempMeanStokesData);
 			cudaFree(d_outerProducts);
 #endif
 		}
@@ -57,24 +54,6 @@
 
 			if(_tempMeanStokesData != NULL) //Free temp mean stokes data
 				delete[] _tempMeanStokesData;
-
-			if(_binNum != NULL)
-				delete _binNum;
-
-			if(_freqChanNum != NULL)
-				delete _freqChanNum;
-
-			if(_stokesLength != NULL)
-				delete _stokesLength;
-
-			if(_covarianceMatrixLength != NULL)
-				delete _covarianceMatrixLength;
-
-			if(_hitChanNum != NULL)
-				delete _hitChanNum;
-
-			if(_unloadCalledNum != NULL)
-				delete _unloadCalledNum;
 
 			_runningMeanSum = NULL;
 			_tempMeanStokesData = NULL;
@@ -89,26 +68,24 @@
 	{
 		_setup = true;
 
+		_binNum = binNum;
+		_freqChanNum = freqChanNum;
+		_stokesLength = stokesLength;
+		_covarianceMatrixLength = covarianceMatrixLength;
+		_hitChanNum = hitChannelNumber;
+		_unloadCalledNum = 0;
+
+		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
+		_tempMeanStokesDataLength = binNum * stokesLength;
+		_outerProductsLength = freqChanNum * covarianceMatrixLength;
+
 
 		//TODO: VINCENT: FIX THIS
 		if(_useCUDA)
 		{
 #if HAVE_CUDA
-			size_t uSize = sizeof(unsigned int);
 
-			cudaMalloc(&_binNum, uSize);
-			cudaMalloc(&_freqChanNum, uSize);
-			cudaMalloc(&_stokesLength, uSize);
-			cudaMalloc(&_covarianceMatrixLength, uSize);
-			cudaMalloc(&_hitChanNum, uSize);
-			cudaMalloc(&_unloadCalledNum, uSize);
 
-			cudaMemcpy(_binNum, binNum, uSize, cudaMemcpyHostToDevice);
-			cudaMemcpy(_freqChanNum, freqChanNum, uSize, cudaMemcpyHostToDevice);
-			cudaMemcpy(_stokesLength, stokesLength, uSize, cudaMemcpyHostToDevice);
-			cudaMemcpy(_covarianceMatrixLength, covarianceMatrixLength, uSize, cudaMemcpyHostToDevice);
-			cudaMemcpy(_hitChanNum, hitChanNum, uSize, cudaMemcpyHostToDevice);
-			cudaMemset(_unloadCalledNum, 0, uSize);
 
 			set_ndim(1);
 			set_nchan(freqChanNum);
@@ -116,39 +93,25 @@
 			set_nbit(32);
 
 			//TODO: VINCENT, NO NEED FOR THIS IN THE FINAL VERSION
-			cudaMalloc(&d_outerProducts, sizeof(float) * freqChanNum * covarianceMatrixLength);
-			cudaMemset(d_outerProducts, 0, sizeof(float) * freqChanNum * covarianceMatrixLength);
+			cudaMalloc(&d_outerProducts, sizeof(float) * _outerProductsLength);
+			cudaMemset(d_outerProducts, 0, sizeof(float) * _outerProductsLength);
 
 			//TODO: VINCENT, THIS WILL AREADY BE ON THE GPU IN THE FINAL VERSION
 			//Allocate memory
-			resize(covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
-			memset(get_data(), 0,  sizeof(float) * covarianceMatrixLength * freqChanNum); //Set to 0
+			//resize(covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
+			//memset(get_data(), 0,  sizeof(float) * covarianceMatrixLength * freqChanNum); //Set to 0
 
-			cudaMalloc(&_runningMeanSum, sizeof(float) * freqChanNum * binNum * stokesLength);
-			cudaMalloc(&_tempMeanStokesData, sizeof(float) * binNum * stokesLength);
 
-			cudaMemset(_tempMeanStokesData, 0, sizeof(float) * freqChanNum * binNum * stokesLength);
+			cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength);
+			cudaMalloc(&_tempMeanStokesData, sizeof(float) * _tempMeanStokesDataLength);
+
+			cudaMemset(_tempMeanStokesData, 0, sizeof(float) * _tempMeanStokesDataLength);
 
 #endif
 
 		}
 		else
 		{
-			//Allocate memory
-			_binNum = new unsigned int;
-			_freqChanNum = new unsigned int;
-			_stokesLength = new unsigned int;
-			_covarianceMatrixLength = new unsigned int;
-			_hitChanNum = new unsigned int;
-			_unloadCalledNum = new unsigned int;
-
-			//Set everything first
-			*_binNum = binNum;
-			*_freqChanNum = freqChanNum;
-			*_stokesLength = stokesLength;
-			*_covarianceMatrixLength = covarianceMatrixLength;
-			*_hitChanNum = hitChannelNumber;
-			*_unloadCalledNum = 0;
 
 			set_ndim(1);
 			set_nchan(freqChanNum);
@@ -157,10 +120,10 @@
 
 			//Allocate memory
 			resize(covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
-			memset(get_data(), 0,  sizeof(float) * covarianceMatrixLength * freqChanNum); //Set to 0
+			memset(get_data(), 0,  sizeof(float) * _outerProductsLength); //Set to 0
 
-			_runningMeanSum = new float[freqChanNum * binNum * stokesLength];
-			_tempMeanStokesData = new float[binNum * stokesLength];
+			_runningMeanSum = new float[_runningMeanSumLength];
+			_tempMeanStokesData = new float[_tempMeanStokesDataLength];
 		}
 
 
@@ -170,14 +133,14 @@
 
 	float* dsp::CovarianceMatrixResult::getCovarianceMatrix(unsigned int channelOffset)
 	{
-		return ( (float*)(get_data()) + (channelOffset * *_covarianceMatrixLength));
+		return ( (float*)(get_data()) + (channelOffset * _covarianceMatrixLength));
 	}
 
 
 
 	float* dsp::CovarianceMatrixResult::getRunningMeanSum(unsigned int channelOffset)
 	{
-		return _runningMeanSum + (channelOffset * *_binNum * *_stokesLength);
+		return _runningMeanSum + (channelOffset * _binNum * _stokesLength);
 	}
 
 
@@ -191,21 +154,21 @@
 
 	unsigned int dsp::CovarianceMatrixResult::getBinNum()
 	{
-		return *_binNum;
+		return _binNum;
 	}
 
 
 
 	unsigned int dsp::CovarianceMatrixResult::getNumberOfFreqChans()
 	{
-		return *_freqChanNum;
+		return _freqChanNum;
 	}
 
 
 
 	unsigned int dsp::CovarianceMatrixResult::getStokesLength()
 	{
-		return *_stokesLength;
+		return _stokesLength;
 	}
 
 
@@ -213,7 +176,7 @@
 
 	unsigned int dsp::CovarianceMatrixResult::getCovarianceMatrixLength()
 	{
-		return *_covarianceMatrixLength;
+		return _covarianceMatrixLength;
 	}
 
 
@@ -221,7 +184,7 @@
 
 	unsigned int dsp::CovarianceMatrixResult::getNumberOfHitChans()
 	{
-		return *_hitChanNum;
+		return _hitChanNum;
 	}
 
 
@@ -229,14 +192,14 @@
 
 	unsigned int dsp::CovarianceMatrixResult::getUnloadCallCount()
 	{
-		return *_unloadCalledNum;
+		return _unloadCalledNum;
 	}
 
 
 
 	void dsp::CovarianceMatrixResult::iterateUnloadCallCount()
 	{
-		++(*_unloadCalledNum);
+		++_unloadCalledNum;
 	}
 
 

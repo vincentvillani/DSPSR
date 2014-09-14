@@ -23,22 +23,29 @@ namespace dsp
 	{
 
 	private:
-		unsigned int* _binNum; //number of bins
-		unsigned int* _freqChanNum; //number of frequency channels
-		unsigned int* _stokesLength; //Length of the stokes vector
-		unsigned int* _covarianceMatrixLength; //Array length of a covariance matrix
-		unsigned int* _hitChanNum; //Number of hit channels
-		unsigned int* _unloadCalledNum; //Number of times unload has been called
+		unsigned int _binNum; //number of bins
+		unsigned int _freqChanNum; //number of frequency channels
+		unsigned int _stokesLength; //Length of the stokes vector
+		unsigned int _covarianceMatrixLength; //Array length of a covariance matrix
+		unsigned int _hitChanNum; //Number of hit channels
+		unsigned int _unloadCalledNum; //Number of times unload has been called
 
-		float* d_outerProducts;
 
-		bool _setup;
+		float* d_outerProducts; //Pointer to device memory to store summed outer products
+		unsigned int _outerProductsLength; //Total outer product length
+
+		float* _runningMeanSum; //Running total of the mean for each freq channel
+		unsigned int _runningMeanSumLength; //total runningMeanSumLength
+
+		float* _tempMeanStokesData; //scratch space for one covariance matrix length
+		unsigned int _tempMeanStokesDataLength; //total _tempMeanStokesDataLength length
+
+
 
 		//TODO: VINCENT: DO THIS PROPERLY - REMOVE THIS
 		bool _useCUDA;
+		bool _setup;
 
-		float* _runningMeanSum; //Running total of the mean for each freq channel
-		float* _tempMeanStokesData; //scratch space for one covariance matrix length
 
 
 	public:

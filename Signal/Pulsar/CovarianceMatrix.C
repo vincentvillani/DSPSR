@@ -20,6 +20,13 @@ dsp::CovarianceMatrix::CovarianceMatrix()
 
 dsp::CovarianceMatrix::~CovarianceMatrix()
 {
+
+#if HAVE_CUDA
+
+
+
+#else
+
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
@@ -52,6 +59,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	if(_engine != NULL)
 		delete _engine;
+
+
+
+#endif
 
 	printf("DESTRUCTOR ENDED\n");
 
@@ -223,9 +234,6 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 			covarianceMatrix[j] /= unloadCalledNum;
 			covarianceMatrix[j] -= phaseSeriesOuterProduct[(i * covarianceMatrixLength) + j];
 
-			//Divide by the number of times called
-			//_covarianceMatrices[i][j] /= _unloadCalledNum;
-			//_covarianceMatrices[i][j] -= phaseSeriesOuterProduct[i][j];
 		}
 	}
 
@@ -240,7 +248,7 @@ float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 	unsigned int unloadCallCount = _covarianceMatrixResult->getUnloadCallCount();
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
-	unsigned int ampsLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(); //_binNum * _stokesLength;
+	unsigned int ampsLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength();
 
 
 	float* outerProduct = new float [freqChanNum * covarianceLength];

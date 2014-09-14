@@ -85,6 +85,55 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatrixCUDAEngine(float* d_resu
 
 
 
+void CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
+		float* d_outerProducts, unsigned int outerProductsLength,
+		float* d_runningMeanSum, unsigned int runningMeanSumLength,
+		unsigned int unloadCalledCount, unsigned int freqChanNum,
+		unsigned int covarianceLength, unsigned int ampsLength)
+{
+	//check available memory
+	size_t freeMemoryBytes;
+	size_t totalMemoryBytes;
+
+	cudaMemGetInfo(&freeMemoryBytes, &totalMemoryBytes);
+
+	printf("Free memory: %d\nTotal Memory: %d\n", freeMemoryBytes, totalMemoryBytes);
+}
+
+
+
+
+float* CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
+			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength, unsigned int ampsLength)
+{
+	/*
+	float* d_outerProduct;
+	cudaMalloc(&d_outerProduct, sizeof(float) * freqChanNum * covarianceLength);
+
+	//divide the running mean by the number of times unload was called
+	unsigned int blockDim = 256;
+	unsigned int gridDim = ceil(runningMeanSumLength / blockDim);
+
+	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, unloadCalledCount);
+
+	//Do the outer product
+
+	dim3 outerProductBlockDim = dim3(16, 16);
+	dim3 outerProductGridDim = dim3( ceil(runningMeanSumLength  / outerProductBlockDim.x),
+									 ceil( (runningMeanSumLength / 2) + 1) /  outerProductBlockDim.y);
+
+	for(int i = 0; i < freqChanNum; ++i)
+	{
+		outerProductKernel<<< gridDim, blockDim >>> (d_outerProduct + (i * covarianceLength), d_runningMeanSum, runningMeanSumLength);
+	}
+
+	*/
+
+	return NULL;
+}
+
+
+
 bool CovarianceMatrixCUDAEngine::hitsContainsZeroes(float* d_hits, unsigned int hitLength)
 {
 	int blockDim = blockDim2D * blockDim2D;
@@ -155,7 +204,7 @@ __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double sc
 	if(absoluteThreadIdx >= ampsLength)
 		return;
 
-	amps[absoluteThreadIdx] = amps[absoluteThreadIdx] / scaleFactor;
+	amps[absoluteThreadIdx] /= scaleFactor;
 }
 
 
@@ -180,6 +229,15 @@ __global__ void genericAddKernel(unsigned int n, unsigned int* original, const u
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		original[absIdx] += add[absIdx];
+	}
+}
+
+
+__global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigned int denominator)
+{
+	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	{
+		d_numerators[absIdx] /= denominator;
 	}
 }
 
