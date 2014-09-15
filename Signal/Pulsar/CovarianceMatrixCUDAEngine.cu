@@ -80,10 +80,10 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 		printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
 	//TODO: DEBUG
-	cudaError_t error = cudaPeekAtLastError();
-	if(error != cudaSuccess)
+	cudaError_t error4 = cudaPeekAtLastError();
+	if(error4 != cudaSuccess)
 	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error4));
 		exit(1);
 	}
 
