@@ -27,7 +27,7 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 
 
 
-void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(PhaseSeries* ps, CovarianceMatrixResult* cmr)
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 	unsigned int chanNum = ps->get_nchan();
 
