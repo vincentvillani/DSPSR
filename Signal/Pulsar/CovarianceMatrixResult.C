@@ -7,6 +7,21 @@
 
 #include "dsp/CovarianceMatrixResult.h"
 
+
+//TODO: DEBUG
+
+#if HAVE_CUDA
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess)
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
+#endif
+
 	dsp::CovarianceMatrixResult::CovarianceMatrixResult()
 	{
 		_binNum = 0;
@@ -98,8 +113,8 @@
 			set_nbit(32);
 
 			//TODO: VINCENT, NO NEED FOR THIS IN THE FINAL VERSION
-			cudaMalloc(&d_outerProducts, sizeof(float) * _outerProductsLength);
-			cudaMemset(d_outerProducts, 0, sizeof(float) * _outerProductsLength);
+			gpuErrchk(cudaMalloc(&d_outerProducts, sizeof(float) * _outerProductsLength));
+			gpuErrchk(cudaMemset(d_outerProducts, 0, sizeof(float) * _outerProductsLength));
 
 			//TODO: VINCENT, THIS WILL AREADY BE ON THE GPU IN THE FINAL VERSION
 			//Allocate memory
@@ -107,13 +122,13 @@
 			//memset(get_data(), 0,  sizeof(float) * covarianceMatrixLength * freqChanNum); //Set to 0
 
 
-			cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength);
+			gpuErrchk(cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength));
 
-			cudaMalloc(&d_amps, sizeof(float) * _stokesLength * _binNum);
-			cudaMalloc(&d_hits, sizeof(unsigned int) * _binbinNum);
+			gpuErrchk(cudaMalloc(&d_amps, sizeof(float) * _stokesLength * _binNum));
+			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binbinNum));
 
-			cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength);
-			cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength);
+			gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
+			gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
 
 
 
