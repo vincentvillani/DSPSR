@@ -41,7 +41,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_amps = NULL;
 		d_hits = NULL;
 
-		_useCUDA = false;
+		_useCUDA = true;
 		_setup = false;
 
 
