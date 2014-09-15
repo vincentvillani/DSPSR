@@ -79,6 +79,11 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	for(int i = 0; i < 3; ++i)
 		printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
+
+
+
+	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
+
 	//TODO: DEBUG
 	cudaError_t error4 = cudaPeekAtLastError();
 	if(error4 != cudaSuccess)
@@ -86,9 +91,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error4));
 		exit(1);
 	}
-
-
-	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
 
 	//If there are bins with zeroes, discard everything
