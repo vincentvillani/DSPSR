@@ -35,7 +35,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//For each channel, compute the covariance matrix
 	for(int i = 0; i < chanNum; ++i)
 	{
-		const unsigned int* hit = getHitsPtr(ps, cmr, i);
+		const unsigned int* hits = getHitsPtr(ps, cmr, i);
 		const float* amps = ps->get_datptr(i, 0);
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
