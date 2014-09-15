@@ -9,6 +9,18 @@
 
 //TODO: VINCENT: ADD A HITS CHAN == 1 VARIATION TO STOP NEEDLESS COPYIES
 
+#if HAVE_CUDA
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess)
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
+#endif
+
 
 dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
@@ -187,6 +199,15 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 	cudaMemset(d_zeroes, 0, sizeof(bool));
 
 	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
+
+	//TODO: DEBUG
+	cudaError_t error = cudaDeviceSynchronize();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
+	}
+
 	cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
 
 	return h_zeroes;
