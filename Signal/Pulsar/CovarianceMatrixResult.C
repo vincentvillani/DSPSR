@@ -61,7 +61,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		{
 #if HAVE_CUDA
 			cudaFree(_runningMeanSum);
-			cudaFree(_tempNormalisedAmps);
 			cudaFree(d_outerProducts);
 			cudaFree(_amps);
 			cudaFree(d_hits);
@@ -123,10 +122,10 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			gpuErrchk(cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength));
 
 			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
-			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binbinNum));
+			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum));
 
-			gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
-			gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
+			//gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
+			//gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
 
 #endif
 		}
