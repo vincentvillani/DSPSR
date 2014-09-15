@@ -82,7 +82,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 
-	cudaMemcpy(d_hits, h_hits, sizeof(int) * hitsLength, cudaMemcpyHostToDevice);
+	gpuErrchk(cudaMemcpy(d_hits, h_hits, sizeof(int) * hitsLength, cudaMemcpyHostToDevice));
 
 	//TODO: DEBUG
 	cudaError_t error4 = cudaPeekAtLastError();
