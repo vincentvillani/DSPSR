@@ -60,6 +60,8 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		if(_useCUDA)
 		{
 #if HAVE_CUDA
+			printf("CUDA DESTRUCTOR RUN!!!!!!!!!!!!!!!!!!\n");
+
 			cudaFree(_runningMeanSum);
 			cudaFree(d_outerProducts);
 			cudaFree(_amps);
