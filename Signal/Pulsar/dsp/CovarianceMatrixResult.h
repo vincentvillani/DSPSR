@@ -8,6 +8,10 @@
 #ifndef COVARIANCEMATRIXRESULT_H_
 #define COVARIANCEMATRIXRESULT_H_
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <iostream>
 #include <cstring>
 #include "dsp/DataSeries.h"
