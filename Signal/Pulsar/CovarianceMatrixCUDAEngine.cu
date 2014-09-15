@@ -9,7 +9,7 @@
 
 //TODO: VINCENT: ADD A HITS CHAN == 1 VARIATION TO STOP NEEDLESS COPYIES
 
-#if HAVE_CUDA
+//#if HAVE_CUDA
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 {
@@ -19,7 +19,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
       if (abort) exit(code);
    }
 }
-#endif
+//#endif
 
 
 dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
@@ -82,7 +82,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 
-	gpuErrchk(cudaMemcpy(d_hits, h_hits, sizeof(int) * hitsLength, cudaMemcpyHostToDevice));
+	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(int) * hitsLength, cudaMemcpyHostToDevice) );
 
 	//TODO: DEBUG
 	cudaError_t error4 = cudaPeekAtLastError();
