@@ -183,7 +183,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 	//Reset d_zeroes to false
 	cudaMemset(d_zeroes, 0, sizeof(bool));
 
-	checkForZeroesKernel<<< gridDim, blockDim >>>(d_hits, hitLength, d_zeroes);
+	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
 	cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
 
 	return h_zeroes;
