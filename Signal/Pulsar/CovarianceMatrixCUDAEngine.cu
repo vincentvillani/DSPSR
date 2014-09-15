@@ -40,7 +40,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
-				hits, cmr->getHits(),cmr->getHitsLength(),
+				hits, cmr->getHits(), cmr->getHitsLength(),
 				cmr->getStokesLength());
 
 		//TODO: VINCENT: DEBUG
@@ -61,6 +61,10 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
+
+	//TODO:VINCENT: DEBUG
+	for(int i = 0; i < 3; ++i)
+		printf("Hit %d: %f\n", i, h_hits[i]);
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 

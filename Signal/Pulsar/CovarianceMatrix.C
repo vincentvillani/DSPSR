@@ -110,8 +110,12 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	}
 
 
-	//printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
-	//printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
+	//TODO: VINCENT DEBUG
+#if !HAVE_CUDA
+	printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
+	printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
+#endif
+
 
 	if(_engine)
 	{
