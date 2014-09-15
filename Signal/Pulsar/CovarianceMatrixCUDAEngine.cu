@@ -195,7 +195,10 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 {
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
+	{
+		printf("ONE HIT CHAN!\n");
 		return phaseSeriesData->get_hits(0);
+	}
 	else
 		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
 }
