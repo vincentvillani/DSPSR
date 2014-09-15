@@ -47,8 +47,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		const float* amps = ps->get_datptr(i, 0);
 
 		//TODO:VINCENT: DEBUG
-		for(int j = 0; j < 3; ++j)
-			printf("AFTER HIT CALL: Hit %d: %u\n", j, hits[j]);
+		//for(int j = 0; j < 3; ++j)
+		//	printf("AFTER HIT CALL: Hit %d: %u\n", j, hits[j]);
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
@@ -76,8 +76,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 	//TODO:VINCENT: DEBUG
-	for(int i = 0; i < 3; ++i)
-		printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
+	//for(int i = 0; i < 3; ++i)
+	//	printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
 
 	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
