@@ -215,7 +215,7 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
 	{
-		printf("ONE HIT CHAN!\n");
+		//printf("ONE HIT CHAN!\n");
 
 		return phaseSeriesData->get_hits(0);
 	}
@@ -317,7 +317,7 @@ __global__ void checkForZeroesKernel(unsigned int* d_hits, unsigned int hitsLeng
 	{
 		if(d_hits[absIdx] == 0)
 		{
-			printf("ZERO KERNEL VAL: %u\n", d_hits[absIdx]);
+			//printf("ZERO KERNEL VAL: %u\n", d_hits[absIdx]);
 			*d_zeroes = true;
 		}
 	}
