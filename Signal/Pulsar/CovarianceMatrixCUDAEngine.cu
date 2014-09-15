@@ -304,7 +304,10 @@ __global__ void checkForZeroesKernel(unsigned int* d_hits, unsigned int hitsLeng
 	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < hitsLength; absIdx += gridDim.x * blockDim.x)
 	{
 		if(d_hits[absIdx] == 0)
+		{
+			printf("ZERO KERNEL VAL: %u\n", d_hits[absIdx]);
 			*d_zeroes = true;
+		}
 	}
 }
 
