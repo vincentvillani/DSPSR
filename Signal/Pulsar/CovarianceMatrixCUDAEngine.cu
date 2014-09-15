@@ -35,8 +35,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		const float* amps = ps->get_datptr(i, 0);
 
 		//TODO:VINCENT: DEBUG
-		for(int i = 0; i < 3; ++i)
-			printf("Hit %d: %f\n", i, hits[i]);
+		for(int j = 0; i < 3; ++j)
+			printf("Hit %d: %f\n", j, hits[j]);
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
