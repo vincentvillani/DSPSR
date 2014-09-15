@@ -82,15 +82,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
 
-	//TODO: DEBUG
-	cudaError_t error4 = cudaPeekAtLastError();
-	if(error4 != cudaSuccess)
-	{
-		printf("HERHEHRHERHER\n");
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error4));
-		exit(1);
-	}
-
 
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
@@ -107,7 +98,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
 
 	//Copy new amps and hit data to the device
-	cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice);
+	gpuErrchk(cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
 	printf("AMPS LENGTH: %u\n", ampsLength);
 
@@ -256,7 +247,7 @@ __global__ void outerProductKernel(float* result, float* vec, int vectorLength)
 }
 
 
-
+//(d_amps, ampsLength, d_hits, stokesLength)
 __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
 {
 	unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
