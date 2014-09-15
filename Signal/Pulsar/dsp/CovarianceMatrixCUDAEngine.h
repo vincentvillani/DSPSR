@@ -13,6 +13,9 @@
 #include "dsp/PhaseSeries.h"
 #include "dsp/CovarianceMatrixResult.h"
 
+namespace dsp
+{
+
 class CovarianceMatrixCUDAEngine
 {
 
@@ -64,7 +67,7 @@ private:
 
 };
 
-
+}
 
 
 
