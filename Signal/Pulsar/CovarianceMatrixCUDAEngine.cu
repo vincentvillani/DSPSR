@@ -12,15 +12,20 @@
 
 CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
-	h_zeroes = new bool;
 	cudaMalloc(&d_zeroes, sizeof(bool));
 }
 
 
 CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 {
-	delete h_zeroes;
 	cudaFree(d_zeroes);
+}
+
+
+
+void CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult covarianceMatrixResult)
+{
+
 }
 
 
@@ -48,7 +53,7 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-	meanStokesKernel<<< meanGridDim, meanBlockDim >>>(d_amps, ampsLength, d_hits, stokesLength);
+	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
 	//TODO: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
@@ -84,7 +89,7 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 }
 
 
-
+/*
 void CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
 		float* d_outerProducts, unsigned int outerProductsLength,
 		float* d_runningMeanSum, unsigned int runningMeanSumLength,
@@ -99,7 +104,7 @@ void CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
 
 	printf("Free memory: %d\nTotal Memory: %d\n", freeMemoryBytes, totalMemoryBytes);
 }
-
+*/
 
 
 
