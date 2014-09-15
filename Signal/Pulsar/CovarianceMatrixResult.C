@@ -41,7 +41,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_amps = NULL;
 		d_hits = NULL;
 
-		_useCUDA = true;
+		_useCUDA = false;
 		_setup = false;
 
 
@@ -49,6 +49,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		//TODO: VINCENT: REMOVE THIS
 #if HAVE_CUDA
 		_useCUDA = true;
+		printf("USE CUDA IS TRUE!\n");
 #endif
 	}
 
@@ -103,6 +104,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		{
 #if HAVE_CUDA
 
+			printf("CUDA SETUP RUN!\n");
 			set_ndim(1);
 			set_nchan(freqChanNum);
 			set_npol(1);
