@@ -105,6 +105,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
+	/*
 	//TODO: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
@@ -112,6 +113,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(1);
 	}
+	*/
 
 	//Compute the needed block and grid dimensions
 	int blockDimX = blockDim2D;
@@ -223,7 +225,7 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 
 
 
-__global__ void outerProductKernel(float* result, float* vec, int vectorLength)
+__global__ void outerProductKernel(float* result, float* vec, unsigned int vectorLength)
 {
 	int col = (blockIdx.x * blockDim.x) + threadIdx.x; //column
 	int row = (blockIdx.y * blockDim.y) + threadIdx.y; //row
