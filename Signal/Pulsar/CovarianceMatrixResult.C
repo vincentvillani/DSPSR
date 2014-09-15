@@ -211,3 +211,16 @@
 	{
 		return _setup;
 	}
+
+
+	float* dsp::CovarianceMatrixResult::getAmps()
+	{
+		return d_amps;
+	}
+
+
+	unsigned int* dsp::CovarianceMatrixResult::getHits()
+	{
+		return d_hits;
+	}
+

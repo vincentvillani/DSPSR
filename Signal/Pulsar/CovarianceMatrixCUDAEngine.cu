@@ -31,10 +31,17 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 {
 	unsigned int chanNum = ps->get_nchan();
 
+
 	//For each channel, compute the covariance matrix
 	for(int i = 0; i < chanNum; ++i)
 	{
+		const unsigned int* hit = getHitsPtr(ps, cmr, i);
+		const float* amps = ps->get_datptr(i, 0);
 
+		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
+				amps, cmr->getAmps(), cmr->getAmpsLength(),
+				hits, cmr->getHits(),cmr->getHitsLength(),
+				cmr->getStokesLength());
 	}
 }
 
@@ -161,6 +168,17 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 	cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
 
 	return h_zeroes;
+}
+
+
+
+const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
+{
+	//return the only channel
+	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
+		return phaseSeriesData->get_hits(0);
+	else
+		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
 }
 
 

@@ -72,6 +72,9 @@ namespace dsp
 		float* getCovarianceMatrix(unsigned int channelOffset);
 		float* getRunningMeanSum(unsigned int channelOffset);
 		float* getTempMeanStokesData();
+		float* getAmps();
+		unsigned int* getHits();
+
 
 		unsigned int getBinNum();
 		unsigned int getNumberOfFreqChans();
@@ -79,6 +82,8 @@ namespace dsp
 		unsigned int getCovarianceMatrixLength();
 		unsigned int getNumberOfHitChans();
 		unsigned int getUnloadCallCount();
+		unsigned int getAmpsLength();
+		unsigned int getHitsLength();
 
 
 

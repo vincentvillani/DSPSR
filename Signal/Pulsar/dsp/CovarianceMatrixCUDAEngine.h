@@ -63,7 +63,7 @@ private:
 			unsigned int ampsLength);
 
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
-
+	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
 
 };
 
