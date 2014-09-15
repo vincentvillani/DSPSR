@@ -198,8 +198,6 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 	//Reset d_zeroes to false
 	cudaMemset(d_zeroes, 0, sizeof(bool));
 
-	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
-
 	//TODO: DEBUG
 	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
@@ -207,6 +205,10 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(1);
 	}
+
+
+	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
+
 
 	cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
 
