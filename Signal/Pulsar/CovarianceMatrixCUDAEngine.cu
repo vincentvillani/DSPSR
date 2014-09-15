@@ -255,9 +255,9 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 	if(absoluteThreadIdx >= ampsLength)
 		return;
 
-	unsigned int hitVal = d_hits[ absoluteThreadIdx / stokesLength ];
+	//unsigned int hitVal = d_hits[ absoluteThreadIdx / stokesLength ];
 
-	d_amps[absoluteThreadIdx] /= hitVal;
+	d_amps[absoluteThreadIdx] /= 1;//hitVal;
 
 }
 
