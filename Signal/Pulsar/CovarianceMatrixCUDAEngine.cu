@@ -131,7 +131,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	outerProductKernel<<< grid, block >>>(d_result, d_amps, ampsLength);
 
 	//TODO: DEBUG
-	error = cudaDeviceSynchronize();
+	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
