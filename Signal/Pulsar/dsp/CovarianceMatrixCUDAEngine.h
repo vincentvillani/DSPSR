@@ -45,12 +45,6 @@ private:
 	bool* d_zeroes; //Are zeroes present?
 	bool h_zeroes;
 
-	//float* d_amps; //scratch space for amps and hits on the device
-	//float* d_hits;
-
-	//float* h_tempOuterProducts;
-	//float* h_tempPhaseOuterProducts;
-
 	//Compute a covariance matrix for one freq channel
 	void computeCovarianceMatrix(float* d_resultVector,
 		const float* h_amps, float* d_amps, unsigned int ampsLength,

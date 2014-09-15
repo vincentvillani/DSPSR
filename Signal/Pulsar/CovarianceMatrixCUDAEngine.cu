@@ -71,12 +71,14 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
+	/*
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
 	{
 		printf("There are bins with zeroes, returning...\n");
 		return;
 	}
+	*/
 
 
 	//printf("RUNNING KERNELS\n");
