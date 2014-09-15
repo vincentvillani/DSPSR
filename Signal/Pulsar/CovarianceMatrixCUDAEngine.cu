@@ -71,14 +71,14 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
-	/*
+
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
 	{
 		printf("There are bins with zeroes, returning...\n");
-		return;
+		//return;
 	}
-	*/
+
 
 
 	//printf("RUNNING KERNELS\n");
@@ -236,7 +236,7 @@ __global__ void outerProductKernel(float* result, float* vec, int vectorLength)
 
 __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
 {
-	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
+	unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
 	if(absoluteThreadIdx >= ampsLength)
 		return;
@@ -251,7 +251,7 @@ __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigne
 
 __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double scaleFactor)
 {
-	int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
+	unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
 	if(absoluteThreadIdx >= ampsLength)
 		return;
@@ -267,7 +267,7 @@ __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double sc
 //Kernel for generically adding things on the GPU
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add)
 {
-	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		original[absIdx] += add[absIdx];
 	}
@@ -278,7 +278,7 @@ __global__ void genericAddKernel(unsigned int n, float* original, const float* a
 //Kernel for generically adding things on the GPU
 __global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add)
 {
-	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		original[absIdx] += add[absIdx];
 	}
@@ -287,7 +287,7 @@ __global__ void genericAddKernel(unsigned int n, unsigned int* original, const u
 
 __global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigned int denominator)
 {
-	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		d_numerators[absIdx] /= denominator;
 	}
@@ -297,7 +297,7 @@ __global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigne
 
 __global__ void checkForZeroesKernel(unsigned int* d_hits, unsigned int hitsLength, bool* d_zeroes)
 {
-	for(int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < hitsLength; absIdx += gridDim.x * blockDim.x)
+	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < hitsLength; absIdx += gridDim.x * blockDim.x)
 	{
 		if(d_hits[absIdx] == 0)
 		{
