@@ -62,12 +62,12 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
 
-	/*
+
 	//TODO:VINCENT: DEBUG
 	for(int i = 0; i < 3; ++i)
-		printf("Hit %d: %f\n", i, h_hits[i]);
+		printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
-	*/
+
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 
