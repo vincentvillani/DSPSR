@@ -28,8 +28,6 @@
 		d_amps = NULL;
 		d_hits = NULL;
 
-
-
 		_useCUDA = false;
 		_setup = false;
 

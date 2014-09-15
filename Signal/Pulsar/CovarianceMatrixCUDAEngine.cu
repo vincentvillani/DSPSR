@@ -42,6 +42,15 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
 				hits, cmr->getHits(),cmr->getHitsLength(),
 				cmr->getStokesLength());
+
+		//TODO: VINCENT: DEBUG
+		if(i == 0)
+		{
+			float val;
+			cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
+			printf("Value: %f", val);
+		}
+
 	}
 }
 
