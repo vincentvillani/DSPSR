@@ -36,7 +36,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 		//TODO:VINCENT: DEBUG
 		for(int j = 0; j < 3; ++j)
-			printf("Hit %d: %f\n", j, hits[j]);
+			printf("AFTER HIT CALL: Hit %d: %u\n", j, hits[j]);
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
@@ -197,6 +197,7 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
 	{
 		printf("ONE HIT CHAN!\n");
+
 		return phaseSeriesData->get_hits(0);
 	}
 	else
