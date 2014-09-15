@@ -79,6 +79,13 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	for(int i = 0; i < 3; ++i)
 		printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
+	//TODO: DEBUG
+	cudaError_t error = cudaPeekAtLastError();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
+	}
 
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
@@ -197,14 +204,6 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 
 	//Reset d_zeroes to false
 	cudaMemset(d_zeroes, 0, sizeof(bool));
-
-	//TODO: DEBUG
-	cudaError_t error = cudaPeekAtLastError();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		exit(1);
-	}
 
 
 	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
