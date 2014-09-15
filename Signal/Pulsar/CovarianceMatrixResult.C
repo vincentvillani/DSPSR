@@ -32,19 +32,18 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_unloadCalledNum = 0;
 
 		_runningMeanSumLength = 0;
-		_tempNormalisedAmps = 0;
 
 		_runningMeanSum = NULL;
-		_tempNormalisedAmps = NULL;
 
 		d_outerProducts = NULL;
 		_outerProductsLength = 0;
 
-		d_amps = NULL;
+		_amps = NULL;
 		d_hits = NULL;
 
 		_useCUDA = false;
 		_setup = false;
+
 
 
 		//TODO: VINCENT: REMOVE THIS
@@ -63,7 +62,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			cudaFree(_runningMeanSum);
 			cudaFree(_tempNormalisedAmps);
 			cudaFree(d_outerProducts);
-			cudaFree(d_amps);
+			cudaFree(_amps);
 			cudaFree(d_hits);
 #endif
 		}
@@ -72,11 +71,10 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			if(_runningMeanSum != NULL) //Free running mean sum memory
 				delete[] _runningMeanSum;
 
-			if(_tempNormalisedAmps != NULL) //Free temp mean stokes data
-				delete[] _tempNormalisedAmps;
+			if(_amps != NULL)
+				delete[] _amps;
 
 			_runningMeanSum = NULL;
-			_tempNormalisedAmps = NULL;
 		}
 
 	}
@@ -105,8 +103,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		{
 #if HAVE_CUDA
 
-
-
 			set_ndim(1);
 			set_nchan(freqChanNum);
 			set_npol(1);
@@ -124,16 +120,13 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 			gpuErrchk(cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength));
 
-			gpuErrchk(cudaMalloc(&d_amps, sizeof(float) * _stokesLength * _binNum));
+			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
 			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binbinNum));
 
 			gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
 			gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
 
-
-
 #endif
-
 		}
 		else
 		{
@@ -148,7 +141,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			memset(get_data(), 0,  sizeof(float) * _outerProductsLength); //Set to 0
 
 			_runningMeanSum = new float[_runningMeanSumLength];
-			_tempNormalisedAmps = new float[_covarianceMatrixLength];
+			_amps = new float[getAmpsLength()];
 		}
 
 
@@ -166,13 +159,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	float* dsp::CovarianceMatrixResult::getRunningMeanSum(unsigned int channelOffset)
 	{
 		return _runningMeanSum + (channelOffset * _binNum * _stokesLength);
-	}
-
-
-
-	float* dsp::CovarianceMatrixResult::getTempMeanStokesData()
-	{
-		return _tempNormalisedAmps;
 	}
 
 
@@ -237,7 +223,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 	float* dsp::CovarianceMatrixResult::getAmps()
 	{
-		return d_amps;
+		return _amps;
 	}
 
 

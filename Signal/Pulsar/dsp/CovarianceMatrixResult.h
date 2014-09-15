@@ -31,7 +31,7 @@ namespace dsp
 		unsigned int _unloadCalledNum; //Number of times unload has been called
 
 
-		float* d_amps;
+		float* _amps;
 
 		unsigned int* d_hits;
 
@@ -41,7 +41,7 @@ namespace dsp
 		float* _runningMeanSum; //Running total of the mean for each freq channel
 		unsigned int _runningMeanSumLength; //total runningMeanSumLength
 
-		float* _tempNormalisedAmps; //scratch space for ONE covariance matrix (length == covarianceMatrixLength)
+		//float* _tempNormalisedAmps; //scratch space for ONE covariance matrix (length == covarianceMatrixLength)
 
 
 
@@ -68,7 +68,7 @@ namespace dsp
 		//Getters
 		float* getCovarianceMatrix(unsigned int channelOffset);
 		float* getRunningMeanSum(unsigned int channelOffset);
-		float* getTempMeanStokesData();
+		//float* getTempMeanStokesData();
 		float* getAmps();
 		unsigned int* getHits();
 

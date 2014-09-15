@@ -144,7 +144,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 	unsigned int hitChanNum = _covarianceMatrixResult->getNumberOfHitChans();
 
-	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
+	float* amps = _covarianceMatrixResult->getAmps();
 
 
 
@@ -185,7 +185,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 			for(unsigned int col = row; col < rowLength; ++col)
 			{
 				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
-						tempMeanStokesData[row] * tempMeanStokesData[col];
+						amps[row] * amps[col];
 
 			}
 		}
@@ -203,16 +203,16 @@ void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const
 	unsigned int totalLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 
-	float* tempMeanStokesData = _covarianceMatrixResult->getTempMeanStokesData();
+	float* amps = _covarianceMatrixResult->getAmps();
 	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
 
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
 
-		tempMeanStokesData[ i ] = stokesData[ i ] / (hits[ i / stokesLength ]);
+		amps[ i ] = stokesData[ i ] / (hits[ i / stokesLength ]);
 
-		runningMeanSum[ i ] += tempMeanStokesData[ i ];
+		runningMeanSum[ i ] += amps[ i ];
 
 	}
 }
