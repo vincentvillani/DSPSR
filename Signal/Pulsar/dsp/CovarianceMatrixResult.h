@@ -32,10 +32,8 @@ namespace dsp
 
 
 		float* d_amps;
-		unsigned int _ampsLength;
 
-		float* d_hits;
-		unsigned int _hitsLength;
+		unsigned int* d_hits;
 
 		float* d_outerProducts; //Pointer to device memory to store summed outer products
 		unsigned int _outerProductsLength; //Total outer product length
@@ -67,7 +65,6 @@ namespace dsp
 
 
 
-
 		//Getters
 		float* getCovarianceMatrix(unsigned int channelOffset);
 		float* getRunningMeanSum(unsigned int channelOffset);
@@ -84,8 +81,6 @@ namespace dsp
 		unsigned int getUnloadCallCount();
 		unsigned int getAmpsLength();
 		unsigned int getHitsLength();
-
-
 
 		void iterateUnloadCallCount();
 

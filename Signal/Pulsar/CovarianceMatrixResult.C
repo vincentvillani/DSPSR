@@ -25,6 +25,11 @@
 		d_outerProducts = NULL;
 		_outerProductsLength = 0;
 
+		d_amps = NULL;
+		d_hits = NULL;
+
+
+
 		_useCUDA = false;
 		_setup = false;
 
@@ -78,9 +83,6 @@
 		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
 		//_tempMeanStokesDataLength = binNum * stokesLength;
 		_outerProductsLength = freqChanNum * covarianceMatrixLength;
-
-		_hitsLength = binNum;
-		_ampsLength = _binNum * stokesLength;
 
 
 		//TODO: VINCENT: FIX THIS
@@ -219,8 +221,22 @@
 	}
 
 
+
 	unsigned int* dsp::CovarianceMatrixResult::getHits()
 	{
 		return d_hits;
 	}
+
+
+	unsigned int dsp::CovarianceMatrixResult::getAmpsLength()
+	{
+		return _binNum * _stokesLength;
+	}
+
+
+	unsigned int dsp::CovarianceMatrixResult::getHitsLength()
+	{
+		return _binNum;
+	}
+
 
