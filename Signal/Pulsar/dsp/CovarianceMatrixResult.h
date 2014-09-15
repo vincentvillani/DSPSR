@@ -19,6 +19,10 @@
 //#include "ReferenceTo.h"
 //#include "ReferenceTo.h"
 
+#if HAVE_CUDA
+#include <cuda_runtime.h>
+#endif
+
 
 namespace dsp
 {
