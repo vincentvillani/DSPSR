@@ -126,6 +126,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
 			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum));
 
+
 			//gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
 			//gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
 
@@ -154,7 +155,10 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 	float* dsp::CovarianceMatrixResult::getCovarianceMatrix(unsigned int channelOffset)
 	{
-		return ( (float*)(get_data()) + (channelOffset * _covarianceMatrixLength));
+		if(!_useCUDA)
+			return ( (float*)(get_data()) + (channelOffset * _covarianceMatrixLength));
+		else
+			return d_outerProducts + (channelOffset * _covarianceMatrixLength);
 	}
 
 

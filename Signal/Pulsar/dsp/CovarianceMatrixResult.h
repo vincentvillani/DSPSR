@@ -40,7 +40,6 @@ namespace dsp
 
 
 		float* _amps;
-
 		unsigned int* d_hits;
 
 		float* d_outerProducts; //Pointer to device memory to store summed outer products
