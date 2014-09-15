@@ -7,10 +7,6 @@
 
 #include "dsp/CovarianceMatrixCUDAEngine.h"
 
-
-
-
-
 //TODO: VINCENT: ADD A HITS CHAN == 1 VARIATION TO STOP NEEDLESS COPYIES
 
 
@@ -38,6 +34,10 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		const unsigned int* hits = getHitsPtr(ps, cmr, i);
 		const float* amps = ps->get_datptr(i, 0);
 
+		//TODO:VINCENT: DEBUG
+		for(int i = 0; i < 3; ++i)
+			printf("Hit %d: %f\n", i, hits[i]);
+
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
 				hits, cmr->getHits(), cmr->getHitsLength(),
@@ -62,9 +62,12 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
 
+	/*
 	//TODO:VINCENT: DEBUG
 	for(int i = 0; i < 3; ++i)
 		printf("Hit %d: %f\n", i, h_hits[i]);
+
+	*/
 
 	cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice);
 

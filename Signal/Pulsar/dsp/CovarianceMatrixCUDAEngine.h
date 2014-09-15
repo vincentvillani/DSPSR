@@ -48,8 +48,8 @@ private:
 	//float* d_amps; //scratch space for amps and hits on the device
 	//float* d_hits;
 
-	float* h_tempOuterProducts;
-	float* h_tempPhaseOuterProducts;
+	//float* h_tempOuterProducts;
+	//float* h_tempPhaseOuterProducts;
 
 	//Compute a covariance matrix for one freq channel
 	void computeCovarianceMatrix(float* d_resultVector,
