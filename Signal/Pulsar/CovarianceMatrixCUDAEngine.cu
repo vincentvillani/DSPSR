@@ -48,7 +48,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		{
 			float val;
 			cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
-			printf("Value: %f", val);
+			printf("Value: %f\n", val);
 		}
 
 	}
@@ -66,7 +66,10 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
+	{
+		printf("There are bins with zeroes, returning...\n");
 		return;
+	}
 
 
 	//printf("RUNNING KERNELS\n");

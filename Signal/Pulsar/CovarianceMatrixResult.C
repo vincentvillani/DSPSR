@@ -48,6 +48,8 @@
 			cudaFree(_runningMeanSum);
 			cudaFree(_tempNormalisedAmps);
 			cudaFree(d_outerProducts);
+			cudaFree(d_amps);
+			cudaFree(d_hits);
 #endif
 		}
 		else
@@ -106,9 +108,14 @@
 
 
 			cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength);
-			cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength);
 
+			cudaMalloc(&d_amps, sizeof(float) * _stokesLength * _binNum);
+			cudaMalloc(&d_hits, sizeof(unsigned int) * _binbinNum);
+
+			cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength);
 			cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength);
+
+
 
 #endif
 

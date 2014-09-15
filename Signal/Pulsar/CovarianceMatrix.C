@@ -110,8 +110,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	}
 
 
-	printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
-	printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
+	//printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
+	//printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
 
 	if(_engine)
 	{
