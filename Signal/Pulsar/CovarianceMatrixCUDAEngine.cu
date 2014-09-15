@@ -8,33 +8,26 @@
 #include "dsp/CovarianceMatrixCUDAEngine.h"
 
 
-//Cuda Kernels
-__global__ void outerProductKernel(float* result, float* vec, int vectorLength);
-__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
-__global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double scaleFactor);
-__global__ void genericAddKernel(unsigned int n, float* original, const float* add);
-__global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add);
-__global__ void genericDivideKernel(unsigned int n, float* d_numerators, unsigned int denominator);
-__global__ void checkForZeroesKernel(unsigned int* d_hits, unsigned int hitsLength, bool* d_zeroes);
+
 
 
 //TODO: VINCENT: ADD A HITS CHAN == 1 VARIATION TO STOP NEEDLESS COPYIES
 
 
-CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
+dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
 	cudaMalloc(&d_zeroes, sizeof(bool));
 }
 
 
-CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
+dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 {
 	cudaFree(d_zeroes);
 }
 
 
 
-void CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(PhaseSeries* ps, CovarianceMatrixResult* cmr)
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 	unsigned int chanNum = ps->get_nchan();
 
@@ -47,7 +40,7 @@ void CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(PhaseSeries* ps, 
 
 
 
-void CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	const float* h_amps, float* d_amps, unsigned int ampsLength,
 	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
 	unsigned int stokesLength, unsigned int blockDim2D)
@@ -125,7 +118,7 @@ void CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
 
 
 
-float* CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
+float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
 			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength, unsigned int ampsLength)
 {
 	/*
@@ -156,7 +149,7 @@ float* CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(flo
 
 
 
-bool CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
+bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
 {
 	int blockDim = 256;
 	int gridDim = ceil((float) hitLength / blockDim);
