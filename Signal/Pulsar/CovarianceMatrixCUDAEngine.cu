@@ -39,20 +39,19 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 	unsigned int chanNum = ps->get_nchan();
+	unsigned int hitsLength = cmr->getHitsLength();
 
-	for(int i =0; i < cmr->getNumberOfHitChans(); ++i)
+	unsigned int* d_hits = cmr->getHits();
+	const unsigned int* h_hits = getHitsPtr(ps, cmr, 0);
+	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
+
+	//If there are bins with zeroes, discard everything
+	if ( hitsContainsZeroes(d_hits, hitsLength) )
 	{
-		unsigned int* d_hits = cmr->getHits();
-		const unsigned int* h_hits = getHitsPtr(ps, cmr, i);
-		gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
-
-		//If there are bins with zeroes, discard everything
-		if ( hitsContainsZeroes(d_hits, hitsLength) )
-		{
-			printf("There are bins with zeroes, returning...\n");
-			return;
-		}
+		printf("There are bins with zeroes, returning...\n");
+		return;
 	}
+
 
 
 
@@ -61,7 +60,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	for(int i = 0; i < chanNum; ++i)
 	{
 
-		const float* amps = ps->get_datptr(i, 0);
+		const float* h_amps = ps->get_datptr(i, 0);
 
 		//TODO:VINCENT: DEBUG
 		//for(int j = 0; j < 3; ++j)
@@ -70,7 +69,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
-				hits, cmr->getHits(), cmr->getHitsLength(),
+				h_hits, cmr->getHits(), cmr->getHitsLength(),
 				cmr->getRunningMeanSum(i),
 				cmr->getStokesLength());
 
