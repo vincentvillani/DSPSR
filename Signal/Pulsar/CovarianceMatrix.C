@@ -26,7 +26,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 			_covarianceMatrixResult->getCovarianceMatrix(0), _covarianceMatrixResult->getCovarianceMatrixLength(),
 			_covarianceMatrixResult->getRunningMeanSum(0), _covarianceMatrixResult->getRunningMeanSumLength(),
 			_covarianceMatrixResult->getUnloadCallCount(), _covarianceMatrixResult->getNumberOfFreqChans(),
-			_covarianceMatrixResult->getCovarianceMatrixLength(), _covarianceMatrixResult->getAmpsLength());
+			_covarianceMatrixResult->getCovarianceMatrixLength());
 
 
 	//Print out results to a file
