@@ -48,7 +48,7 @@ private:
 	//Compute a covariance matrix for one freq channel
 	void computeCovarianceMatrix(float* d_result,
 			const float* h_amps, float* d_amps, unsigned int ampsLength,
-			const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
+			unsigned int* d_hits, unsigned int hitsLength,
 			float* d_runningMean,
 			unsigned int stokesLength, unsigned int blockDim2D = 16);
 

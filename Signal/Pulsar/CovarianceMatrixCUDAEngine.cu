@@ -69,7 +69,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				h_amps, cmr->getAmps(), cmr->getAmpsLength(),
-				h_hits, cmr->getHits(), cmr->getHitsLength(),
+				cmr->getHits(), cmr->getHitsLength(),
 				cmr->getRunningMeanSum(i),
 				cmr->getStokesLength());
 
@@ -92,7 +92,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	const float* h_amps, float* d_amps, unsigned int ampsLength,
-	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
+	unsigned int* d_hits, unsigned int hitsLength,
 	float* d_runningMean,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
