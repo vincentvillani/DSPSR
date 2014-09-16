@@ -200,6 +200,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	unsigned int blockDim = 256;
 	unsigned int gridDim = ceil(runningMeanSumLength / blockDim);
 
+	printf("Starting generic divide kernel - GridDim: %u, BlockDim: %u\n", gridDim, blockDim);
 	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
@@ -220,6 +221,8 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
+		printf("Starting outer product kernel - GridDim: (%u, %u) BlockDim: (%u, %u)\n", outerProductBlockDim.x, outerProductBlockDim.y,
+				outerProductGridDim.x, outerProductGridDim.y);
 		outerProductKernel<<< outerProductGridDim, outerProductBlockDim >>> (d_outerProduct + (i * cmr->getCovarianceMatrixLength()),
 				d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
 
