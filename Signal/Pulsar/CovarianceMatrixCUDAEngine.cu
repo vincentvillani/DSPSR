@@ -51,13 +51,12 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		//for(int j = 0; j < 3; ++j)
 		//	printf("AFTER HIT CALL: Hit %d: %u\n", j, hits[j]);
 
+
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
 				hits, cmr->getHits(), cmr->getHitsLength(),
-				cmr->getRunningMeanSum(),
+				cmr->getRunningMeanSum(i),
 				cmr->getStokesLength());
-
-		//computeCovarianceMatrix()
 
 
 		//TODO: VINCENT: DEBUG
