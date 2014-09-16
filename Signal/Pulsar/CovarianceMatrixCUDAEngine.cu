@@ -196,12 +196,21 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	float* d_outerProduct;
 	cudaMalloc(&d_outerProduct, sizeof(float) * freqChanNum * covarianceLength);
+	cudaMemset(d_outerProduct, 0, sizeof(float) * freqChanNum * covarianceLength);
 
 	//divide the running mean by the number of times unload was called
 	unsigned int blockDim = 256;
 	unsigned int gridDim = ceil(runningMeanSumLength / blockDim);
 
 	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, unloadCalledCount);
+
+	//TODO: VINCENT: DEBUG
+	cudaError_t error = cudaDeviceSynchronize();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(2);
+	}
 
 	//Do the outer product
 
@@ -212,6 +221,14 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	for(int i = 0; i < freqChanNum; ++i)
 	{
 		outerProductKernel<<< gridDim, blockDim >>> (d_outerProduct + (i * covarianceLength), d_runningMeanSum, runningMeanSumLength);
+
+		//TODO: VINCENT: DEBUG
+		cudaError_t error2 = cudaDeviceSynchronize();
+		if(error2 != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+			exit(2);
+		}
 	}
 
 
