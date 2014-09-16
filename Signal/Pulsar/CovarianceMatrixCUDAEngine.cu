@@ -55,7 +55,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 	//For each channel, compute the covariance matrix
-	for(int i = 0; i < chanNum; ++i)
+	for(unsigned int i = 0; i < chanNum; ++i)
 	{
 
 		const float* h_amps = ps->get_datptr(i, 0);
@@ -119,8 +119,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	int gridDimX = ceil((float) ampsLength / blockDimX);
 	int gridDimY = ceil((float) ((ampsLength / 2) + 1) / blockDimY);
 
-	dim3 grid = dim3(gridDimX, gridDimY);
 	dim3 block = dim3(blockDimX, blockDimY);
+	dim3 grid = dim3(gridDimX, gridDimY);
 
 	//Call the kernel
 	//Compute covariance matrix
