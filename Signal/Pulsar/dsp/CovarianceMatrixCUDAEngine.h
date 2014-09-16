@@ -31,11 +31,7 @@ public:
 
 
 
-	float* compute_final_covariance_matrices_device(
-			float* d_outerProducts, unsigned int outerProductsLength,
-			float* d_runningMeanSum, unsigned int runningMeanSumLength,
-			unsigned int unloadCalledCount, unsigned int freqChanNum,
-			unsigned int covarianceLength);
+	float* compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr);
 
 
 
@@ -53,8 +49,7 @@ private:
 			unsigned int stokesLength, unsigned int blockDim2D = 16);
 
 
-	float* compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
-			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength);
+	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr);
 
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
 	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);

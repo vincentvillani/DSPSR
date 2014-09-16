@@ -143,22 +143,16 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 
-float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
-		float* d_outerProducts, unsigned int outerProductsLength,
-		float* d_runningMeanSum, unsigned int runningMeanSumLength,
-		unsigned int unloadCalledCount, unsigned int freqChanNum,
-		unsigned int covarianceLength)
+float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr)
 {
 	//Compute the phase series outer products
-	float* d_phaseSeriesOuterProduct = compute_outer_product_phase_series_device(
-																			d_runningMeanSum, runningMeanSumLength,
-																			unloadCalledCount, freqChanNum, covarianceLength);
+	float* d_phaseSeriesOuterProduct = compute_outer_product_phase_series_device(cmr);
 
-	unsigned int totalElementLength = covarianceLength * freqChanNum;
+	unsigned int totalElementLength = cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans();
 	unsigned int blockDim = 256;
 	unsigned int gridDim = ceil ((float) totalElementLength / (float)blockDim); //number of elements / blockdim
 
-	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, d_outerProducts, unloadCalledCount);
+	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
@@ -190,19 +184,23 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 
 
 
-float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
-			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength)
+float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr)
 {
 
+	unsigned int totalCovarianceLength = cmr->getCovarianceMatrixLength() * cmr-> getNumberOfFreqChans();
+
+	float* d_runningMeanSum = cmr->getRunningMeanSum(0);
+	unsigned int runningMeanSumLength = cmr->getRunningMeanSumLength();
+
 	float* d_outerProduct;
-	cudaMalloc(&d_outerProduct, sizeof(float) * freqChanNum * covarianceLength);
-	cudaMemset(d_outerProduct, 0, sizeof(float) * freqChanNum * covarianceLength);
+	cudaMalloc(&d_outerProduct, sizeof(float) * totalCovarianceLength);
+	cudaMemset(d_outerProduct, 0, sizeof(float) * totalCovarianceLength);
 
 	//divide the running mean by the number of times unload was called
 	unsigned int blockDim = 256;
 	unsigned int gridDim = ceil(runningMeanSumLength / blockDim);
 
-	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, unloadCalledCount);
+	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
@@ -218,9 +216,12 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	dim3 outerProductGridDim = dim3( ceil(runningMeanSumLength  / outerProductBlockDim.x),
 									 ceil( (runningMeanSumLength / 2) + 1) /  outerProductBlockDim.y);
 
+	unsigned int oneFreqRunningMeanLength = cmr->getBinNum() * cmr->getStokesLength();
+
 	for(int i = 0; i < freqChanNum; ++i)
 	{
-		outerProductKernel<<< gridDim, blockDim >>> (d_outerProduct + (i * covarianceLength), d_runningMeanSum, runningMeanSumLength);
+		outerProductKernel<<< gridDim, blockDim >>> (d_outerProduct + (i * covarianceLength),
+				d_runningMeanSum + i * oneFreqRunningMeanLength, oneFreqRunningMeanLength);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaDeviceSynchronize();
