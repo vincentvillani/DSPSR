@@ -54,18 +54,11 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 
-
-
 	//For each channel, compute the covariance matrix
 	for(int i = 0; i < chanNum; ++i)
 	{
 
 		const float* h_amps = ps->get_datptr(i, 0);
-
-		//TODO:VINCENT: DEBUG
-		//for(int j = 0; j < 3; ++j)
-		//	printf("AFTER HIT CALL: Hit %d: %u\n", j, hits[j]);
-
 
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				h_amps, cmr->getAmps(), cmr->getAmpsLength(),
@@ -97,18 +90,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
 
-
-	//TODO:VINCENT: DEBUG
-	//for(int i = 0; i < 3; ++i)
-	//	printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
-
-
-
-
-
-
-	//printf("RUNNING KERNELS\n");
-
 	int meanBlockDim = blockDim2D * blockDim2D;
 	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
 
@@ -118,9 +99,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	//h_hits values should be copied over to d_hits before this function is called
 	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
+	meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
-	genericAddKernel<<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
+	genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
 
 
 	//TODO: DEBUG
@@ -156,6 +137,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	}
 
 }
+
+
+
 
 
 

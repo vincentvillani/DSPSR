@@ -133,10 +133,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
 			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum));
 
-
-			//gpuErrchk(cudaMalloc(&_tempNormalisedAmps, sizeof(float) * covarianceMatrixLength));
-			//gpuErrchk(cudaMemset(_tempNormalisedAmps, 0, sizeof(float) * covarianceMatrixLength));
-
 #endif
 		}
 		else
