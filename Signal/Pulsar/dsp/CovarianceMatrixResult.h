@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstring>
 #include "dsp/DataSeries.h"
+#include "dsp/PhaseSeries.h"
 //#include "memory.h"
 //#include "ReferenceTo.h"
 //#include "ReferenceTo.h"
@@ -38,6 +39,7 @@ namespace dsp
 		unsigned int _hitChanNum; //Number of hit channels
 		unsigned int _unloadCalledNum; //Number of times unload has been called
 
+		PhaseSeries* _phaseSeries;
 
 		float* _amps;
 		unsigned int* d_hits;
@@ -67,8 +69,8 @@ namespace dsp
 		CovarianceMatrixResult* clone() const {return NULL;}
 
 		void setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
-					unsigned int covarianceMatrixLength, unsigned int hitChannelNumber);
-		void setup(); //Allocate memory, once everything has been set
+					unsigned int covarianceMatrixLength, unsigned int hitChannelNumber, const PhaseSeries* ps);
+
 
 
 
@@ -80,6 +82,7 @@ namespace dsp
 		unsigned int* getHits();
 
 
+		PhaseSeries* getPhaseSeries();
 		unsigned int getRunningMeanSumLength();
 		unsigned int getBinNum();
 		unsigned int getNumberOfFreqChans();

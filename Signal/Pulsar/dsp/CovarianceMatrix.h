@@ -41,7 +41,6 @@ namespace dsp
 		//Reference::To<Memory> _memory;
 
 		//----- result data  ------
-		PhaseSeries* _phaseSeries;
 		CovarianceMatrixResult* _covarianceMatrixResult;
 
 		CovarianceMatrixCUDAEngine* _engine;

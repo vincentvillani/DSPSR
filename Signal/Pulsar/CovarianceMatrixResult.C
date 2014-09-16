@@ -31,6 +31,8 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_hitChanNum = 0;
 		_unloadCalledNum = 0;
 
+		_phaseSeries = NULL;
+
 		_runningMeanSumLength = 0;
 
 		_runningMeanSum = NULL;
@@ -79,14 +81,18 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			_runningMeanSum = NULL;
 		}
 
+		delete _phaseSeries;
+
 	}
 
 
 	//TODO: VINCENT AT THE MOMENT, IF CUDA IS AVAILABLE, USE IT
 	void dsp::CovarianceMatrixResult::setup(unsigned int binNum, unsigned int freqChanNum, unsigned int stokesLength,
-			unsigned int covarianceMatrixLength, unsigned int hitChannelNumber)
+			unsigned int covarianceMatrixLength, unsigned int hitChannelNumber, const PhaseSeries* ps)
 	{
 		_setup = true;
+
+		_phaseSeries = new PhaseSeries(*ps); //Clone the initial phaseSeries
 
 		_binNum = binNum;
 		_freqChanNum = freqChanNum;
@@ -151,6 +157,12 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 	}
 
+
+
+	dsp::PhaseSeries*  dsp::CovarianceMatrixResult::getPhaseSeries()
+	{
+		return _phaseSeries;
+	}
 
 
 	float* dsp::CovarianceMatrixResult::getCovarianceMatrix(unsigned int channelOffset)

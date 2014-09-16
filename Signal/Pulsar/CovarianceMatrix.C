@@ -10,8 +10,6 @@
 
 dsp::CovarianceMatrix::CovarianceMatrix()
 {
-	//initially set pointers to null
-	_phaseSeries = NULL;
 	_covarianceMatrixResult = new CovarianceMatrixResult();
 	_unloader = NULL;
 	_engine = NULL;
@@ -37,7 +35,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	cerr << "Before unload" << std::endl;
 	//output summed phase series, before normalisation
-	_unloader->unload(_phaseSeries);
+	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
 	cerr << "After unload" << std::endl;
 
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
@@ -56,7 +54,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 	delete[] h_outerProducts;
-	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
 
@@ -68,7 +65,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	cerr << "Before unload" << std::endl;
 	//output summed phase series, before normalisation
-	_unloader->unload(_phaseSeries);
+	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
 	cerr << "After unload" << std::endl;
 
 	compute_final_covariance_matrices_host();
@@ -89,7 +86,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 
-	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
 
@@ -138,10 +134,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 		//Setup the covariance matrix
 		_covarianceMatrixResult->setup(binNum, phaseSeriesData->get_nchan(), phaseSeriesData->get_ndim(),
-				covariance_matrix_length( phaseSeriesData->get_ndim() * binNum),   phaseSeriesData->get_hits_nchan());
-
-		//clone the first phase series
-		_phaseSeries = new PhaseSeries(*phaseSeriesData);
+				covariance_matrix_length( phaseSeriesData->get_ndim() * binNum),   phaseSeriesData->get_hits_nchan(), phaseSeriesData);
 
 	}
 
@@ -228,7 +221,7 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	}
 
-	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
+	_covarianceMatrixResult->getPhaseSeries()->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
 }
 
 
@@ -315,7 +308,7 @@ float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 			for(unsigned int col = row; col < ampsLength; ++col)
 			{
 				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - covariance_matrix_length(row)) ] =
-						runningMeanSum[row] * runningMeanSum[col]; //amps[row] * amps[col];
+						runningMeanSum[row] * runningMeanSum[col];
 			}
 		}
 
@@ -345,105 +338,6 @@ void dsp::CovarianceMatrix::set_engine(CovarianceMatrixCUDAEngine* engine)
 	_engine = engine;
 	//_memory = Memory::get_manager();
 }
-
-
-
-
-/*
-#if HAVE_CUDA
-
-void dsp::CovarianceMatrix::setup_device(unsigned int chanNum, unsigned int hitChanNum, unsigned int binNum, unsigned int nPol, unsigned int nDim)
-{
-
-	_binNum = binNum;
-	_freqChanNum = chanNum;
-	_stokesLength = nDim; //TODO: VINCENT: CORRECT??
-	_hitChanNum = hitChanNum;
-
-	printf("Allocating device memory\n");
-
-	//Check for correct channels
-	if(hitChanNum != 1 && hitChanNum != chanNum)
-	{
-		//TODO: VINCENT: THROW AN EXCEPTION
-		printf("INVALID NUMBER OF HIT CHANNELS\n");
-		exit(2);
-	}
-
-
-
-	_covarianceMatrixLength = covariance_matrix_length(_binNum * _stokesLength);
-
-	//Allocate paged locked host memory for the pointer
-	cudaMallocHost(&_covarianceMatrices, sizeof(float*) * _freqChanNum);
-
-
-	for(int i = 0; i < _freqChanNum; ++i)
-	{
-		//Assign the amount of paged locked memory needed for a covariance matrix in each freq channel
-		cudaMallocHost(&(_covarianceMatrices[i]), sizeof(float) * _covarianceMatrixLength);
-
-		//Set all the values to zero
-		memset(_covarianceMatrices[i], 0, sizeof(float) * _covarianceMatrixLength);
-	}
-
-
-	cudaMalloc(&_d_amps, sizeof(float) * _binNum * _stokesLength);
-	cudaMalloc(&_d_hits, sizeof(unsigned int) * _binNum );
-
-
-	size_t totalResultByteNum = sizeof(float) * _covarianceMatrixLength  * _freqChanNum;
-
-	//Allocate space for all result vectors
-	cudaMalloc(&_d_resultVector, totalResultByteNum);
-
-	//Set all bytes to zero
-	cudaMemset(_d_resultVector, 0, totalResultByteNum);
-
-	//TODO: VINCENT: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-	}
-}
-
-
-
-void dsp::CovarianceMatrix::compute_covariance_matrix_device(const PhaseSeries* phaseSeriesData)
-{
-
-	printf("FreqChanNum: %d\n", _freqChanNum);
-
-	for(int channel = 0; channel < _freqChanNum; ++channel)
-	{
-		printf("\nFreq %d\n", channel);
-
-		const float* h_amps = phaseSeriesData->get_datptr(channel, 0);
-		//const unsigned int* h_hits = phaseSeriesData->get_hits(0); //TODO: VINCENT, THIS COULD BE THE SOURCE OF ERRORS LATER
-
-		const unsigned int* h_hits = getHitsPtr(phaseSeriesData, channel);
-
-		computeCovarianceMatrixCUDAEngine (_d_resultVector, channel * _covarianceMatrixLength,
-			h_amps, _d_amps, _binNum * _stokesLength,
-			h_hits, _d_hits, _binNum, _stokesLength, phaseSeriesData->get_scale() );
-	}
-
-	_phaseSeries->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
-
-}
-
-
-void dsp::CovarianceMatrix::copyAndPrint(float* deviceData, int arrayLength, int rowLength)
-{
-	float* hostData = new float [arrayLength];
-	cudaMemcpy(hostData, deviceData, sizeof(float) * arrayLength, cudaMemcpyDeviceToHost);
-	printUpperTriangularMatrix(hostData, rowLength, true);
-}
-
-
-#endif
-*/
 
 
 

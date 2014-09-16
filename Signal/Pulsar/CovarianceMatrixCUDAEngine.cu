@@ -66,7 +66,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
-
+	cmr->getPhaseSeries()->combine(*ps);
 
 }
 
@@ -75,6 +75,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	const float* h_amps, float* d_amps, unsigned int ampsLength,
 	const unsigned int* h_hits, unsigned int* d_hits, unsigned int hitsLength,
+	float* d_runningMean,
 	unsigned int stokesLength, unsigned int blockDim2D)
 {
 
@@ -109,7 +110,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
-	/*
+	genericAddKernel<<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
+
+
 	//TODO: DEBUG
 	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
@@ -117,7 +120,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(1);
 	}
-	*/
+
 
 	//Compute the needed block and grid dimensions
 	int blockDimX = blockDim2D;
@@ -132,13 +135,13 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	//Compute covariance matrix
 	//printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
 			//grid.x, grid.y, block.x, block.y);
-	outerProductKernel<<< grid, block >>>(d_result, d_amps, ampsLength);
+	outerProductKernel <<< grid, block >>>(d_result, d_amps, ampsLength);
 
 	//TODO: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
-	if(error != cudaSuccess)
+	cudaError_t error2 = cudaDeviceSynchronize();
+	if(error2 != cudaSuccess)
 	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
 		exit(2);
 	}
 
@@ -255,6 +258,8 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 	else
 		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
 }
+
+
 
 
 
