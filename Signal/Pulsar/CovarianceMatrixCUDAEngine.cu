@@ -35,16 +35,32 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 }
 
 
-
+//SINGLE HIT DIM
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 	unsigned int chanNum = ps->get_nchan();
+
+	for(int i =0; i < cmr->getNumberOfHitChans(); ++i)
+	{
+		unsigned int* d_hits = cmr->getHits();
+		const unsigned int* h_hits = getHitsPtr(ps, cmr, i);
+		gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
+
+		//If there are bins with zeroes, discard everything
+		if ( hitsContainsZeroes(d_hits, hitsLength) )
+		{
+			printf("There are bins with zeroes, returning...\n");
+			return;
+		}
+	}
+
+
 
 
 	//For each channel, compute the covariance matrix
 	for(int i = 0; i < chanNum; ++i)
 	{
-		const unsigned int* hits = getHitsPtr(ps, cmr, i);
+
 		const float* amps = ps->get_datptr(i, 0);
 
 		//TODO:VINCENT: DEBUG
@@ -88,15 +104,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	//	printf("IN COVARIANCE MATRIX: Hit %d: %u\n", i, h_hits[i]);
 
 
-	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
 
-
-	//If there are bins with zeroes, discard everything
-	if ( hitsContainsZeroes(d_hits, hitsLength) )
-	{
-		printf("There are bins with zeroes, returning...\n");
-		return;
-	}
 
 
 
@@ -108,8 +116,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	//Copy new amps and hit data to the device
 	gpuErrchk(cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
-	//printf("AMPS LENGTH: %u\n", ampsLength);
 
+	//h_hits values should be copied over to d_hits before this function is called
 	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
