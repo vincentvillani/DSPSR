@@ -218,10 +218,10 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	unsigned int oneFreqRunningMeanLength = cmr->getBinNum() * cmr->getStokesLength();
 
-	for(int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
+	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
 		outerProductKernel<<< outerProductGridDim, outerProductBlockDim >>> (d_outerProduct + (i * cmr->getCovarianceMatrixLength()),
-				d_runningMeanSum + i * oneFreqRunningMeanLength, oneFreqRunningMeanLength);
+				d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaDeviceSynchronize();
