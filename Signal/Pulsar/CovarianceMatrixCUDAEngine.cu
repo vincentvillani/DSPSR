@@ -163,7 +163,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	}
 
 
-	genericSubtractionKernel <<< gridDim, blockDim >>> (totalElementLength, d_outerProducts, d_phaseSeriesOuterProduct);
+	genericSubtractionKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), d_phaseSeriesOuterProduct);
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error2 = cudaDeviceSynchronize();
@@ -176,7 +176,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	cudaFree(d_phaseSeriesOuterProduct);
 
 	float* h_outerProduct = new float[totalElementLength];
-	cudaMemcpy(h_outerProduct, d_outerProducts, sizeof(float) * totalElementLength, cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_outerProduct, cmr->getCovarianceMatrix(0), sizeof(float) * totalElementLength, cudaMemcpyDeviceToHost);
 
 	return h_outerProduct;
 }
