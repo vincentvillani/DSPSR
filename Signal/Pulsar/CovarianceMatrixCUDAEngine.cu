@@ -54,7 +54,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
 				amps, cmr->getAmps(), cmr->getAmpsLength(),
 				hits, cmr->getHits(), cmr->getHitsLength(),
-				cmr->getStokesLength());
+				cmr->getStokesLength(), ps);
 
 		//TODO: VINCENT: DEBUG
 		if(i == 0)
