@@ -22,11 +22,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 #if HAVE_CUDA
 
 
-	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(
-			_covarianceMatrixResult->getCovarianceMatrix(0), _covarianceMatrixResult->getCovarianceMatrixLength(),
-			_covarianceMatrixResult->getRunningMeanSum(0), _covarianceMatrixResult->getRunningMeanSumLength(),
-			_covarianceMatrixResult->getUnloadCallCount(), _covarianceMatrixResult->getNumberOfFreqChans(),
-			_covarianceMatrixResult->getCovarianceMatrixLength());
+	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
 
 
 	//Print out results to a file
