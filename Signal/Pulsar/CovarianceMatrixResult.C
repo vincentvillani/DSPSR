@@ -169,6 +169,12 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	}
 
 
+	unsigned int dsp::CovarianceMatrixResult::getRunningMeanSumLength()
+	{
+		return _freqChanNum * _binNum * _stokesLength;
+	}
+
+
 
 	unsigned int dsp::CovarianceMatrixResult::getBinNum()
 	{

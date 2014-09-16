@@ -80,6 +80,7 @@ namespace dsp
 		unsigned int* getHits();
 
 
+		unsigned int getRunningMeanSumLength();
 		unsigned int getBinNum();
 		unsigned int getNumberOfFreqChans();
 		unsigned int getStokesLength();

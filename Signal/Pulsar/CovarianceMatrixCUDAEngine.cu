@@ -25,6 +25,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
 	cudaMalloc(&d_zeroes, sizeof(bool));
+	h_zeroes = false;
 }
 
 
@@ -64,6 +65,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		}
 
 	}
+
+
+
 }
 
 
@@ -102,7 +106,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	//printf("AMPS LENGTH: %u\n", ampsLength);
 
-	printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
+	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel<<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
 	/*
@@ -126,8 +130,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 	//Call the kernel
 	//Compute covariance matrix
-	printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
-			grid.x, grid.y, block.x, block.y);
+	//printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
+			//grid.x, grid.y, block.x, block.y);
 	outerProductKernel<<< grid, block >>>(d_result, d_amps, ampsLength);
 
 	//TODO: DEBUG
@@ -141,29 +145,58 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 }
 
 
-/*
-void CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
+
+float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(
 		float* d_outerProducts, unsigned int outerProductsLength,
 		float* d_runningMeanSum, unsigned int runningMeanSumLength,
 		unsigned int unloadCalledCount, unsigned int freqChanNum,
-		unsigned int covarianceLength, unsigned int ampsLength)
+		unsigned int covarianceLength)
 {
-	//check available memory
-	size_t freeMemoryBytes;
-	size_t totalMemoryBytes;
+	//Compute the phase series outer products
+	float* d_phaseSeriesOuterProduct = compute_outer_product_phase_series_device(
+																			d_runningMeanSum, runningMeanSumLength,
+																			unloadCalledCount, freqChanNum, covarianceLength);
 
-	cudaMemGetInfo(&freeMemoryBytes, &totalMemoryBytes);
+	unsigned int totalElementLength = covarianceLength * freqChanNum;
+	unsigned int blockDim = 256;
+	unsigned int gridDim = ceil ((float) totalElementLength / (float)blockDim); //number of elements / blockdim
 
-	printf("Free memory: %d\nTotal Memory: %d\n", freeMemoryBytes, totalMemoryBytes);
+	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, d_outerProducts, unloadCalledCount);
+
+	//TODO: VINCENT: DEBUG
+	cudaError_t error = cudaDeviceSynchronize();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(2);
+	}
+
+
+	genericSubtractionKernel <<< gridDim, blockDim >>> (totalElementLength, d_outerProducts, d_phaseSeriesOuterProduct);
+
+	//TODO: VINCENT: DEBUG
+	cudaError_t error2 = cudaDeviceSynchronize();
+	if(error2 != cudaSuccess)
+	{
+		printf("CUDA ERROR2: %s\n", cudaGetErrorString(error2));
+		exit(2);
+	}
+
+	cudaFree(d_phaseSeriesOuterProduct);
+
+	float* h_outerProduct = new float[totalElementLength];
+	cudaMemcpy(h_outerProduct, d_outerProducts, sizeof(float) * totalElementLength, cudaMemcpyDeviceToHost);
+
+	return h_outerProduct;
 }
-*/
+
 
 
 
 float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(float* d_runningMeanSum, unsigned int runningMeanSumLength,
-			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength, unsigned int ampsLength)
+			unsigned int unloadCalledCount, unsigned int freqChanNum, unsigned int covarianceLength)
 {
-	/*
+
 	float* d_outerProduct;
 	cudaMalloc(&d_outerProduct, sizeof(float) * freqChanNum * covarianceLength);
 
@@ -184,9 +217,9 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 		outerProductKernel<<< gridDim, blockDim >>> (d_outerProduct + (i * covarianceLength), d_runningMeanSum, runningMeanSumLength);
 	}
 
-	*/
 
-	return NULL;
+
+	return d_outerProduct;
 }
 
 
@@ -297,6 +330,16 @@ __global__ void genericAddKernel(unsigned int n, unsigned int* original, const u
 	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		original[absIdx] += add[absIdx];
+	}
+}
+
+
+
+__global__ void genericSubtractionKernel(unsigned int n, float* original, const float* sub)
+{
+	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
+	{
+		original[absIdx] -= sub[absIdx];
 	}
 }
 

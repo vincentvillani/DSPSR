@@ -24,6 +24,42 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 #if HAVE_CUDA
 
 
+	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(
+			_covarianceMatrixResult->getCovarianceMatrix(0), _covarianceMatrixResult->getCovarianceMatrixLength(),
+			_covarianceMatrixResult->getRunningMeanSum(0), _covarianceMatrixResult->getRunningMeanSumLength(),
+			_covarianceMatrixResult->getUnloadCallCount(), _covarianceMatrixResult->getNumberOfFreqChans(),
+			_covarianceMatrixResult->getCovarianceMatrixLength(), _covarianceMatrixResult->getAmpsLength());
+
+
+	//Print out results to a file
+	//TODO: VINCENT: DEBUG
+	std::stringstream ss;
+
+	cerr << "Before unload" << std::endl;
+	//output summed phase series, before normalisation
+	_unloader->unload(_phaseSeries);
+	cerr << "After unload" << std::endl;
+
+	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int binNum = _covarianceMatrixResult->getBinNum();
+	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
+
+	//Write out data to a file
+	for(int j = 0; j < freqChanNum; ++j)
+	{
+		//write it out to a file
+		ss << "resultMatrixChan" << j << ".txt";
+		outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
+		ss.str("");
+	}
+
+
+	delete[] h_outerProducts;
+	delete _phaseSeries; //TODO: VINCENT: IS THIS CORRECT?
+	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+	delete _covarianceMatrixResult;
+
 
 #else
 
@@ -227,7 +263,7 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 	unsigned int unloadCalledNum = _covarianceMatrixResult->getUnloadCallCount();
 
 	//Get the phase series outer product
-	float* phaseSeriesOuterProduct =  compute_outer_product_phase_series_host(); //compute_outer_product_phase_series_host();
+	float* phaseSeriesOuterProduct =  compute_outer_product_phase_series_host();
 
 
 	for(int i = 0; i < freqChanNum; ++i)
