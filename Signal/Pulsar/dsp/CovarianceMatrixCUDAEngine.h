@@ -54,6 +54,8 @@ private:
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
 	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
 
+	void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
+
 };
 
 }

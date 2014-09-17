@@ -252,7 +252,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	std::stringstream ss;
 
 	//Write out data to a file
-	for(int j = 0; j < freqChanNum; ++j)
+	for(int j = 0; j < cmr->getNumberOfFreqChans(); ++j)
 	{
 		//write it out to a file
 		ss << "xMeanGPU" << j << ".txt";
@@ -307,6 +307,40 @@ const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSerie
 		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
 }
 
+
+
+
+void dsp::CovarianceMatrixCUDAEngine::outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename)
+{
+
+	FILE* file = fopen(filename.c_str(), "w");
+
+	int numZeros = 0;
+	int iterator = 0;
+
+	//for every row
+	for(int i = 0; i < rowLength; ++i)
+	{
+		//print preceding zeros
+		for(int j = 0; j < numZeros; ++j)
+		{
+			fprintf(file, "0 ");
+		}
+
+		//print array values
+		for(int k = 0; k < rowLength - numZeros; ++k)
+		{
+			fprintf(file, "%f ", result[iterator]);
+			++iterator;
+		}
+
+		fprintf(file, "\n");
+		numZeros++;
+	}
+
+	fclose(file);
+
+}
 
 
 
