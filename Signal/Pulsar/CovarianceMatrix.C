@@ -75,9 +75,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	cerr << "After unload" << std::endl;
 
 	//TODO: VINCENT: DEBUG
-	//compute_final_covariance_matrices_host();
+	compute_final_covariance_matrices_host();
 
 
+	/*
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
@@ -90,7 +91,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
-
+*/
 
 
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
@@ -289,8 +290,7 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 	{
 		//write it out to a file
 		ss << "xMeanCPU" << j << ".txt";
-		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j),
-				_covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(), ss.str());
+		outputUpperTriangularMatrix(phaseSeriesOuterProduct, _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(), ss.str());
 		ss.str("");
 	}
 

@@ -256,7 +256,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	{
 		//write it out to a file
 		ss << "xMeanGPU" << j << ".txt";
-		outputUpperTriangularMatrix(cmr->getCovarianceMatrix(j),
+		outputUpperTriangularMatrix(d_outerProduct + (j * cmr->getCovarianceMatrixLength()),
 				cmr->getBinNum() * cmr->getStokesLength(), ss.str());
 		ss.str("");
 	}
