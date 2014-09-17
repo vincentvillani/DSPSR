@@ -248,6 +248,10 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	}
 
 
+	float* h_outerProduct = new float[cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans()];
+	cudaMemcpy(h_outerProduct, d_outerProduct, sizeof(float) * cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans(), cudaMemcpyDeviceToHost);
+
+
 	//**** DEBUG ****** TODO:VINCENT: DEBUG
 	std::stringstream ss;
 
@@ -256,7 +260,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	{
 		//write it out to a file
 		ss << "xMeanGPU" << j << ".txt";
-		outputUpperTriangularMatrix(d_outerProduct + (j * cmr->getCovarianceMatrixLength()),
+		outputUpperTriangularMatrix(h_outerProduct + (j * cmr->getCovarianceMatrixLength()),
 				cmr->getBinNum() * cmr->getStokesLength(), ss.str());
 		ss.str("");
 	}
