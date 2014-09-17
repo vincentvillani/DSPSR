@@ -26,9 +26,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 
-	//float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
+	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
 
 
+	/*
 	//TODO: VINCENT: DEBUG
 	//*** DEBUG ****
 	float* h_outerProducts = new float[freqChanNum * covarianceLength];
@@ -55,6 +56,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
+	*/
 
 
 	delete[] h_outerProducts;
@@ -276,6 +278,22 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 
 		}
 	}
+
+
+	//**** DEBUG ****** TODO:VINCENT: DEBUG
+
+	std::stringstream ss;
+
+	//Write out data to a file
+	for(int j = 0; j < freqChanNum; ++j)
+	{
+		//write it out to a file
+		ss << "xMeanCPU" << j << ".txt";
+		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j),
+				_covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(), ss.str());
+		ss.str("");
+	}
+
 
 	delete[] phaseSeriesOuterProduct;
 }
