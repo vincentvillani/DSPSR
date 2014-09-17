@@ -84,8 +84,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
 
-	if(_engine != NULL)
-		delete _engine;
+	//if(_engine != NULL)
+		//delete _engine;
 
 
 

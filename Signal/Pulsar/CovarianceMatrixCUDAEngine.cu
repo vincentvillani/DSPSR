@@ -101,11 +101,20 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 	meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
+	//TODO: DEBUG
+	cudaError_t error = cudaPeekAtLastError();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
+	}
+
+
 	genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
 
 
 	//TODO: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
+	error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
@@ -129,7 +138,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 	outerProductKernel <<< grid, block >>>(d_result, d_amps, ampsLength);
 
 	//TODO: DEBUG
-	cudaError_t error2 = cudaDeviceSynchronize();
+	cudaError_t error2 = cudaPeekAtLastError();
 	if(error2 != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
@@ -155,7 +164,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
+	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
@@ -166,7 +175,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	genericSubtractionKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), d_phaseSeriesOuterProduct);
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error2 = cudaDeviceSynchronize();
+	cudaError_t error2 = cudaPeekAtLastError();
 	if(error2 != cudaSuccess)
 	{
 		printf("CUDA ERROR2: %s\n", cudaGetErrorString(error2));
@@ -204,7 +213,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	genericDivideKernel<<< gridDim, blockDim >>> (runningMeanSumLength, d_runningMeanSum, cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
+	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
@@ -228,7 +237,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 				d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
 
 		//TODO: VINCENT: DEBUG
-		cudaError_t error2 = cudaDeviceSynchronize();
+		cudaError_t error2 = cudaPeekAtLastError();
 		if(error2 != cudaSuccess)
 		{
 			printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
@@ -254,8 +263,16 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 
 	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
 
+	//TODO: VINCENT: DEBUG
+	cudaError_t error2 = cudaPeekAtLastError();
+	if(error2 != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+		exit(2);
+	}
 
-	cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost);
+
+	gpuErrchk(cudaMemcpy(&h_zeroes, d_zeroes, sizeof(bool), cudaMemcpyDeviceToHost));
 
 	return h_zeroes;
 }
