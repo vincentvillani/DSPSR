@@ -31,7 +31,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	//TODO: VINCENT: DEBUG
 	//*** DEBUG ****
-	float* h_outerProducts;
+	float* h_outerProducts = new float[freqChanNum * covarianceLength];
 	cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
 
 
@@ -57,6 +57,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	}
 
 
+	delete[] h_outerProducts;
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
 
@@ -83,7 +84,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	for(int j = 0; j < freqChanNum; ++j)
 	{
 		//write it out to a file
-		ss << "resultMatrixChan" << j << ".txt";
+		ss << "xSquaredCPU" << j << ".txt";
 		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
