@@ -161,6 +161,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min (ceil ( totalElementLength / blockDim), (double)((1 << 16) - 1)); //number of elements / blockdim
 
+	//Divide all x^2 terms by unload call count
 	printf("Launching generic divide kernel with gridDim: %u, blockDim: %u\n", gridDim, blockDim);
 	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), cmr->getUnloadCallCount());
 

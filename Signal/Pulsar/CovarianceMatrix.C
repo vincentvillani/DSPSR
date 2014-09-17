@@ -21,8 +21,19 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #if HAVE_CUDA
 
+	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+	unsigned int binNum = _covarianceMatrixResult->getBinNum();
+	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 
-	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
+	//float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
+
+
+	//TODO: VINCENT: DEBUG
+	//*** DEBUG ****
+	float* h_outerProducts;
+	cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
+
 
 
 	//Print out results to a file
@@ -34,16 +45,13 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
 	cerr << "After unload" << std::endl;
 
-	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
-	unsigned int binNum = _covarianceMatrixResult->getBinNum();
-	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
-	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
+
 
 	//Write out data to a file
 	for(int j = 0; j < freqChanNum; ++j)
 	{
 		//write it out to a file
-		ss << "resultMatrixChan" << j << ".txt";
+		ss << "xSquaredGPU" << j << ".txt";
 		outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
@@ -55,7 +63,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #else
 
-	//TODO: VINCENT: DEBUG
+
 	std::stringstream ss;
 
 	cerr << "Before unload" << std::endl;
@@ -63,7 +71,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
 	cerr << "After unload" << std::endl;
 
-	compute_final_covariance_matrices_host();
+	//TODO: VINCENT: DEBUG
+	//compute_final_covariance_matrices_host();
 
 
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
