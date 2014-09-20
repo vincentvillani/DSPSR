@@ -254,12 +254,9 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	}
 
 	//Do the outer product
-
 	unsigned int ampsLength = cmr->getAmpsLength();
 	unsigned int outerProductBlockDim = 256;
 	unsigned int outerProductGridDim = min( (int)ceil( (int)((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockDim), 65535);
-
-	//unsigned int oneFreqRunningMeanLength = cmr->getBinNum() * cmr->getStokesLength();
 
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{

@@ -50,8 +50,6 @@ namespace dsp
 		float* _runningMeanSum; //Running total of the mean for each freq channel
 		unsigned int _runningMeanSumLength; //total runningMeanSumLength
 
-		//float* _tempNormalisedAmps; //scratch space for ONE covariance matrix (length == covarianceMatrixLength)
-
 
 
 		//TODO: VINCENT: DO THIS PROPERLY - REMOVE THIS

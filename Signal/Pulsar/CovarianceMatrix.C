@@ -58,7 +58,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 
 	delete[] h_outerProducts;
-	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+	cudaFree(d_outerProducts);
+	//delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
 
 

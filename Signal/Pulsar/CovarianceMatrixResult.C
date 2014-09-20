@@ -102,7 +102,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_unloadCalledNum = 0;
 
 		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
-		//_tempMeanStokesDataLength = binNum * stokesLength;
 		_outerProductsLength = freqChanNum * covarianceMatrixLength;
 
 
