@@ -264,10 +264,6 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
 		printf("Starting outer product kernel - GridDim: %u, BlockDim: %u\n", outerProductGridDim, outerProductBlockDim);
-
-		//outerProductKernel<<< outerProductGridDim, outerProductBlockDim >>> (d_outerProduct + (i * cmr->getCovarianceMatrixLength()),
-		//		d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
-
 		outerProductKernelNew <<< outerProductGridDim, outerProductBlockDim >>>
 				(d_outerProduct + (i * cmr->getCovarianceMatrixLength()), cmr->getCovarianceMatrixLength(),
 						d_runningMeanSum + (i * ampsLength), ampsLength);
