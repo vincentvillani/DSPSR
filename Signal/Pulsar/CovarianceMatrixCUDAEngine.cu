@@ -151,7 +151,11 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr)
 {
+	printf("BEFORE PSOP\n");
+
 	float* phaseSeriesOuterProduct = compute_final_covariance_matrices_device_DEBUG(cmr);
+
+	printf("AFTER PSOP\n");
 
 	unsigned int freqChanNum = cmr->getNumberOfFreqChans();
 	unsigned int covarianceMatrixLength = cmr->getCovarianceMatrixLength();
@@ -162,7 +166,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	for(int i = 0; i < freqChanNum; ++i)
 	{
 		float* d_covarianceMatrix = cmr->getCovarianceMatrix(i);
-		cudaMemcpy(covarianceMatrix, d_covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyDeviceToHost);
+		gpuErrchk(cudaMemcpy(covarianceMatrix, d_covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyDeviceToHost));
 
 		for(int j = 0; j < covarianceMatrixLength; ++j)
 		{
@@ -172,15 +176,18 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 		}
 
 		//copy results back
-		cudaMemcpy(d_covarianceMatrix, covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyHostToDevice);
+		gpuErrchk(cudaMemcpy(d_covarianceMatrix, covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyHostToDevice));
 	}
+
+	printf("HERE\n");
 
 	delete[] covarianceMatrix;
 	delete[] phaseSeriesOuterProduct;
 
 	float* finalCov = new float[covarianceMatrixLength * freqChanNum];
-	cudaMemcpy(covarianceMatrix ,cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost);
+	gpuErrchk(cudaMemcpy(covarianceMatrix ,cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost));
 
+	printf("DONE\n");
 	return finalCov;
 
 }
