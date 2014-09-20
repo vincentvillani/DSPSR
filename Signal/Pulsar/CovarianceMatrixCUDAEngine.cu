@@ -74,7 +74,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 
 	float* d_amps = cmr->getAmps();
-	float* h_amps; //start of the h_amps
+	float* d_hits = cmr->getHits();
 	float* d_runningMean;
 	float* d_result;
 
@@ -82,17 +82,17 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	unsigned int meanBlockDim = 256;
 	unsigned int meanGridDim =  ceil( ampsLength / meanBlockDim);
 	unsigned int outerProductBlockSize = 256;
-	unsigned int outerProductGridDim = min( ceil( (int)(((int)ampsLength * (int)(ampsLength + 1)) / 2) / (int)outerProductBlockSize), (int)65535);
+	unsigned int outerProductGridDim = min( (int)ceil( (int)((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockSize), 65535);
 
 
 	//compute the covariance matrix for each freq chan
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
 		//first normalise/compute the mean of the amps by dividing it by the hits
-		h_amps = ps->get_datptr(i, 0);
+		const float* h_amps = ps->get_datptr(i, 0);
 		gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
-		//h_hits values should be copied over to d_hits before this function is called
+		//h_hits values should be copied over to d_hits before this function is called <------------ IS THIS TRUE?????????!!!!!?!?!?!!??
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
@@ -120,8 +120,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 
 		//Compute the outer product
-		printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
-				grid.x, grid.y, block.x, block.y);
+		printf("Launching outerProduct Kernel with gridDim: %u, blockDim: %u\n\n",
+				outerProductGridDim, outerProductBlockSize);
 		d_result = cmr->getCovarianceMatrix(i);
 		outerProductKernelNew <<<outerProductGridDim, outerProductBlockSize>>>
 				(d_result, covMatrixLength, d_amps, ampsLength);
@@ -504,14 +504,14 @@ __global__ void outerProductKernel(float* result, float* vec, unsigned int vecto
 
 __global__ void outerProductKernelNew(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
 {
-	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < matrixLength; absoluteThreadIdx += gridDim.x * blockDim.x)
+	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < resultLength; absoluteThreadIdx += gridDim.x * blockDim.x)
 	{
 		unsigned int row = absoluteThreadIdx / vecLength;
 		unsigned int col = absoluteThreadIdx % vecLength;
 
 		if(row > col)
 		{
-			row = vectorLength - row;
+			row = vecLength - row;
 			col = row + col;
 		}
 
