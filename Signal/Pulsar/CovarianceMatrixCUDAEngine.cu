@@ -270,7 +270,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 		outerProductKernelNew <<< outerProductGridDim, outerProductBlockDim >>>
 				(d_outerProduct + (i * cmr->getCovarianceMatrixLength()), cmr->getCovarianceMatrixLength(),
-						d_runningMeanSum + (i * oneFreqRunningMeanLength), ampsLength);
+						d_runningMeanSum + (i * ampsLength), ampsLength);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaPeekAtLastError();
