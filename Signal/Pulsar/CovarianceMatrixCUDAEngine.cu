@@ -153,7 +153,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 {
 	printf("BEFORE PSOP\n");
 
-	float* phaseSeriesOuterProduct = compute_final_covariance_matrices_device_DEBUG(cmr);
+	float* phaseSeriesOuterProduct = compute_outer_product_phase_series_device_DEBUG(cmr);
 
 	printf("AFTER PSOP\n");
 
