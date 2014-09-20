@@ -342,7 +342,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 		{
 			for(unsigned int col = row; col < ampsLength; ++col)
 			{
-				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - covariance_matrix_length(row)) ] =
+				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - ( (row * (row + 1)) / 2) ) ] =
 						runningMeanSum[row] * runningMeanSum[col];
 			}
 		}
