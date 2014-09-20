@@ -74,7 +74,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 
 	float* d_amps = cmr->getAmps();
-	float* d_hits = cmr->getHits();
+	unsigned int* d_hits = cmr->getHits();
 	float* d_runningMean;
 	float* d_result;
 
