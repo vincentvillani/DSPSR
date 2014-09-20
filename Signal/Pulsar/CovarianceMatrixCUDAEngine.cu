@@ -38,8 +38,11 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 //SINGLE HIT DIM
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
+	unsigned int hitsLength = cmr->getHitsLength();
+	unsigned int* d_hits = cmr->getHits();
+	const unsigned int* h_hits = getHitsPtr(ps, cmr, 0);
 
-	gpuErrchk( cudaMemcpy(cmr->getHits(), getHitsPtr(ps, cmr, 0), sizeof(unsigned int) * cmr->getHitsLength(), cudaMemcpyHostToDevice) );
+	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
 
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
@@ -56,7 +59,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	float val;
 	cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
 	printf("Value: %f\n", val);
-	// --------------------------
 
 	cmr->getPhaseSeries()->combine(ps);
 
@@ -80,7 +82,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	unsigned int meanBlockDim = 256;
 	unsigned int meanGridDim =  ceil( ampsLength / meanBlockDim);
 	unsigned int outerProductBlockSize = 256;
-	unsigned int outerProductGridDim = min( ceil( ((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockSize), (int)65535);
+	unsigned int outerProductGridDim = min( ceil( (int)(((int)ampsLength * (int)(ampsLength + 1)) / 2) / (int)outerProductBlockSize), (int)65535);
 
 
 	//compute the covariance matrix for each freq chan
@@ -91,7 +93,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
 		//h_hits values should be copied over to d_hits before this function is called
-		//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
+		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 
 		//TODO: DEBUG
