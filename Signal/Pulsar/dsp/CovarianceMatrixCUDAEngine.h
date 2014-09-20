@@ -40,11 +40,7 @@ private:
 	bool h_zeroes;
 
 	//Compute a covariance matrix for one freq channel
-	void computeCovarianceMatrix(float* d_result,
-			const float* h_amps, float* d_amps, unsigned int ampsLength,
-			unsigned int* d_hits, unsigned int hitsLength,
-			float* d_runningMean,
-			unsigned int stokesLength, unsigned int blockDim2D = 16);
+	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps);
 
 
 	//float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr);
@@ -65,6 +61,7 @@ private:
 
 //Cuda Kernels
 __global__ void outerProductKernel(float* result, float* vec, unsigned int vectorLength);
+__global__ void outerProductKernelNew(float* result, unsigned int resultLength, float* vec, unsigned int vecLength);
 __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
 __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double scaleFactor);
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add);

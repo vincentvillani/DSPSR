@@ -38,12 +38,8 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 //SINGLE HIT DIM
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
-	unsigned int chanNum = ps->get_nchan();
-	unsigned int hitsLength = cmr->getHitsLength();
 
-	unsigned int* d_hits = cmr->getHits();
-	const unsigned int* h_hits = getHitsPtr(ps, cmr, 0);
-	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
+	gpuErrchk( cudaMemcpy(cmr->getHits(), getHitsPtr(ps, cmr, 0), sizeof(unsigned int) * cmr->getHitsLength(), cudaMemcpyHostToDevice) );
 
 	//If there are bins with zeroes, discard everything
 	if ( hitsContainsZeroes(d_hits, hitsLength) )
@@ -53,29 +49,14 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	}
 
 
-
-	//For each channel, compute the covariance matrix
-	for(unsigned int i = 0; i < chanNum; ++i)
-	{
-
-		const float* h_amps = ps->get_datptr(i, 0);
-
-		computeCovarianceMatrix(cmr->getCovarianceMatrix(i),
-				h_amps, cmr->getAmps(), cmr->getAmpsLength(),
-				cmr->getHits(), cmr->getHitsLength(),
-				cmr->getRunningMeanSum(i),
-				cmr->getStokesLength());
+	computeCovarianceMatrix(cmr, ps);
 
 
-		//TODO: VINCENT: DEBUG
-		if(i == 0)
-		{
-			float val;
-			cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
-			printf("Value: %f\n", val);
-		}
-
-	}
+	//TODO: VINCENT: DEBUG
+	float val;
+	cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
+	printf("Value: %f\n", val);
+	// --------------------------
 
 	cmr->getPhaseSeries()->combine(ps);
 
@@ -83,13 +64,72 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 
-void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
-	const float* h_amps, float* d_amps, unsigned int ampsLength,
-	unsigned int* d_hits, unsigned int hitsLength,
-	float* d_runningMean,
-	unsigned int stokesLength, unsigned int blockDim2D)
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps)
 {
+	unsigned int ampsLength = cmr->getAmpsLength();
+	unsigned int covMatrixLength = cmr->getCovarianceMatrixLength();
+	unsigned int stokesLength = cmr->getStokesLength();
 
+
+	float* d_amps = cmr->getAmps();
+	float* h_amps; //start of the h_amps
+	float* d_runningMean;
+	float* d_result;
+
+
+	unsigned int meanBlockDim = 256;
+	unsigned int meanGridDim =  ceil( ampsLength / meanBlockDim);
+	unsigned int outerProductBlockSize = 256;
+	unsigned int outerProductGridDim = min( ceil( ((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockSize), (int)65535);
+
+
+	//compute the covariance matrix for each freq chan
+	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
+	{
+		//first normalise/compute the mean of the amps by dividing it by the hits
+		h_amps = ps->get_datptr(i, 0);
+		gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
+
+		//h_hits values should be copied over to d_hits before this function is called
+		//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
+		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
+
+		//TODO: DEBUG
+		cudaError_t error = cudaPeekAtLastError();
+		if(error != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+			exit(1);
+		}
+
+
+		//Add the normalised amps to the running mean
+		d_runningMean = cmr->getRunningMeanSum(i);
+		genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
+
+		//TODO: DEBUG
+		error = cudaPeekAtLastError();
+		if(error != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+			exit(1);
+		}
+
+
+
+		//Compute the outer product
+		printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
+				grid.x, grid.y, block.x, block.y);
+		d_result = cmr->getCovarianceMatrix(i);
+		outerProductKernelNew <<<outerProductGridDim, outerProductBlockSize>>>
+				(d_result, covMatrixLength, d_amps, ampsLength);
+
+	}
+
+	//combine phase series
+	cmr->getPhaseSeries()->combine(ps);
+
+	/*
 	int meanBlockDim = blockDim2D * blockDim2D;
 	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
 
@@ -123,13 +163,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 	//Compute the needed block and grid dimensions
-	int blockDimX = blockDim2D;
-	int blockDimY = blockDim2D;
-	int gridDimX = ceil((float) ampsLength / blockDimX);
-	int gridDimY = ceil((float) ((ampsLength / 2) + 1) / blockDimY);
-
-	dim3 block = dim3(blockDimX, blockDimY);
-	dim3 grid = dim3(gridDimX, gridDimY);
+	unsigned int outerProductBlockSize = 256;
+	unsigned int outerProductGridDim = ceil(co)
 
 	//Call the kernel
 	//Compute covariance matrix
@@ -144,7 +179,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
 		exit(2);
 	}
-
+	*/
 }
 
 
@@ -462,6 +497,31 @@ __global__ void outerProductKernel(float* result, float* vec, unsigned int vecto
 	//do the outer product calculation and add it too the correct element
 	result[index] += vec[row] * vec[col];
 }
+
+
+
+__global__ void outerProductKernelNew(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
+{
+	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < matrixLength; absoluteThreadIdx += gridDim.x * blockDim.x)
+	{
+		unsigned int row = absoluteThreadIdx / vecLength;
+		unsigned int col = absoluteThreadIdx % vecLength;
+
+		if(row > col)
+		{
+			row = vectorLength - row;
+			col = row + col;
+		}
+
+		//compute the index
+		int index = (row * vecLength + col) - ((row * (row + 1)) / 2);
+
+		//do the outer product calculation and add it too the correct element
+		result[index] += vec[row] * vec[col];
+
+	}
+}
+
 
 
 //(d_amps, ampsLength, d_hits, stokesLength)
