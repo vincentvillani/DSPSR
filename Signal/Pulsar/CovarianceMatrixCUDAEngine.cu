@@ -130,58 +130,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 	//combine phase series
 	cmr->getPhaseSeries()->combine(ps);
-
-	/*
-	int meanBlockDim = blockDim2D * blockDim2D;
-	int meanGridDim = ceil((float) ampsLength / meanBlockDim);
-
-	//Copy new amps and hit data to the device
-	gpuErrchk(cudaMemcpy(d_amps, h_amps, sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
-
-
-	//h_hits values should be copied over to d_hits before this function is called
-	//printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-	meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
-
-	//TODO: DEBUG
-	cudaError_t error = cudaPeekAtLastError();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		exit(1);
-	}
-
-
-	genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
-
-
-	//TODO: DEBUG
-	error = cudaPeekAtLastError();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		exit(1);
-	}
-
-
-	//Compute the needed block and grid dimensions
-	unsigned int outerProductBlockSize = 256;
-	unsigned int outerProductGridDim = ceil(co)
-
-	//Call the kernel
-	//Compute covariance matrix
-	//printf("Launching outerProduct Kernel with gridDim: (%d, %d), blockDim: (%d, %d)\n\n",
-			//grid.x, grid.y, block.x, block.y);
-	outerProductKernel <<< grid, block >>>(d_result, d_amps, ampsLength);
-
-	//TODO: DEBUG
-	cudaError_t error2 = cudaPeekAtLastError();
-	if(error2 != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
-		exit(2);
-	}
-	*/
 }
 
 
@@ -232,10 +180,10 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 }
 
 
-/*
+
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr)
 {
-	/*
+
 	//Compute the phase series outer products
 	float* d_phaseSeriesOuterProduct = compute_outer_product_phase_series_device(cmr);
 
@@ -274,10 +222,10 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	return h_outerProduct;
 
 }
-*/
 
 
-/*
+
+
 float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr)
 {
 
@@ -330,30 +278,10 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 		}
 	}
 
-/*
-	float* h_outerProduct = new float[cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans()];
-	cudaMemcpy(h_outerProduct, d_outerProduct, sizeof(float) * cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans(), cudaMemcpyDeviceToHost);
-
-
-	//**** DEBUG ****** TODO:VINCENT: DEBUG
-	std::stringstream ss;
-
-	//Write out data to a file
-	for(int j = 0; j < cmr->getNumberOfFreqChans(); ++j)
-	{
-		//write it out to a file
-		ss << "xMeanGPU" << j << ".txt";
-		outputUpperTriangularMatrix(h_outerProduct + (j * cmr->getCovarianceMatrixLength()),
-				cmr->getBinNum() * cmr->getStokesLength(), ss.str());
-		ss.str("");
-	}
-
-	delete[] h_outerProduct;
-
 
 	return d_outerProduct;
 }
-*/
+
 
 
 

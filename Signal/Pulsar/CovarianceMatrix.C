@@ -26,15 +26,12 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 
-
-	//float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
-
-	float* h_outerProducts = _engine->compute_final_covariance_matrices_device_DEBUG(_covarianceMatrixResult);
+	float* d_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
 
 	//TODO: VINCENT: DEBUG
 	//*** DEBUG ****
-	//float* h_outerProducts = new float[freqChanNum * covarianceLength];
-	//cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
+	float* h_outerProducts = new float[freqChanNum * covarianceLength];
+	cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
 
 
 
