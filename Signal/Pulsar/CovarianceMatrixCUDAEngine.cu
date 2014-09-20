@@ -255,19 +255,22 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	//Do the outer product
 
-	dim3 outerProductBlockDim = dim3(16, 16);
-	dim3 outerProductGridDim = dim3( ceil(runningMeanSumLength  / outerProductBlockDim.x),
-									 ceil( (runningMeanSumLength / 2) + 1) /  outerProductBlockDim.y);
+	unsigned int ampsLength = cmr->getAmpsLength();
+	unsigned int outerProductBlockDim = 256;
+	unsigned int outerProductGridDim = min( (int)ceil( (int)((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockDim), 65535);
 
-	unsigned int oneFreqRunningMeanLength = cmr->getBinNum() * cmr->getStokesLength();
+	//unsigned int oneFreqRunningMeanLength = cmr->getBinNum() * cmr->getStokesLength();
 
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
-		printf("Starting outer product kernel - GridDim: (%u, %u) BlockDim: (%u, %u)\n", outerProductGridDim.x, outerProductGridDim.y,
-				outerProductBlockDim.x, outerProductBlockDim.y);
+		printf("Starting outer product kernel - GridDim: %u, BlockDim: %u\n", outerProductGridDim, outerProductBlockDim);
 
-		outerProductKernel<<< outerProductGridDim, outerProductBlockDim >>> (d_outerProduct + (i * cmr->getCovarianceMatrixLength()),
-				d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
+		//outerProductKernel<<< outerProductGridDim, outerProductBlockDim >>> (d_outerProduct + (i * cmr->getCovarianceMatrixLength()),
+		//		d_runningMeanSum + (i * oneFreqRunningMeanLength), oneFreqRunningMeanLength);
+
+		outerProductKernelNew <<< outerProductGridDim, outerProductBlockDim >>>
+				(d_outerProduct + (i * cmr->getCovarianceMatrixLength()), cmr->getCovarianceMatrixLength(),
+						d_runningMeanSum + (i * oneFreqRunningMeanLength), ampsLength);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaPeekAtLastError();
