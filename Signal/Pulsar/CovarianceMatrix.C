@@ -26,14 +26,15 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 
-	float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
 
+	//float* h_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
 
-	/*
+	float* h_outerProducts = _engine->compute_final_covariance_matrices_device_DEBUG(_covarianceMatrixResult);
+
 	//TODO: VINCENT: DEBUG
 	//*** DEBUG ****
-	float* h_outerProducts = new float[freqChanNum * covarianceLength];
-	cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
+	//float* h_outerProducts = new float[freqChanNum * covarianceLength];
+	//cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
 
 
 
@@ -52,11 +53,11 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	for(int j = 0; j < freqChanNum; ++j)
 	{
 		//write it out to a file
-		ss << "xSquaredGPU" << j << ".txt";
+		ss << "resultMatrixChan" << j << ".txt";
 		outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
-	*/
+
 
 
 	delete[] h_outerProducts;
@@ -78,7 +79,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	compute_final_covariance_matrices_host();
 
 
-	/*
+
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
@@ -91,7 +92,7 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
-*/
+
 
 
 	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
@@ -156,9 +157,10 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 	if(_engine)
 	{
-		#if HAVE_CUDA
-				_engine->computeCovarianceMatricesCUDA(phaseSeriesData, _covarianceMatrixResult);
-		#endif
+		compute_covariance_matrix_host(phaseSeriesData);
+		//#if HAVE_CUDA
+			//	_engine->computeCovarianceMatricesCUDA(phaseSeriesData, _covarianceMatrixResult);
+		//#endif
 	}
 	else
 	{
@@ -281,6 +283,7 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 	}
 
 
+	/*
 	//**** DEBUG ****** TODO:VINCENT: DEBUG
 
 	std::stringstream ss;
@@ -293,7 +296,7 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 		outputUpperTriangularMatrix(phaseSeriesOuterProduct, _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(), ss.str());
 		ss.str("");
 	}
-
+*/
 
 	delete[] phaseSeriesOuterProduct;
 }

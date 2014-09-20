@@ -27,11 +27,9 @@ public:
 
 	void computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* covarianceMatrixResult);
 
+	//float* compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr);
 
-
-
-
-	float* compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr);
+	float* compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr); //ACTUALLY DOES IT ON THE HOST
 
 
 
@@ -49,12 +47,16 @@ private:
 			unsigned int stokesLength, unsigned int blockDim2D = 16);
 
 
-	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr);
+	//float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr);
+	float* compute_outer_product_phase_series_device_DEBUG(CovarianceMatrixResult* cmr); //ACTUALLY DOES IT IN THE HOST
 
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
 	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
 
 	void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
+
+
+	//DEBUG
 
 };
 

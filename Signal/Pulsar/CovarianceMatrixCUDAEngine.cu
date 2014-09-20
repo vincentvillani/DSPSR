@@ -149,17 +149,53 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(float* d_result,
 
 
 
+float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr)
+{
+	float* phaseSeriesOuterProduct = compute_final_covariance_matrices_device_DEBUG(cmr);
+
+	unsigned int freqChanNum = cmr->getNumberOfFreqChans();
+	unsigned int covarianceMatrixLength = cmr->getCovarianceMatrixLength();
+	unsigned int unloadCalledNum = cmr->getUnloadCallCount();
+
+	float* covarianceMatrix = new float[covarianceMatrixLength];
+
+	for(int i = 0; i < freqChanNum; ++i)
+	{
+		float* d_covarianceMatrix = cmr->getCovarianceMatrix(i);
+		cudaMemcpy(covarianceMatrix, d_covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyDeviceToHost);
+
+		for(int j = 0; j < covarianceMatrixLength; ++j)
+		{
+
+			covarianceMatrix[j] /= unloadCalledNum;
+			covarianceMatrix[j] -= phaseSeriesOuterProduct[(i * covarianceMatrixLength) + j];
+		}
+
+		//copy results back
+		cudaMemcpy(d_covarianceMatrix, covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyHostToDevice);
+	}
+
+	delete[] covarianceMatrix;
+	delete[] phaseSeriesOuterProduct;
+
+	float* finalCov = new float[covarianceMatrixLength * freqChanNum];
+	cudaMemcpy(covarianceMatrix ,cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost);
+
+	return finalCov;
+
+}
 
 
-
+/*
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr)
 {
+	/*
 	//Compute the phase series outer products
 	float* d_phaseSeriesOuterProduct = compute_outer_product_phase_series_device(cmr);
 
 	unsigned int totalElementLength = cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans();
 	unsigned int blockDim = 256;
-	unsigned int gridDim = min (ceil ( totalElementLength / blockDim), (double)((1 << 16) - 1)); //number of elements / blockdim
+	unsigned int gridDim = min (ceil ( totalElementLength / blockDim), (double) 65535); //number of elements / blockdim
 
 	//Divide all x^2 terms by unload call count
 	printf("Launching generic divide kernel with gridDim: %u, blockDim: %u\n", gridDim, blockDim);
@@ -190,11 +226,12 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	cudaMemcpy(h_outerProduct, cmr->getCovarianceMatrix(0), sizeof(float) * totalElementLength, cudaMemcpyDeviceToHost);
 
 	return h_outerProduct;
+
 }
+*/
 
 
-
-
+/*
 float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr)
 {
 
@@ -247,7 +284,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 		}
 	}
 
-
+/*
 	float* h_outerProduct = new float[cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans()];
 	cudaMemcpy(h_outerProduct, d_outerProduct, sizeof(float) * cmr->getCovarianceMatrixLength() * cmr->getNumberOfFreqChans(), cudaMemcpyDeviceToHost);
 
@@ -265,9 +302,57 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 		ss.str("");
 	}
 
+	delete[] h_outerProduct;
+
 
 	return d_outerProduct;
 }
+*/
+
+
+
+float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device_DEBUG(CovarianceMatrixResult* cmr)
+{
+	unsigned int unloadCallCount = cmr->getUnloadCallCount();
+	unsigned int freqChanNum = cmr->getNumberOfFreqChans();
+	unsigned int covarianceLength = cmr->getCovarianceMatrixLength();
+	unsigned int ampsLength = cmr->getBinNum() * cmr->getStokesLength();
+
+	float* outerProduct = new float [freqChanNum * covarianceLength];
+	float* runningMeanSum = new float[ampsLength];
+
+
+	//For each freq channel
+	for(unsigned int channel = 0; channel < freqChanNum; ++channel)
+	{
+
+		float* d_runningMeanSum = cmr->getRunningMeanSum(channel);
+		cudaMemcpy(runningMeanSum, d_runningMeanSum, sizeof(float) * ampsLength, cudaMemcpyDeviceToHost);
+
+
+		//divide running mean sum by number of times called
+		for(unsigned int i = 0; i < ampsLength; ++i)
+		{
+			runningMeanSum[i] /= unloadCallCount;
+		}
+
+
+		//Do the outer product
+		for(unsigned int row = 0; row < ampsLength; ++row)
+		{
+			for(unsigned int col = row; col < ampsLength; ++col)
+			{
+				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - covariance_matrix_length(row)) ] =
+						runningMeanSum[row] * runningMeanSum[col];
+			}
+		}
+
+	}
+
+
+	return outerProduct;
+}
+
 
 
 
@@ -298,15 +383,12 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 
 
 
+
 const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
 {
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
-	{
-		//printf("ONE HIT CHAN!\n");
-
 		return phaseSeriesData->get_hits(0);
-	}
 	else
 		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
 }

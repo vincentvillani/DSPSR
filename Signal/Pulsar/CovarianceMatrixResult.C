@@ -172,6 +172,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 
 
+
 	float* dsp::CovarianceMatrixResult::getRunningMeanSum(unsigned int channelOffset)
 	{
 		return _runningMeanSum + (channelOffset * _binNum * _stokesLength);
