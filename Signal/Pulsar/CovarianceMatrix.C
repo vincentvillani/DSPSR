@@ -157,10 +157,10 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 	if(_engine)
 	{
-		compute_covariance_matrix_host(phaseSeriesData);
-		//#if HAVE_CUDA
-			//	_engine->computeCovarianceMatricesCUDA(phaseSeriesData, _covarianceMatrixResult);
-		//#endif
+		//compute_covariance_matrix_host(phaseSeriesData);
+		#if HAVE_CUDA
+			_engine->computeCovarianceMatricesCUDA(phaseSeriesData, _covarianceMatrixResult);
+		#endif
 	}
 	else
 	{
