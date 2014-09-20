@@ -181,13 +181,15 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 
 	printf("HERE\n");
 
-	delete[] covarianceMatrix;
-	delete[] phaseSeriesOuterProduct;
+
 
 	float* finalCov = new float[covarianceMatrixLength * freqChanNum];
-	gpuErrchk(cudaMemcpy(covarianceMatrix ,cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost));
+	gpuErrchk(cudaMemcpy(finalCov, cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost));
 
 	printf("DONE\n");
+
+	delete[] covarianceMatrix;
+	delete[] phaseSeriesOuterProduct;
 	return finalCov;
 
 }
