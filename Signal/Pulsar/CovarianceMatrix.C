@@ -21,6 +21,8 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #if HAVE_CUDA
 
+	printf("CUDA Destructor called\n");
+
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
