@@ -1,0 +1,36 @@
+/*
+ * PhaseSeriesCombinerCUDA.h
+ *
+ *  Created on: 21/09/2014
+ *      Author: vincentvillani
+ */
+
+#ifndef PHASESERIESCOMBINERCUDA_H_
+#define PHASESERIESCOMBINERCUDA_H_
+
+#include "PhaseSeries.h"
+#include "Kernel/Classes/dsp/TimeSeriesCombinerCUDA.h"
+
+namespace dsp
+{
+	class PhaseSeriesCombinerCUDA
+	{
+	private:
+		TimeSeriesCombinerCUDA* _tsc;
+
+	public:
+
+		PhaseSeriesCombinerCUDA();
+		~PhaseSeriesCombinerCUDA();
+
+		void combine(PhaseSeries* lhs, const PhaseSeries* rhs);
+
+
+	};
+}
+
+
+__global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add);
+
+
+#endif /* PHASESERIESCOMBINERCUDA_H_ */

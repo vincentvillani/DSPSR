@@ -37,6 +37,7 @@ namespace dsp {
     friend class Fold;
     friend class CyclicFold;
     friend class PhaseLockedFilterbank;
+    friend class PhaseSeriesCombinerCUDA;
 
   public:
 

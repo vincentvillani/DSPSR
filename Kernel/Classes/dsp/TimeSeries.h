@@ -26,6 +26,9 @@ namespace dsp {
   //! Arrays of consecutive samples for each polarization and frequency channel
   class TimeSeries : public DataSeries
   {
+
+	  friend class TimeSeriesCombinerCUDA;
+
   public:
 
     //! Order of the dimensions

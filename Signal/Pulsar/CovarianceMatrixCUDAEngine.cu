@@ -234,10 +234,6 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	float* d_runningMeanSum = cmr->getRunningMeanSum(0);
 	unsigned int runningMeanSumLength = cmr->getRunningMeanSumLength();
 
-	float* d_outerProduct;
-	cudaMalloc(&d_outerProduct, sizeof(float) * totalCovarianceLength);
-	cudaMemset(d_outerProduct, 0, sizeof(float) * totalCovarianceLength);
-
 	//divide the running mean by the number of times unload was called
 	unsigned int blockDim = 256;
 	unsigned int gridDim = ceil(runningMeanSumLength / blockDim);
@@ -262,8 +258,8 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	{
 		printf("Starting outer product kernel - GridDim: %u, BlockDim: %u\n", outerProductGridDim, outerProductBlockDim);
 		outerProductKernelNew <<< outerProductGridDim, outerProductBlockDim >>>
-				(d_outerProduct + (i * cmr->getCovarianceMatrixLength()), cmr->getCovarianceMatrixLength(),
-						d_runningMeanSum + (i * ampsLength), ampsLength);
+				(cmr->getCovarianceMatrix(i), cmr->getCovarianceMatrixLength(),
+						cmr->getRunningMeanSum(i), ampsLength);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaPeekAtLastError();

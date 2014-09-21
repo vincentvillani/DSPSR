@@ -342,6 +342,7 @@ void dsp::TimeSeries::copy_configuration (const Observation* copy)
 
 dsp::TimeSeries& dsp::TimeSeries::operator += (const TimeSeries& add)
 {
+
   if( get_ndat() == 0 )
     return operator=( add );
 
@@ -357,6 +358,7 @@ dsp::TimeSeries& dsp::TimeSeries::operator += (const TimeSeries& add)
 
   if (order == OrderTFP)
   {
+	printf("TFP ORDER!\n");
     npt *= get_nchan() * get_npol();
     float* data1 = get_dattfp ();
     const float* data2 = add.get_dattfp ();
@@ -366,6 +368,8 @@ dsp::TimeSeries& dsp::TimeSeries::operator += (const TimeSeries& add)
 
     return *this;
   }
+
+  printf("NOT TFP ORDER!\n");
 
   for (unsigned ichan = 0; ichan < get_nchan(); ichan++)
   {
