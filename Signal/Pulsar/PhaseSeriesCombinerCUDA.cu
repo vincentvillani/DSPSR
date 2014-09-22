@@ -19,6 +19,8 @@ dsp::PhaseSeriesCombinerCUDA::~PhaseSeriesCombinerCUDA()
 }
 
 
+
+
 void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSeries* rhs)
 {
 	if(lhs == NULL || rhs == NULL)

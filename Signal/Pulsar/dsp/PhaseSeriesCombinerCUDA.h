@@ -12,10 +12,12 @@
 #include "Kernel/Classes/dsp/TimeSeriesCombinerCUDA.h"
 
 
-class PhaseSeries;
+
 
 namespace dsp
 {
+	class PhaseSeries;
+
 	class PhaseSeriesCombinerCUDA
 	{
 	private:
