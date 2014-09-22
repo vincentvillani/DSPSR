@@ -133,7 +133,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 }
 
 
-
+/*
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr)
 {
 	printf("BEFORE PSOP\n");
@@ -178,7 +178,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	return finalCov;
 
 }
-
+*/
 
 
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr)
@@ -271,12 +271,12 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	}
 
 
-	return d_outerProduct;
+	return cmr->getCovarianceMatrix(0);
 }
 
 
 
-
+/*
 float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device_DEBUG(CovarianceMatrixResult* cmr)
 {
 	unsigned int unloadCallCount = cmr->getUnloadCallCount();
@@ -318,7 +318,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	return outerProduct;
 }
-
+*/
 
 
 
