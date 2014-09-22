@@ -322,15 +322,6 @@ void dsp::Detection::polarimetry () try
   if (verbose)
     cerr << "dsp::Detection::polarimetry ndim=" << ndim << endl;
 
-  if (engine)
-  {
-    if (verbose)
-      cerr << "dsp::Detection::polarimetry using Engine" << endl;
-
-    engine->polarimetry (ndim, input, output);
-    return;
-  }
-
   const unsigned input_npol = get_input()->get_npol();
   const unsigned input_ndim = get_input()->get_ndim();
 
@@ -376,6 +367,16 @@ void dsp::Detection::polarimetry () try
 
     if (ndim == 1)
       copyq = copyp + input_ndim * ndat;
+  }
+
+  if (engine)
+  {
+    if (verbose)
+      cerr << "dsp::Detection::polarimetry using Engine" << endl;
+
+    engine->set_scratch (copyp);
+    engine->polarimetry (ndim, input, output);
+    return;
   }
 
   float* r[4];

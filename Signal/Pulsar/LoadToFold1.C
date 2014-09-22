@@ -539,8 +539,13 @@ void dsp::LoadToFold::construct () try
 #if HAVE_CUDA
   if (run_on_gpu)
   {
-    config->ndim = 2;
     detect->set_engine (new CUDA::DetectionEngine(stream));
+
+	if (config->ndim == 4)
+    {
+    	detected = new_time_series();
+    	detect->set_output (detected);
+    }
   }
 #endif
 

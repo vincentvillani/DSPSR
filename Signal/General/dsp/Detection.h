@@ -101,8 +101,17 @@ namespace dsp {
   class Detection::Engine : public Reference::Able
   {
   public:
+
+	void set_scratch (float* ptr) { scratch = ptr; }
+
     virtual void polarimetry (unsigned ndim,
 			      const TimeSeries* in, TimeSeries* out) = 0;
+
+  protected:
+
+    //! device scratch sapce
+    float* scratch;
+
   }; 
 }
 
