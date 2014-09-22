@@ -23,6 +23,13 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	printf("CUDA Destructor called\n");
 
+	if(_covarianceMatrixResult->getNumberOfFreqChans() == 0 || _covarianceMatrixResult->getBinNum() == 0)
+	{
+		std::cerr << "Something terrible has happened: freqChan: " << _covarianceMatrixResult->getNumberOfFreqChans()
+				<< " binNum: " << _covarianceMatrixResult->getBinNum() << std::endl;
+		return;
+	}
+
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
