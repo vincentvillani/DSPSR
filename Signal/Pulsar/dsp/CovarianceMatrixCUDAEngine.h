@@ -37,7 +37,7 @@ private:
 	bool h_zeroes;
 
 
-	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps); //Compute a covariance matrix for one freq channel
+	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps);
 	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr); //Compute the outer product for a phase series
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength); //Does this array contain any zeroes?
 

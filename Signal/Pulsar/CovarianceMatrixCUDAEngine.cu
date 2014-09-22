@@ -40,17 +40,24 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 {
 	unsigned int hitsLength = cmr->getHitsLength();
 	unsigned int* d_hits = cmr->getHits();
-	const unsigned int* h_hits = getHitsPtr(ps, cmr, 0);
+	const unsigned int* h_hits;
+	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
-	gpuErrchk( cudaMemcpy(d_hits, h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) );
 
-	//If there are bins with zeroes, discard everything
-	if ( hitsContainsZeroes(d_hits, hitsLength) )
+
+	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		printf("There are bins with zeroes, returning...\n");
-		return;
-	}
+		h_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
 
+		//If there are bins with zeroes, discard everything
+		if ( hitsContainsZeroes(d_hits + (chan * hitsLength), hitsLength) )
+		{
+			printf("There are bins with zeroes, returning...\n");
+			return;
+		}
+
+	}
 
 	computeCovarianceMatrix(cmr, ps);
 
@@ -88,11 +95,17 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	//compute the covariance matrix for each freq chan
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
+
+		if(cmr->getNumberOfHitChans() != 1)
+		{
+			d_hits += cmr->getHitsLength(); //move d_hits pointer by the appropriate amount to get the next channels data
+		}
+
 		//first normalise/compute the mean of the amps by dividing it by the hits
 		const float* h_amps = ps->get_datptr(i, 0);
 		gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
-		//h_hits values should be copied over to d_hits before this function is called <------------ IS THIS TRUE?????????!!!!!?!?!?!!??
+		//h_hits values should be copied over to d_hits before this function is called
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
 		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
 

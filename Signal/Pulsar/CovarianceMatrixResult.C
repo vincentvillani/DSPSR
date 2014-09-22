@@ -130,7 +130,8 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			gpuErrchk(cudaMemset(_runningMeanSum, 0, sizeof(float) * _runningMeanSumLength));
 
 			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
-			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum));
+			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum * _hitChanNum));
+
 
 #endif
 		}
