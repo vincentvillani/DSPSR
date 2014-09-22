@@ -26,10 +26,7 @@ public:
 	~CovarianceMatrixCUDAEngine();
 
 	void computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* covarianceMatrixResult);
-
 	float* compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr);
-
-	//float* compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr); //ACTUALLY DOES IT ON THE HOST
 
 
 
@@ -39,20 +36,13 @@ private:
 	bool* d_zeroes; //Are zeroes present?
 	bool h_zeroes;
 
-	//Compute a covariance matrix for one freq channel
-	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps);
 
+	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps); //Compute a covariance matrix for one freq channel
+	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr); //Compute the outer product for a phase series
+	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength); //Does this array contain any zeroes?
 
-	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr);
-	//float* compute_outer_product_phase_series_device_DEBUG(CovarianceMatrixResult* cmr); //ACTUALLY DOES IT IN THE HOST
-
-	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength);
 	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
-
 	void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
-
-
-	//DEBUG
 
 };
 
@@ -60,8 +50,7 @@ private:
 
 
 //Cuda Kernels
-__global__ void outerProductKernel(float* result, float* vec, unsigned int vectorLength);
-__global__ void outerProductKernelNew(float* result, unsigned int resultLength, float* vec, unsigned int vecLength);
+__global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength);
 __global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
 __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double scaleFactor);
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add);

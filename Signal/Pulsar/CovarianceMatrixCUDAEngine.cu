@@ -9,7 +9,7 @@
 
 //TODO: VINCENT: ADD A HITS CHAN == 1 VARIATION TO STOP NEEDLESS COPYIES
 
-//#if HAVE_CUDA
+
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 {
@@ -19,7 +19,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
       if (abort) exit(code);
    }
 }
-//#endif
+
 
 
 dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
@@ -123,7 +123,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		printf("Launching outerProduct Kernel with gridDim: %u, blockDim: %u\n\n",
 				outerProductGridDim, outerProductBlockSize);
 		d_result = cmr->getCovarianceMatrix(i);
-		outerProductKernelNew <<<outerProductGridDim, outerProductBlockSize>>>
+		outerProductKernel <<<outerProductGridDim, outerProductBlockSize>>>
 				(d_result, covMatrixLength, d_amps, ampsLength);
 
 	}
@@ -133,52 +133,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 }
 
 
-/*
-float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device_DEBUG(CovarianceMatrixResult* cmr)
-{
-	printf("BEFORE PSOP\n");
-
-	float* phaseSeriesOuterProduct = compute_outer_product_phase_series_device_DEBUG(cmr);
-
-	printf("AFTER PSOP\n");
-
-	unsigned int freqChanNum = cmr->getNumberOfFreqChans();
-	unsigned int covarianceMatrixLength = cmr->getCovarianceMatrixLength();
-	unsigned int unloadCalledNum = cmr->getUnloadCallCount();
-
-	float* covarianceMatrix = new float[covarianceMatrixLength];
-
-	for(int i = 0; i < freqChanNum; ++i)
-	{
-		float* d_covarianceMatrix = cmr->getCovarianceMatrix(i);
-		gpuErrchk(cudaMemcpy(covarianceMatrix, d_covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyDeviceToHost));
-
-		for(int j = 0; j < covarianceMatrixLength; ++j)
-		{
-
-			covarianceMatrix[j] /= unloadCalledNum;
-			covarianceMatrix[j] -= phaseSeriesOuterProduct[(i * covarianceMatrixLength) + j];
-		}
-
-		//copy results back
-		gpuErrchk(cudaMemcpy(d_covarianceMatrix, covarianceMatrix, sizeof(float) * covarianceMatrixLength, cudaMemcpyHostToDevice));
-	}
-
-	printf("HERE\n");
-
-
-
-	float* finalCov = new float[covarianceMatrixLength * freqChanNum];
-	gpuErrchk(cudaMemcpy(finalCov, cmr->getCovarianceMatrix(0), sizeof(float) * covarianceMatrixLength * freqChanNum, cudaMemcpyDeviceToHost));
-
-	printf("DONE\n");
-
-	delete[] covarianceMatrix;
-	delete[] phaseSeriesOuterProduct;
-	return finalCov;
-
-}
-*/
 
 
 float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device(CovarianceMatrixResult* cmr)
@@ -257,7 +211,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
 		printf("Starting outer product kernel - GridDim: %u, BlockDim: %u\n", outerProductGridDim, outerProductBlockDim);
-		outerProductKernelNew <<< outerProductGridDim, outerProductBlockDim >>>
+		outerProductKernel <<< outerProductGridDim, outerProductBlockDim >>>
 				(cmr->getCovarianceMatrix(i), cmr->getCovarianceMatrixLength(),
 						cmr->getRunningMeanSum(i), ampsLength);
 
@@ -273,53 +227,6 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 
 	return cmr->getCovarianceMatrix(0);
 }
-
-
-
-/*
-float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_device_DEBUG(CovarianceMatrixResult* cmr)
-{
-	unsigned int unloadCallCount = cmr->getUnloadCallCount();
-	unsigned int freqChanNum = cmr->getNumberOfFreqChans();
-	unsigned int covarianceLength = cmr->getCovarianceMatrixLength();
-	unsigned int ampsLength = cmr->getBinNum() * cmr->getStokesLength();
-
-	float* outerProduct = new float [freqChanNum * covarianceLength];
-	float* runningMeanSum = new float[ampsLength];
-
-
-	//For each freq channel
-	for(unsigned int channel = 0; channel < freqChanNum; ++channel)
-	{
-
-		float* d_runningMeanSum = cmr->getRunningMeanSum(channel);
-		cudaMemcpy(runningMeanSum, d_runningMeanSum, sizeof(float) * ampsLength, cudaMemcpyDeviceToHost);
-
-
-		//divide running mean sum by number of times called
-		for(unsigned int i = 0; i < ampsLength; ++i)
-		{
-			runningMeanSum[i] /= unloadCallCount;
-		}
-
-
-		//Do the outer product
-		for(unsigned int row = 0; row < ampsLength; ++row)
-		{
-			for(unsigned int col = row; col < ampsLength; ++col)
-			{
-				outerProduct[ (channel * covarianceLength) +  ((row * ampsLength + col) - ( (row * (row + 1)) / 2) ) ] =
-						runningMeanSum[row] * runningMeanSum[col];
-			}
-		}
-
-	}
-
-
-	return outerProduct;
-}
-*/
-
 
 
 bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
@@ -397,32 +304,8 @@ void dsp::CovarianceMatrixCUDAEngine::outputUpperTriangularMatrix(float* result,
 
 
 
-__global__ void outerProductKernel(float* result, float* vec, unsigned int vectorLength)
-{
-	int col = (blockIdx.x * blockDim.x) + threadIdx.x; //column
-	int row = (blockIdx.y * blockDim.y) + threadIdx.y; //row
 
-	//check bounds
-	if(row >= vectorLength || col >= vectorLength)
-		return;
-
-	//transpose
-	if(row > col)
-	{
-		row = vectorLength - row;
-		col = row + col;
-	}
-
-	//compute the index
-	int index = (row * vectorLength + col) - ((row * (row + 1)) / 2);
-
-	//do the outer product calculation and add it too the correct element
-	result[index] += vec[row] * vec[col];
-}
-
-
-
-__global__ void outerProductKernelNew(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
+__global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
 {
 	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < resultLength; absoluteThreadIdx += gridDim.x * blockDim.x)
 	{
