@@ -11,6 +11,9 @@
 #include "dsp/PhaseSeries.h"
 #include "Kernel/Classes/dsp/TimeSeriesCombinerCUDA.h"
 
+
+class PhaseSeries;
+
 namespace dsp
 {
 	class PhaseSeriesCombinerCUDA
