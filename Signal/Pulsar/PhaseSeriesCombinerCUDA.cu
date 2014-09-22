@@ -9,7 +9,7 @@
 
 dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
 {
-	_tsc = new TimeSeriesCombinerCUDA();
+	_tsc = new dsp::TimeSeriesCombinerCUDA();
 }
 
 
