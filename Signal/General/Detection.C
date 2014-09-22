@@ -329,6 +329,15 @@ void dsp::Detection::polarimetry () try
     throw Error (InvalidState, "dsp::Detection::polarimetry",
           "Cannot detect polarization when ndim != 2 or state != Analytic");
 
+  if (engine)
+  {
+    if (verbose)
+      cerr << "dsp::Detection::polarimetry using Engine" << endl;
+
+    engine->polarimetry (state, ndim, input, output);
+    return;
+  }
+
   bool inplace = input.get() == output.get();
 
   if (verbose)
@@ -367,16 +376,6 @@ void dsp::Detection::polarimetry () try
 
     if (ndim == 1)
       copyq = copyp + input_ndim * ndat;
-  }
-
-  if (engine)
-  {
-    if (verbose)
-      cerr << "dsp::Detection::polarimetry using Engine" << endl;
-
-    engine->set_scratch (copyp);
-    engine->polarimetry (ndim, input, output);
-    return;
   }
 
   float* r[4];

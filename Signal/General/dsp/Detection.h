@@ -102,15 +102,8 @@ namespace dsp {
   {
   public:
 
-	void set_scratch (float* ptr) { scratch = ptr; }
-
-    virtual void polarimetry (unsigned ndim,
+    virtual void polarimetry (Signal::State state, unsigned ndim,
 			      const TimeSeries* in, TimeSeries* out) = 0;
-
-  protected:
-
-    //! device scratch sapce
-    float* scratch;
 
   }; 
 }

@@ -536,14 +536,19 @@ void dsp::LoadToFold::construct () try
   detect->set_input (convolved);
   detect->set_output (convolved);
 
+// for VINCENT's new COVARIANCE CODE
+  config->ndim = 4;
+
 #if HAVE_CUDA
   if (run_on_gpu)
   {
     detect->set_engine (new CUDA::DetectionEngine(stream));
 
-	if (config->ndim == 4)
+    if (config->ndim == 4)
     {
+cerr << "OUT OF PLACE ALLOCATION" << endl;
     	detected = new_time_series();
+	detected->set_memory (device_memory);
     	detect->set_output (detected);
     }
   }
@@ -558,7 +563,7 @@ void dsp::LoadToFold::construct () try
   else
   {
 	  detect->set_output_state (Signal::Stokes);
-	  detect->set_output_ndim (4);
+	  detect->set_output_ndim (config->ndim);
   }
 
   /*

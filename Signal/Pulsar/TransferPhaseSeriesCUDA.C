@@ -34,7 +34,7 @@ void dsp::TransferPhaseSeriesCUDA::transformation ()
   if (verbose)
     cerr << "dsp::TransferPhaseSeriesCUDA::transformation input ndat="
          << input->get_ndat() << " ndim=" << input->get_ndim()
-         << " span=" << input->get_datptr (0, 1) - input->get_datptr(0,0)
+         << " span=" << input->get_nfloat_span ()
          << " offset=" << input->get_datptr(0,0) - (float*)input->internal_get_buffer()
          << endl;
 
@@ -54,7 +54,7 @@ void dsp::TransferPhaseSeriesCUDA::transformation ()
   if (verbose)
     cerr << "dsp::TransferPhaseSeriesCUDA::transformation output ndat=" 
        << output->get_ndat() << " ndim=" << output->get_ndim() 
-       << " span=" << output->get_datptr (0, 1) - output->get_datptr(0,0)
+       << " span=" << output->get_nfloat_span ()
        << " offset=" << output->get_datptr(0,0) - (float*)output->internal_get_buffer()
        << endl;
 

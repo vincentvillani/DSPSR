@@ -25,7 +25,7 @@ namespace CUDA
     //! Default Constructor
     DetectionEngine (cudaStream_t stream);
 
-    void polarimetry (unsigned ndim,
+    void polarimetry (Signal::State state, unsigned ndim,
                       const dsp::TimeSeries* in, dsp::TimeSeries* out);
 
   protected:

@@ -42,56 +42,6 @@ void check_error (const char*);
   U = 2 * ((p.x * q.x) + (p.y * q.y)); \
   V = 2 * ((p.x * q.y) - (p.y * q.x));
 
-#ifdef __INTERLEAVED_VOLTAGES
-
-/*
- * The following code assumes that the voltage samples from each polarization are
- * interleaved; e.g. t0p0re t0p0im t0p1re t0p1im t1p0re ...
- */
-
-__global__ void coherence4 (float4* base, uint64_t span)
-{
-  base += blockIdx.y * span;
-  unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
-
-  float2 p, q;
-  float4 result = base[i];
-
-  p.x = result.w;
-  p.y = result.x;
-  q.x = result.y;
-  q.y = result.z;
-
-  COHERENCE4 (result,p,q);
-
-  base[i] = result;
-}
-
-/*
-  The input data are arrays of ndat pairs of complex numbers: 
-
-  Re[p0],Im[p0],Re[p1],Im[p1]
-
-  There are nchan such arrays; base pointers are separated by span.
-*/
-
-void polarimetry_ndim4 (float* data, uint64_t span,
-			uint64_t ndat, unsigned nchan)
-{
-  int threads = 256;
-
-  dim3 blocks;
-  blocks.x = ndat/threads;
-  blocks.y = nchan;
-
-  coherence4<<<blocks,threads>>> ((float4*)data, span/4); 
-
-  if (dsp::Operation::record_time || dsp::Operation::verbose)
-    check_error ("CUDA::DetectionEngine::polarimetry_ndim4");
-}
-
-#endif
-
 /*
   The input data are pairs of arrays of ndat complex numbers: 
 
@@ -129,12 +79,12 @@ __global__ void coherence2 (float2* base, unsigned span, unsigned ndat)
 #define COHERENCE4(r,p,q) COHERENCE(r.w,r.x,r.y,r.z,p,q)
 #define STOKES4(r,p,q) STOKES(r.w,r.x,r.y,r.z,p,q)
 
-__global__ void coherence4 (bool stokes, float2* in_base, unsigned in_span, unsigned ndat, float* out_base, unsigned out_span)
+__global__ void coherence4 (bool stokes, const float2* in_base, unsigned in_span, unsigned ndat, float4* out_base, unsigned out_span)
 {
-  float2* p0 = in_base + blockIdx.y * in_span * NPOL_PER_CHANNEL;
-  float2* p1 = p0 + in_span;
+  const float2* p0 = in_base + blockIdx.y * in_span * NPOL_PER_CHANNEL;
+  const float2* p1 = p0 + in_span;
 
-  float4* s = (float4*)(out_base + blockIdx.y * out_span);
+  float4* s = out_base + blockIdx.y * out_span;
 
   unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -156,7 +106,7 @@ CUDA::DetectionEngine::DetectionEngine (cudaStream_t _stream)
   stream = _stream;
 }
 
-void CUDA::DetectionEngine::polarimetry (unsigned ndim,
+void CUDA::DetectionEngine::polarimetry (Signal::State state, unsigned ndim,
 					 const dsp::TimeSeries* input, 
 					 dsp::TimeSeries* output)
 {
@@ -176,17 +126,9 @@ void CUDA::DetectionEngine::polarimetry (unsigned ndim,
   uint64_t ndat = output->get_ndat ();
   unsigned nchan = output->get_nchan ();
 
-  unsigned ichan=0, ipol=0;
-
-  float* out_base = output->get_datptr (ichan=0, ipol=0);
-  uint64_t out_span = output->get_datptr (ichan=0, ipol=1) - out_base;
-
-  float* in_base = output->get_datptr (ichan=0, ipol=0);
-  uint64_t in_span = output->get_datptr (ichan=0, ipol=1) - in_base;
-
   if (dsp::Operation::verbose)
     cerr << "CUDA::DetectionEngine::polarimetry ndim=" << output->get_ndim () 
-         << " ndat=" << ndat << " span=" << span << endl;
+         << " npol=" << output->get_npol() << " ndat=" << ndat << endl;
 
   dim3 threads (128);
   dim3 blocks (ndat/threads.x, nchan);
@@ -196,9 +138,28 @@ void CUDA::DetectionEngine::polarimetry (unsigned ndim,
 
   // pass span as number of complex values
   if (ndim == 2)
-	  coherence2<<<blocks,threads,0,stream>>> ((float2*)in_base, in_span/2, ndat);
+  {
+    float* out_base = output->get_datptr (0,0);
+    uint64_t out_span = output->get_nfloat_span();
+
+    // convert out_span in floats to span in float2 by dividing by 2
+    coherence2<<<blocks,threads,0,stream>>> ((float2*)out_base, out_span/2, ndat);
+  }
   else if (ndim == 4)
-	  coherence4<<<blocks.threads,0,stream>>> (state == Signal::Stokes, (float2*)in_base, in_span/2, ndat, out_base, out_span);
+  {
+    float* out_base = output->get_datptr (0,0);
+    uint64_t out_span = output->get_nfloat_span ();
+
+cerr << "computing input span" << endl;
+    const float* in_base = input->get_datptr (0,0);
+    uint64_t in_span = input->get_nfloat_span ();
+cerr << "launching coherence4 out_base=" << out_base << " in_base=" << in_base << endl;
+
+    // convert in_span in floats to span in float2 by dividing by 2
+    // convert out_span in floats to span in float4 by dividing by 4
+    coherence4<<<blocks,threads,0,stream>>> (state == Signal::Stokes, (const float2*)in_base, in_span/2, ndat, (float4*) out_base, out_span/4);
+cerr << "coherence4 ok" << endl;
+}
 
   if (dsp::Operation::record_time || dsp::Operation::verbose)
     check_error ("CUDA::DetectionEngine::polarimetry");
