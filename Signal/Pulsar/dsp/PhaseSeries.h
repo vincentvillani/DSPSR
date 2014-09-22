@@ -20,6 +20,11 @@
 #include <config.h>
 #endif
 
+
+#if HAVE_CUDA
+#include "PhaseSeriesCombinerCUDA.h"
+#endif
+
 namespace Pulsar {
   class Predictor;
   class Parameters;
@@ -31,6 +36,8 @@ namespace dsp {
 
   class Extensions;
   
+  class PhaseSeriesCombinerCUDA;
+
   //! Data as a function of pulse phase
   class PhaseSeries : public TimeSeries {
 
@@ -212,6 +219,9 @@ namespace dsp {
 
     //! The hits memory manager
     Reference::To<Memory> hits_memory;
+
+    //PhaserSeriesCombinerCuda
+    PhaseSeriesCombinerCUDA* _psc;
 
   private:
 

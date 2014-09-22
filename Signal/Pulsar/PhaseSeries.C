@@ -444,6 +444,14 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 	cerr << "dsp::PhaseSeries::combine"
 			" this=" << this << " that=" << prof << endl;
 
+#if HAVE_CUDA
+  if(_psc != NULL)
+  {
+	  _psc->combine(this, prof);
+	  return;
+  }
+#endif
+
   if (!prof || prof->get_nbin() == 0)
 	return;
 
