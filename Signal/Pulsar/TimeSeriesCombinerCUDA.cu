@@ -85,7 +85,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 		printf("TS: %p, %p\n", d_data1, d_data1);
 
-		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+		printf("TIME SERIES: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
 
 		//TODO: VINCENT: DEBUG
