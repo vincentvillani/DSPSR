@@ -1210,11 +1210,13 @@ void dsp::LoadToFold::configure_fold (unsigned ifold, TimeSeries* to_fold)
 #if HAVE_CUDA
   if (gpu_stream != undefined_stream)
   {
-    cudaStream_t stream = (cudaStream_t) gpu_stream;
-    if (config->cyclic_nchan)
-      fold[ifold]->set_engine (new CUDA::CyclicFoldEngineCUDA(stream));
-    else
-      fold[ifold]->set_engine (new CUDA::FoldEngine(stream, config->sk_zap));
+	  bool Vincent_covariance = true;
+	  bool hits_on_gpu = config->sk_zap | Vincent_covariance;
+	  cudaStream_t stream = (cudaStream_t) gpu_stream;
+	  if (config->cyclic_nchan)
+		fold[ifold]->set_engine (new CUDA::CyclicFoldEngineCUDA(stream));
+	  else
+		fold[ifold]->set_engine (new CUDA::FoldEngine(stream, hits_on_gpu));
   }
 #endif
 }
