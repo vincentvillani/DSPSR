@@ -48,8 +48,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	unsigned int gridDim;
 
 	float* d_data1;
-	float* d_data2;
-	const float* d_data3;
+
 
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
@@ -57,7 +56,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
 
 		d_data1 = lhs->get_dattfp();
-		d_data2 = rhs->get_dattfp();
+		const float* d_data2 = rhs->get_dattfp();
 
 		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
@@ -73,10 +72,10 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		for (unsigned ipol = 0; ipol < lhs->get_npol(); ++ipol)
 		{
 			d_data1 = lhs->get_datptr (ichan, ipol);
-			d_data3 = rhs->get_datptr (ichan, ipol);
+			const float* d_data2 = rhs->get_datptr (ichan, ipol);
 
 			printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
-			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data3);
+			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
 		}
 	}
 }
