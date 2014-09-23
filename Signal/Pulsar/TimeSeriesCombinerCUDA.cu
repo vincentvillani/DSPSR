@@ -50,6 +50,19 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	float* d_data1;
 
 
+	if( rhs->get_memory()->on_host() )
+		printf("RHS MEMORY IS ON HOST\n");
+	else
+		printf("RHS MEMORY IS NOT ON HOST\n");
+
+	if( lhs->get_memory()->on_host() )
+		printf("LHS MEMORY IS ON HOST\n");
+	else
+		printf("LHS MEMORY IS NOT ON HOST\n");
+
+	exit(0);
+
+
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
 		npt *= lhs->get_nchan() * lhs->get_npol();
