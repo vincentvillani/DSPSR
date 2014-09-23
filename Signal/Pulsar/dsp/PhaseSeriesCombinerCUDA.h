@@ -18,7 +18,7 @@ namespace dsp
 {
 	class PhaseSeries;
 
-	class PhaseSeriesCombinerCUDA
+	class PhaseSeriesCombinerCUDA : public Reference::Able
 	{
 	private:
 		TimeSeriesCombinerCUDA* _tsc;

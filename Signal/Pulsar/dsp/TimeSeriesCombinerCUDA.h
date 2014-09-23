@@ -15,7 +15,7 @@
 
 namespace dsp
 {
-	class TimeSeriesCombinerCUDA
+	class TimeSeriesCombinerCUDA : public Reference::Able
 	{
 
 	public:
