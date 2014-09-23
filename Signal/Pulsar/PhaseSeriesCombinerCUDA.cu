@@ -11,6 +11,17 @@
 #include "dsp/Memory.h"
 
 
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess)
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
+
+
 dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
 {
 	_tsc = new dsp::TimeSeriesCombinerCUDA();
@@ -84,13 +95,13 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	if(d_temp_data1 == NULL || d_temp_data2 == NULL)
 	{
-		cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength);
-		cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength);
+		gpuErrchk(cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength));
+		gpuErrchk(cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength));
 	}
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
-	cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
+	gpuErrchk(cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
+	gpuErrchk(cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
 
 	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_temp_data1, d_temp_data2);
@@ -105,7 +116,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	//copy the data back to the host
-	cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost);
+	gpuErrchk(cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost));
 
 	/*
 	for(unsigned int i = 0; i < nHitChan; ++i)
