@@ -9,7 +9,7 @@
 #define TIMESERIESCOMBINERCUDA_H_
 
 #include <stdio.h>
-#include "TimeSeries.h"
+#include "dsp/TimeSeries.h"
 #include <cuda_runtime.h>
 
 namespace dsp
