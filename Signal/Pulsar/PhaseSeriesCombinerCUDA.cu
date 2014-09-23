@@ -81,6 +81,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
 
 
+	printf("%u, %u", h_lhsHits, h_rhsHits);
+
 	if( rhs->get_memory()->on_host() )
 		printf("RHS MEMORY IS ON HOST\n");
 	else
@@ -95,8 +97,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	if(d_temp_data1 == NULL || d_temp_data2 == NULL)
 	{
-		gpuErrchk(cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength));
-		gpuErrchk(cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength));
+		//gpuErrchk(cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength));
+		//gpuErrchk(cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength));
 	}
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
