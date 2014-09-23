@@ -65,11 +65,18 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	unsigned int* h_lhsHits = lhs->hits;
 	unsigned int* h_rhsHits = rhs->hits;
-	unsigned int* d_lhsHits;
-	unsigned int* d_rhsHits;
 
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
+
+
+
+	if(rhs->get_memory()->on_host())
+	{
+		printf("RHS MEMORY IS ON HOST\n");
+	}
+	else
+		printf("RHS MEMORY IS NOT ON HOST\n");
 
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
