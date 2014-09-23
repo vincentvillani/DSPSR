@@ -60,6 +60,13 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	for(unsigned int i = 0; i < nHitChan; ++i)
 	{
+		if(lhs->get_memory()->on_host())
+		{
+			printf("MEMORY IS ON HOST\n");
+		}
+		else
+			printf("MEMORY IS NOT ON HOST\n");
+
 		printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<<gridDim, blockDim>>> (hitLength, d_lhsHits + (i * hitLength), d_rhsHits + (i * hitLength));
 	}
