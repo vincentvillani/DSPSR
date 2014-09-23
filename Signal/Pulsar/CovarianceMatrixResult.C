@@ -93,6 +93,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_setup = true;
 
 		_phaseSeries = new PhaseSeries(*ps); //Clone the initial phaseSeries
+		_phaseSeries->set_memory( ps->memory);
 
 		_binNum = binNum;
 		_freqChanNum = freqChanNum;
