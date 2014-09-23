@@ -54,7 +54,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	cudaMemcpy(d_rhsHits, h_rhsHits, sizeof(unsigned int) * nhits, cudaMemcpyHostToDevice);
 
 	unsigned int blockDim = 256;
-	unsigned int gridDim = min ( (unsigned int)ceil(nhits / gridDim), 65535);
+	unsigned int gridDim = min ( (unsigned int)ceil(nhits / blockDim), 65535);
 
 	printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (nhits, d_lhsHits, d_rhsHits);
