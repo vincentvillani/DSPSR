@@ -55,7 +55,6 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 		genericAddKernel <<<gridDim, blockDim>>> (hitLength, d_lhsHits + (i * hitLength), d_rhsHits + (i * hitLength));
 	}
 
-
 	lhs->integration_length += rhs->integration_length;
 	lhs->ndat_total += rhs->ndat_total;
 

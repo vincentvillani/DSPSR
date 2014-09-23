@@ -49,6 +49,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 	float* d_data1;
 	float* d_data2;
+	const float* d_data3;
 
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
@@ -72,10 +73,10 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		for (unsigned ipol = 0; ipol < lhs->get_npol(); ++ipol)
 		{
 			d_data1 = lhs->get_datptr (ichan, ipol);
-			d_data2 = rhs->get_datptr (ichan, ipol);
+			d_data3 = rhs->get_datptr (ichan, ipol);
 
 			printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
-			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
+			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data3);
 		}
 	}
 }
