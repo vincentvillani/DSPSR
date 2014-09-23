@@ -25,9 +25,10 @@ namespace dsp
 	};
 }
 
-
+/*
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add);
 __global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add);
+*/
 
 
 #endif /* TIMESERIESCOMBINERCUDA_H_ */

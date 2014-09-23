@@ -83,7 +83,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 
 
-
+/*
 //Kernel for generically adding things on the GPU
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add)
 {
@@ -102,5 +102,6 @@ __global__ void genericAddKernel(unsigned int n, unsigned int* original, const u
 		original[absIdx] += add[absIdx];
 	}
 }
+*/
 
 
