@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "dsp/TimeSeries.h"
 #include "dsp/CovarianceMatrixKernels.h"
+#include "dsp/Memory.h"
 #include <cuda_runtime.h>
 
 namespace dsp
