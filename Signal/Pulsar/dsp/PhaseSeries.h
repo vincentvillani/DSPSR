@@ -221,7 +221,8 @@ namespace dsp {
     Reference::To<Memory> hits_memory;
 
 
-    Reference::To<PhaseSeriesCombinerCUDA> _psc;
+    //Reference::To<PhaseSeriesCombinerCUDA> _psc;
+    PhaseSeriesCombinerCUDA* _psc;
 
   private:
 
