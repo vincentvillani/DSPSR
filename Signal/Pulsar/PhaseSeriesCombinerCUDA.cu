@@ -116,7 +116,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	//copy the data back to the host
-	gpuErrchk(cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost));
+	//gpuErrchk(cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost));
 
 	/*
 	for(unsigned int i = 0; i < nHitChan; ++i)
