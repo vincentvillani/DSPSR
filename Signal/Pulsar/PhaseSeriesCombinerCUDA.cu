@@ -14,6 +14,9 @@
 dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
 {
 	_tsc = new dsp::TimeSeriesCombinerCUDA();
+	d_temp_data1 = NULL;
+	d_temp_data2 = NULL;
+
 }
 
 
@@ -21,6 +24,12 @@ dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
 dsp::PhaseSeriesCombinerCUDA::~PhaseSeriesCombinerCUDA()
 {
 	delete _tsc;
+
+	if(d_temp_data1 != NULL)
+		cudaFree(d_temp_data1);
+
+	if(d_temp_data2 != NULL)
+		cudaFree(d_temp_data2);
 }
 
 
@@ -29,19 +38,19 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 {
 	if(lhs == NULL || rhs == NULL)
 	{
-		printf("Returning 1\n");
+		//printf("Returning 1\n");
 		return;
 	}
 
 	if(rhs->get_nbin() == 0 || rhs->get_integration_length() == 0.0)
 	{
-		printf("Returning 2\n");
+		//printf("Returning 2\n");
 		return;
 	}
 
 	if( !lhs->mixable(*rhs, rhs->get_nbin() ) )
 	{
-		printf("Returning 3\n");
+		//printf("Returning 3\n");
 		return;
 	}
 
@@ -52,15 +61,39 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	const unsigned int hitLength = lhs->get_nbin() * lhs->hits_nchan;
 	unsigned int nHitChan = lhs->get_hits_nchan();
+	unsigned int totalHitLength = hitLength * nHitChan;
 
-	unsigned int* d_lhsHits = lhs->hits;
-	unsigned int* d_rhsHits = rhs->hits;
+	unsigned int* h_lhsHits = lhs->hits;
+	unsigned int* h_rhsHits = rhs->hits;
+	unsigned int* d_lhsHits;
+	unsigned int* d_rhsHits;
 
 	unsigned int blockDim = 256;
-	unsigned int gridDim = min ( (unsigned int)ceil(hitLength / blockDim), 65535);
+	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
 
+
+	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
+	if(d_temp_data1 == NULL || d_temp_data2 == NULL)
+	{
+		cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength);
+		cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength);
+	}
+
+	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
+	cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_temp_data2, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
+
+	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_temp_data1, d_temp_data2);
+
+	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
+	//copy the data back to the host
+	cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost);
+
+	/*
 	for(unsigned int i = 0; i < nHitChan; ++i)
 	{
+		/*
 		if(lhs->get_memory()->on_host())
 		{
 			printf("MEMORY IS ON HOST\n");
@@ -68,9 +101,13 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 		else
 			printf("MEMORY IS NOT ON HOST\n");
 
+
+		//TODO: VINCENT NO NEED TO COPY IN THE FINAL VERSION?
+
 		printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<<gridDim, blockDim>>> (hitLength, d_lhsHits + (i * hitLength), d_rhsHits + (i * hitLength));
 	}
+*/
 
 	lhs->integration_length += rhs->integration_length;
 	lhs->ndat_total += rhs->ndat_total;

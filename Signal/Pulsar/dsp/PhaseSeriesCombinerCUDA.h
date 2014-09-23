@@ -23,6 +23,10 @@ namespace dsp
 	private:
 		TimeSeriesCombinerCUDA* _tsc;
 
+		//TODO: VINCENT: REMOVE THESE IN THE FINAL VERSION
+		unsigned int* d_temp_data1;
+		unsigned int* d_temp_data2;
+
 	public:
 
 		PhaseSeriesCombinerCUDA();
