@@ -8,6 +8,7 @@
 #include "dsp/PhaseSeriesCombinerCUDA.h"
 #include "dsp/PhaseSeries.h"
 #include "dsp/CovarianceMatrixKernels.h"
+#include "dsp/Memory.h"
 
 
 dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
