@@ -51,7 +51,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	for(unsigned int i = 0; i < nHitChan; ++i)
 	{
-		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+		printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<<gridDim, blockDim>>> (hitLength, d_lhsHits + (i * hitLength), d_rhsHits + (i * hitLength));
 	}
 
