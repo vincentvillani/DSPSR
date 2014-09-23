@@ -24,6 +24,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	if(lhs == NULL || rhs == NULL)
 		return;
 
+	//TODO: ASK WILLEM ABOUT THIS
 	/*
 	if(lhs->get_ndat() == 0)
 	{
@@ -46,66 +47,37 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	unsigned int blockDim = 256;
 	unsigned int gridDim;
 
+	float* d_data1;
+	float* d_data2;
+
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
 		npt *= lhs->get_nchan() * lhs->get_npol();
 		gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
 
-
-		//TODO: VINCENT, THIS WILL ALREADY BE ON THE DEVICE IN THE FINAL VERSION, NO NEED FOR COPIES
-		const float* h_data1 = lhs->get_dattfp();
-		const float* h_data2 = rhs->get_dattfp();
-		float* d_data1;
-		float* d_data2;
-
-		cudaMalloc(&d_data1, sizeof(float) * npt);
-		cudaMalloc(&d_data2, sizeof(float) * npt);
-
-		cudaMemcpy(d_data1, h_data1, sizeof(float) * npt, cudaMemcpyHostToDevice);
-		cudaMemcpy(d_data2, h_data2, sizeof(float) * npt, cudaMemcpyHostToDevice);
+		d_data1 = lhs->get_dattfp();
+		d_data2 = rhs->get_dattfp();
 
 		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
-
-		cudaMemcpy(h_data1, d_data1, sizeof(float) * npt, cudaMemcpyDeviceToHost);
-
-		cudaFree(d_data1);
-		cudaFree(d_data2);
 
 		return;
 	}
 
 
-	float* h_data1;
-	float* h_data2;
-	float* d_data1;
-	float* d_data2;
-
-	cudaMalloc(&d_data1, sizeof(float) * npt);
-	cudaMalloc(&d_data2, sizeof(float) * npt);
-
 	gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
 
-	for (unsigned ichan = 0; ichan < lhs->get_nchan(); ichan++)
+	for (unsigned ichan = 0; ichan < lhs->get_nchan(); ++ichan)
 	{
-		for (unsigned ipol = 0; ipol < lhs->get_npol(); ipol++)
+		for (unsigned ipol = 0; ipol < lhs->get_npol(); ++ipol)
 		{
-			//TODO: VINCENT, THIS WILL ALREADY BE ON THE DEVICE IN THE FINAL VERSION, NO NEED FOR COPIES
-			h_data1 = lhs->get_datptr (ichan, ipol);
-			h_data2 = rhs->get_datptr (ichan, ipol);
-
-			cudaMemcpy(d_data1, h_data1, sizeof(float) * npt, cudaMemcpyHostToDevice);
-			cudaMemcpy(d_data2, h_data2, sizeof(float) * npt, cudaMemcpyHostToDevice);
+			d_data1 = lhs->get_datptr (ichan, ipol);
+			d_data2 = rhs->get_datptr (ichan, ipol);
 
 			printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
-
-			cudaMemcpy(h_data1, d_data1, sizeof(float) * npt, cudaMemcpyDeviceToHost);
 		}
 	}
-
-	cudaFree(d_data1);
-	cudaFree(d_data2);
 }
 
 
