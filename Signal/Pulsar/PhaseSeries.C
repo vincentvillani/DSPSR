@@ -457,6 +457,7 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 #if HAVE_CUDA
   if(_psc != NULL)
   {
+	  printf("Combining!!!!!!!!!!!!!!!!\n");
 	  _psc->combine(this, prof);
 	  return;
   }
