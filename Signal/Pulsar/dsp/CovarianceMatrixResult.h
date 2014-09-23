@@ -16,7 +16,7 @@
 #include <cstring>
 #include "dsp/DataSeries.h"
 #include "dsp/PhaseSeries.h"
-//#include "memory.h"
+#include "dsp/Memory.h"
 //#include "ReferenceTo.h"
 //#include "ReferenceTo.h"
 
