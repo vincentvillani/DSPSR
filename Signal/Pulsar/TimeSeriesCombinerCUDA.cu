@@ -53,8 +53,8 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 
 		//TODO: VINCENT, THIS WILL ALREADY BE ON THE DEVICE IN THE FINAL VERSION, NO NEED FOR COPIES
-		float* h_data1 = lhs->get_dattfp();
-		float* h_data2 = rhs->get_dattfp();
+		const float* h_data1 = lhs->get_dattfp();
+		const float* h_data2 = rhs->get_dattfp();
 		float* d_data1;
 		float* d_data2;
 
