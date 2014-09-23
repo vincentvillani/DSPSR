@@ -5,7 +5,7 @@
  *      Author: vincentvillani
  */
 
-#include "Kernel/Classes/dsp/TimeSeriesCombinerCUDA.h"
+#include "dsp/TimeSeriesCombinerCUDA.h"
 
 dsp::TimeSeriesCombinerCUDA::TimeSeriesCombinerCUDA()
 {
