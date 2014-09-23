@@ -38,7 +38,7 @@ void dsp::PhaseSeries::init ()
 #if HAVE_CUDA
   if(!memory->on_host())
   {
-	  _psc = Reference::Able<PhaseSeriesCombinerCUDA>();
+	  _psc = new PhaseSeriesCombinerCUDA();
   }
 #endif
 }
