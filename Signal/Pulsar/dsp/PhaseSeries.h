@@ -39,6 +39,8 @@ namespace dsp {
   
   class PhaseSeriesCombinerCUDA;
 
+
+
   //! Data as a function of pulse phase
   class PhaseSeries : public TimeSeries {
 
@@ -46,6 +48,7 @@ namespace dsp {
     friend class CyclicFold;
     friend class PhaseLockedFilterbank;
     friend class PhaseSeriesCombinerCUDA;
+    friend class CovarianceMatrixResult;
 
   public:
 
