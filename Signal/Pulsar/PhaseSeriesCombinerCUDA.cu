@@ -117,14 +117,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 
 
-//Kernel for generically adding things on the GPU
-__global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add)
-{
-	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
-	{
-		original[absIdx] += add[absIdx];
-	}
-}
+
 
 
 

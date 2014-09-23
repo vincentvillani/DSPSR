@@ -35,7 +35,5 @@ namespace dsp
 }
 
 
-__global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add);
-
 
 #endif /* PHASESERIESCOMBINERCUDA_H_ */
