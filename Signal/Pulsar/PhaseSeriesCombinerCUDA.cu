@@ -59,8 +59,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	//combine the time series part
 	_tsc->combine(lhs, rhs);
 
-	const unsigned int hitLength = lhs->get_nbin() * lhs->hits_nchan;
-	unsigned int nHitChan = lhs->get_hits_nchan();
+	const unsigned int hitLength = rhs->get_nbin() * rhs->hits_nchan;
+	unsigned int nHitChan = rhs->get_hits_nchan();
 	unsigned int totalHitLength = hitLength * nHitChan;
 
 	unsigned int* h_lhsHits = lhs->hits;
@@ -68,7 +68,6 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
-
 
 
 	if( rhs->get_memory()->on_host() )
