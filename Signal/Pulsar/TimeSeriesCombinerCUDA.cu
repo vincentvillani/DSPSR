@@ -24,11 +24,13 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	if(lhs == NULL || rhs == NULL)
 		return;
 
+	/*
 	if(lhs->get_ndat() == 0)
 	{
-		lhs->operator =(rhs);
+		lhs->operator=(rhs);
 		return;
 	}
+	*/
 
 	if(!lhs->combinable(*lhs))
 	{
@@ -47,7 +49,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
 		npt *= lhs->get_nchan() * lhs->get_npol();
-		gridDim = min ( (unsigned int)ceil(npt / gridDim), 65535);
+		gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
 
 
 		//TODO: VINCENT, THIS WILL ALREADY BE ON THE DEVICE IN THE FINAL VERSION, NO NEED FOR COPIES
@@ -82,7 +84,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 	cudaMalloc(&d_data1, sizeof(float) * npt);
 	cudaMalloc(&d_data2, sizeof(float) * npt);
 
-	gridDim = min ( (unsigned int)ceil(npt / gridDim), 65535);
+	gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
 
 	for (unsigned ichan = 0; ichan < lhs->get_nchan(); ichan++)
 	{
