@@ -17,11 +17,11 @@ dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()
 }
 
 
+
 dsp::PhaseSeriesCombinerCUDA::~PhaseSeriesCombinerCUDA()
 {
 	delete _tsc;
 }
-
 
 
 

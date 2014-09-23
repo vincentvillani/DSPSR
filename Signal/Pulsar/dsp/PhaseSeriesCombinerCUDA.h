@@ -29,8 +29,6 @@ namespace dsp
 		~PhaseSeriesCombinerCUDA();
 
 		void combine(PhaseSeries* const lhs, const PhaseSeries* rhs);
-
-
 	};
 }
 

@@ -546,7 +546,7 @@ void dsp::LoadToFold::construct () try
 
     if (config->ndim == 4)
     {
-cerr << "OUT OF PLACE ALLOCATION" << endl;
+    	cerr << "OUT OF PLACE ALLOCATION" << endl;
     	detected = new_time_series();
     	detected->set_memory (device_memory);
     	detect->set_output (detected);
