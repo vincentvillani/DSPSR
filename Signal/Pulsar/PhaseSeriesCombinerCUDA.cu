@@ -5,6 +5,7 @@
  *      Author: vincentvillani
  */
 
+#include "dsp/PhaseSeries.h"
 
 
 dsp::PhaseSeriesCombinerCUDA::PhaseSeriesCombinerCUDA()

@@ -8,7 +8,7 @@
 #ifndef PHASESERIESCOMBINERCUDA_H_
 #define PHASESERIESCOMBINERCUDA_H_
 
-#include "dsp/PhaseSeries.h"
+
 #include "Kernel/Classes/dsp/TimeSeriesCombinerCUDA.h"
 
 
