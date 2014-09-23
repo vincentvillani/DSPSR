@@ -35,11 +35,12 @@ void dsp::PhaseSeries::init ()
 
   _psc = NULL;
 
+#if HAVE_CUDA
   if(!memory->on_host())
   {
-
+	  _psc = Reference::Able<PhaseSeriesCombinerCUDA>();
   }
-
+#endif
 }
 
 dsp::PhaseSeries::PhaseSeries () : TimeSeries()

@@ -220,8 +220,8 @@ namespace dsp {
     //! The hits memory manager
     Reference::To<Memory> hits_memory;
 
-    //PhaserSeriesCombinerCuda
-    PhaseSeriesCombinerCUDA* _psc;
+
+    Reference::Able<PhaseSeriesCombinerCUDA> _psc;
 
   private:
 
