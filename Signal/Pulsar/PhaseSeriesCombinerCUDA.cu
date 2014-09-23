@@ -100,11 +100,11 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	}
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
-	gpuErrchk(cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
-	gpuErrchk(cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
+	//gpuErrchk(cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
+	//gpuErrchk(cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
 
 	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
-	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_temp_data1, d_temp_data2);
+	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error2 = cudaPeekAtLastError();
