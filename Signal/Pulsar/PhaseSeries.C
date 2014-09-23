@@ -38,6 +38,7 @@ void dsp::PhaseSeries::init ()
 #if HAVE_CUDA
   if(!memory->on_host())
   {
+	  printf("PSC SET!\n");
 	  _psc = new PhaseSeriesCombinerCUDA();
   }
 #endif
@@ -454,7 +455,7 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 			" this=" << this << " that=" << prof << endl;
 
 #if HAVE_CUDA
-  if(_psc != NULL && !memory->on_host())
+  if(_psc != NULL)
   {
 	  _psc->combine(this, prof);
 	  return;
