@@ -25,7 +25,8 @@
 #include "PhaseSeriesCombinerCUDA.h"
 #endif
 
-namespace Pulsar {
+namespace Pulsar
+{
   class Predictor;
   class Parameters;
 }
