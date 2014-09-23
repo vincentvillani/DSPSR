@@ -61,6 +61,14 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
 
+		//TODO: VINCENT: DEBUG
+		cudaError_t error2 = cudaPeekAtLastError();
+		if(error2 != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+			exit(2);
+		}
+
 		return;
 	}
 
@@ -76,6 +84,14 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 			printf("TIME SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
+
+			//TODO: VINCENT: DEBUG
+			cudaError_t error2 = cudaPeekAtLastError();
+			if(error2 != cudaSuccess)
+			{
+				printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+				exit(2);
+			}
 		}
 	}
 }

@@ -81,10 +81,18 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_temp_data2, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice);
 
 	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_temp_data1, d_temp_data2);
+
+	//TODO: VINCENT: DEBUG
+	cudaError_t error2 = cudaPeekAtLastError();
+	if(error2 != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+		exit(2);
+	}
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
 	//copy the data back to the host
