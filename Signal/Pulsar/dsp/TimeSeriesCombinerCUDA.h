@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "dsp/TimeSeries.h"
+#include "dsp/CovarianceMatrixKernels.h"
 #include <cuda_runtime.h>
 
 namespace dsp
