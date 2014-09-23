@@ -71,10 +71,15 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 
 
-	if(rhs->get_memory()->on_host())
+	if( rhs->get_memory()->on_host() )
 		printf("RHS MEMORY IS ON HOST\n");
 	else
 		printf("RHS MEMORY IS NOT ON HOST\n");
+
+	if( lhs->get_memory()->on_host() )
+		printf("LHS MEMORY IS ON HOST\n");
+	else
+		printf("LHS MEMORY IS NOT ON HOST\n");
 
 
 	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
