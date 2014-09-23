@@ -34,6 +34,12 @@ void dsp::PhaseSeries::init ()
   hits_size = 0;
 
   _psc = NULL;
+
+  if(!memory->on_host())
+  {
+
+  }
+
 }
 
 dsp::PhaseSeries::PhaseSeries () : TimeSeries()
