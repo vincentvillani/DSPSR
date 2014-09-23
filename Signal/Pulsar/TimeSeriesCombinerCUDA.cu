@@ -73,7 +73,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		printf("LHS MEMORY IS NOT ON HOST\n");
 
 
-	printf("TS: %p, %p\n", d_data1, d_data1);
+
 
 	if(lhs->get_order() == dsp::TimeSeries::OrderTFP)
 	{
@@ -82,6 +82,8 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 		d_data1 = lhs->get_dattfp();
 		const float* d_data2 = rhs->get_dattfp();
+
+		printf("TS: %p, %p\n", d_data1, d_data1);
 
 		printf("Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
