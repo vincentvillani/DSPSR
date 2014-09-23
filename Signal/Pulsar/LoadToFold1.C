@@ -548,7 +548,7 @@ void dsp::LoadToFold::construct () try
     {
 cerr << "OUT OF PLACE ALLOCATION" << endl;
     	detected = new_time_series();
-	detected->set_memory (device_memory);
+    	detected->set_memory (device_memory);
     	detect->set_output (detected);
     }
   }
