@@ -447,7 +447,7 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 			" this=" << this << " that=" << prof << endl;
 
 #if HAVE_CUDA
-  if(_psc != NULL)
+  if(_psc != NULL && !memory->on_host())
   {
 	  _psc->combine(this, prof);
 	  return;
