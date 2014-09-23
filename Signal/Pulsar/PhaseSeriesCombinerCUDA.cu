@@ -107,7 +107,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error2 = cudaPeekAtLastError();
+	cudaError_t error2 = cudaDeviceSynchronize();
 	if(error2 != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
