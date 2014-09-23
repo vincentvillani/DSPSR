@@ -27,13 +27,22 @@ dsp::PhaseSeriesCombinerCUDA::~PhaseSeriesCombinerCUDA()
 void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSeries* rhs)
 {
 	if(lhs == NULL || rhs == NULL)
+	{
+		printf("Returning 1\n");
 		return;
+	}
 
 	if(rhs->get_nbin() == 0 || rhs->get_integration_length() == 0.0)
+	{
+		printf("Returning 2\n");
 		return;
+	}
 
 	if( !lhs->mixable(*rhs, rhs->get_nbin() ) )
+	{
+		printf("Returning 3\n");
 		return;
+	}
 
 
 	//TODO: VINCENT: ADD THIS PART BACK IN
