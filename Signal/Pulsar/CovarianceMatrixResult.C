@@ -92,8 +92,30 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	{
 		_setup = true;
 
-		_phaseSeries = new PhaseSeries(); //Clone the initial phaseSeries
+		if(ps->get_memory()->on_host())
+		{
+			printf("TS: MEM ON HOST\n");
+		}
+		else
+		{
+			printf("TS: MEM ON DEVICE\n");
+		}
+
+		if(ps->get_hits_memory()->on_host())
+		{
+			printf("PS: MEM ON HOST\n");
+		}
+		else
+		{
+			printf("PS: MEM ON DEVICE\n");
+		}
+
+		exit(0);
+
+		//Clone the initial phaseSeries
+		_phaseSeries = new PhaseSeries();
 		_phaseSeries->set_memory( ps->memory ); //TODO: VINCENT: IS THIS CORRECT?
+		_phaseSeries->set_hits_memory( ps->hits_memory ); //TODO: VINCENT: IS THIS CORRECT?
 		_phaseSeries->operator =(*ps);
 
 		_binNum = binNum;
