@@ -683,6 +683,14 @@ void dsp::Fold::fold (uint64_t nweights,
   // unique identifier for this fold (helps with multi-threaded debugging)
   uint64_t id = input->get_input_sample() + idat_start;
 
+  // are the hits on the GPU or Host? By default this should be true unless an engine is in use
+  bool hitsOnHost = true;
+
+  if(engine != NULL)
+	  hitsOnHost = engine->get_profiles()->get_memory()->on_host();
+
+
+
   if (verbose)
     cerr << "dsp::Fold::fold " << id << " idat_start=" << idat_start 
          << " ndat_fold=" << ndat_fold << endl;
@@ -784,7 +792,8 @@ void dsp::Fold::fold (uint64_t nweights,
 		  binplan[idat-idat_start] = folding_nbin;
 		else
 		{
-		  if (!zeroed_samples)
+		  //TODO: VINCENT: ADDED CODE HERE
+		  if (!hitsOnHost && !zeroed_samples)
 		  {
 			hits[ibin]++;
 			ndat_folded ++;
