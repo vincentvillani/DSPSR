@@ -40,11 +40,14 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//const unsigned int* d_hits = cmr->getHits();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
+	PhaseSeries clonedPhaseSeries = PhaseSeries(*ps);
+
+	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
 
 
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		const unsigned int* d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		unsigned int* d_hits = getHitsPtr(&clonedPhaseSeries, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
 		//gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
 
 		//If there are bins with zeroes, discard everything
@@ -56,9 +59,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
-	PhaseSeries clonedPhaseSeries = PhaseSeries(*ps);
 
-	computeCovarianceMatrix(cmr, clonedPhaseSeries);
 
 
 	//TODO: VINCENT: DEBUG
@@ -269,7 +270,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(const unsigned int* d_h
 
 
 
-const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
+unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
 {
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
