@@ -13,6 +13,7 @@
 #include "dsp/PhaseSeries.h"
 #include "dsp/CovarianceMatrixResult.h"
 #include "dsp/CovarianceMatrixKernels.h"
+#include "Kernel/Classes/dsp/MemoryCUDA.h"
 
 namespace dsp
 {
