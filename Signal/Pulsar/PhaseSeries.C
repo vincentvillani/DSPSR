@@ -304,6 +304,8 @@ void dsp::PhaseSeries::copy_attributes (const PhaseSeries* copy)
   // if both hits arrays are on host memory
   if (get_hits_memory()->on_host() && copy->get_hits_memory()->on_host())
     hits_memory->do_copy ( hits, copy->hits, copy->hits_size);
+  else if(!get_hits_memory()->on_host() && !copy->get_hits_memory()->on_host()) //Assumed both are on a cuda device
+	  hits_memory->do_copy ( hits, copy->hits, copy->hits_size);
 
   zeroed_data = copy->zeroed_data;
   hits_nchan = copy->hits_nchan;
