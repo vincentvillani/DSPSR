@@ -38,7 +38,7 @@ private:
 	bool h_zeroes;
 
 
-	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps);
+	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, PhaseSeries* ps);
 	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr); //Compute the outer product for a phase series
 	bool hitsContainsZeroes(const unsigned int* d_hits, unsigned int hitLength); //Does this array contain any zeroes?
 

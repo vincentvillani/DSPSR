@@ -56,7 +56,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
-	computeCovarianceMatrix(cmr, ps);
+	PhaseSeries clonedPhaseSeries = PhaseSeries(*ps);
+
+	computeCovarianceMatrix(cmr, clonedPhaseSeries);
 
 
 	//TODO: VINCENT: DEBUG
@@ -70,7 +72,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 
-void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps)
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixResult* cmr, PhaseSeries* ps)
 {
 	unsigned int ampsLength = cmr->getAmpsLength();
 	unsigned int covMatrixLength = cmr->getCovarianceMatrixLength();
@@ -86,6 +88,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	unsigned int outerProductBlockSize = 256;
 	unsigned int outerProductGridDim = min( (int)ceil( (int)((ampsLength * (ampsLength + 1)) / 2) / outerProductBlockSize), 65535);
 
+
+	//combine phase series
+	cmr->getPhaseSeries()->combine(ps);
 
 	//compute the covariance matrix for each freq chan
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
@@ -136,8 +141,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 	}
 
-	//combine phase series
-	cmr->getPhaseSeries()->combine(ps);
+
 }
 
 

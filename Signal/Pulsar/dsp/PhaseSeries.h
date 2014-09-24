@@ -42,7 +42,8 @@ namespace dsp {
 
 
   //! Data as a function of pulse phase
-  class PhaseSeries : public TimeSeries {
+  class PhaseSeries : public TimeSeries
+  {
 
     friend class Fold;
     friend class CyclicFold;
