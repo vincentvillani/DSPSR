@@ -746,6 +746,7 @@ void dsp::Fold::fold (uint64_t nweights,
   }
   if (!use_set_bins)
   {
+	  cerr << "dsp::fold::fold we get here!" << endl;
 	  for (uint64_t idat=idat_start; idat < idat_end; idat++)
 	  {
 		if (ndatperweight && idat >= idat_nextweight)
