@@ -45,8 +45,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		h_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
-		gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
+		d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		//gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
 
 		//If there are bins with zeroes, discard everything
 		if ( hitsContainsZeroes(d_hits + (chan * hitsLength), hitsLength) )
@@ -100,8 +100,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		}
 
 		//first normalise/compute the mean of the amps by dividing it by the hits
-		const float* h_amps = ps->get_datptr(i, 0);
-		gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
+		const float* d_amps = ps->get_datptr(i, 0);
+		//gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
 		//h_hits values should be copied over to d_hits before this function is called
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
