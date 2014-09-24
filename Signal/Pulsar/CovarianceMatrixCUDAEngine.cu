@@ -44,6 +44,13 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries = *ps;
 
+	if( clonedPhaseSeries.get_hits_memory()->on_host() )
+		printf("CLONED PHASE SERIES ON HOST!\n");
+	else
+		printf("CLONED PHASE SERIES NOT ON HOST!\n");
+
+
+
 	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
 
 
@@ -60,7 +67,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 		}
 
 	}
-
 
 
 
