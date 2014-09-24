@@ -145,13 +145,6 @@ void CUDA::DetectionEngine::polarimetry (Signal::State state, unsigned ndim,
     // convert out_span in floats to span in float2 by dividing by 2
     coherence2<<<blocks,threads,0,stream>>> ((float2*)out_base, out_span/2, ndat);
 
-	//TODO: VICNENT: DEBUG
-    cudaError_t error = cudaDeviceSynchronize();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		exit(1);
-	}
   }
   else if (ndim == 4)
   {
@@ -167,14 +160,6 @@ cerr << "launching coherence4 out_base=" << out_base << " in_base=" << in_base <
     // convert out_span in floats to span in float4 by dividing by 4
     coherence4<<<blocks,threads,0,stream>>> (state == Signal::Stokes, (const float2*)in_base, in_span/2, ndat, (float4*) out_base, out_span/4);
 
-	//TODO: VICNENT: DEBUG
-	cudaError_t error = cudaDeviceSynchronize();
-	if(error != cudaSuccess)
-	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
-		exit(1);
-	}
-      
 cerr << "coherence4 ok" << endl;
 }
 

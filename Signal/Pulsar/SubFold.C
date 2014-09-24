@@ -118,8 +118,13 @@ void dsp::SubFold::transformation () try
     cerr << "dsp::SubFold::transformation" << endl;
 
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
+  {
+	  printf("BAD NEWS!!!\n");
+	 exit(0);
+
     throw Error (InvalidState, "dsp::SubFold::tranformation",
 		 "sub-integration length not specified");
+  }
 
   if (!built)
     prepare ();
