@@ -242,7 +242,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 }
 
 
-bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(const unsigned int* d_hits, unsigned int hitLength)
+bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
 {
 	int blockDim = 256;
 	int gridDim = ceil((float) hitLength / blockDim);
