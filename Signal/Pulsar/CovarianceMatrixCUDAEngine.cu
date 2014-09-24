@@ -77,7 +77,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	unsigned int stokesLength = cmr->getStokesLength();
 
 
-	float* d_amps = cmr->getAmps();
 	unsigned int* d_hits = cmr->getHits();
 	float* d_runningMean;
 	float* d_result;
@@ -99,7 +98,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		}
 
 		//first normalise/compute the mean of the amps by dividing it by the hits
-		const float* d_amps = ps->get_datptr(i, 0);
+		float* d_amps = ps->get_datptr(i, 0);
 		//gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
 		//h_hits values should be copied over to d_hits before this function is called
@@ -239,7 +238,7 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_outer_product_phase_series_devic
 }
 
 
-bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength)
+bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(const unsigned int* d_hits, unsigned int hitLength)
 {
 	int blockDim = 256;
 	int gridDim = ceil((float) hitLength / blockDim);
