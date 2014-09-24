@@ -96,6 +96,9 @@ namespace dsp {
     // compute and fold the fourth moments of the electric field
     bool fourth_moment;
 
+    //
+    bool profile_covariance;
+
     // compute and output mean and variance for pdmp
     bool pdmp_output;
 
