@@ -55,6 +55,9 @@ dsp::LoadToFold::Config::Config ()
   // do not compute the fourth order moments by default
   fourth_moment = false;
 
+  // do not compute the covariance matrix of the pulse profile by default
+  profile_covariance = false;
+
   // do not produce pdmp output by default
   pdmp_output = false;
 

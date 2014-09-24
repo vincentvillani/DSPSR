@@ -131,22 +131,22 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 #endif
 
 	if(phaseSeriesData->get_memory()->on_host())
-			{
-				printf("TS: MEM ON HOST\n");
-			}
-			else
-			{
-				printf("TS: MEM ON DEVICE\n");
-			}
+	{
+		printf("TS: MEM ON HOST\n");
+	}
+	else
+	{
+		printf("TS: MEM ON DEVICE\n");
+	}
 
-			if(phaseSeriesData->get_hits_memory()->on_host())
-			{
-				printf("PS: MEM ON HOST\n");
-			}
-			else
-			{
-				printf("PS: MEM ON DEVICE\n");
-			}
+	if(phaseSeriesData->get_hits_memory()->on_host())
+	{
+		printf("PS: MEM ON HOST\n");
+	}
+	else
+	{
+		printf("PS: MEM ON DEVICE\n");
+	}
 
 
 

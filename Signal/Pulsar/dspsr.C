@@ -374,6 +374,10 @@ void parse_options (int argc, char** argv) try
   arg = menu.add (config->fourth_moment, '4');
   arg->set_help ("compute fourth-order moments");
 
+  arg = menu.add (config->profile_covariance, "covar");
+  arg->set_help ("compute profile covariance matrix");
+
+
   /* ***********************************************************************
 
   Folding Options
