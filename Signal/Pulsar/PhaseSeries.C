@@ -449,6 +449,7 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 	cerr << "dsp::PhaseSeries::combine"
 			" this=" << this << " that=" << prof << endl;
 
+
 #if HAVE_CUDA
 
 
@@ -471,6 +472,9 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 	  return;
   }
 #endif
+
+  printf("COMBINING ON HOST!\n");
+
 
   if (!prof || prof->get_nbin() == 0)
 	return;
