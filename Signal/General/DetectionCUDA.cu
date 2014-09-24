@@ -146,7 +146,7 @@ void CUDA::DetectionEngine::polarimetry (Signal::State state, unsigned ndim,
     coherence2<<<blocks,threads,0,stream>>> ((float2*)out_base, out_span/2, ndat);
 
 	//TODO: VICNENT: DEBUG
-	error = cudaDeviceSynchronize();
+    cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
@@ -168,7 +168,7 @@ cerr << "launching coherence4 out_base=" << out_base << " in_base=" << in_base <
     coherence4<<<blocks,threads,0,stream>>> (state == Signal::Stokes, (const float2*)in_base, in_span/2, ndat, (float4*) out_base, out_span/4);
 
 	//TODO: VICNENT: DEBUG
-	error = cudaDeviceSynchronize();
+	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
