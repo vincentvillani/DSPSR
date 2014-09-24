@@ -119,9 +119,6 @@ void dsp::SubFold::transformation () try
 
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
   {
-	  printf("BAD NEWS!!!\n");
-	 exit(0);
-
     throw Error (InvalidState, "dsp::SubFold::tranformation",
 		 "sub-integration length not specified");
   }
@@ -129,18 +126,26 @@ void dsp::SubFold::transformation () try
   if (!built)
     prepare ();
 
+  printf("FIRST!\n");
+
   // flag that the input TimeSeries contains data for another sub-integration
   bool more_data = true;
   bool first_division = true;
 
   while (more_data)
   {
+	  printf("SECOND!\n");
     divider.set_bounds( get_input() );
+    printf("THIRD!\n");
 
     if (!divider.get_fractional_pulses())
+    {
       get_output()->set_ndat_expected( divider.get_division_ndat() );
+      printf("FOURTH!\n");
+    }
 
     more_data = divider.get_in_next ();
+    printf("FIFTH!\n");
 
     if (first_division && divider.get_new_division())
     {
@@ -150,11 +155,18 @@ void dsp::SubFold::transformation () try
          processing in parallel. */
 
       unload_partial ();
+      printf("SIXTH!\n");
     }
 
+    printf("SEVENTH!\n");
     if (!divider.get_is_valid())
+    {
+	  printf("EIGHTH!\n");
       continue;
 
+    }
+
+    printf("NINTH!\n");
     Fold::transformation ();
 
     printf("TRANSFORMATION IS COMPLETE\n");
