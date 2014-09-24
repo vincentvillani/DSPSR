@@ -117,6 +117,8 @@ void dsp::SubFold::transformation () try
   if (verbose)
     cerr << "dsp::SubFold::transformation" << endl;
 
+  printf("ZERO!\n");
+
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
   {
     throw Error (InvalidState, "dsp::SubFold::tranformation",
