@@ -177,7 +177,7 @@ void CUDA::CyclicFoldEngineCUDA::set_ndat (uint64_t _ndat, uint64_t _idat_start)
 void CUDA::CyclicFoldEngineCUDA::set_bin (uint64_t idat, double d_ibin, 
         double bins_per_sample)
 {
-	return;
+  return;
 	// idat ranges from idat_start to idat_start + binplansize
   unsigned ibin;
   int ilag;
