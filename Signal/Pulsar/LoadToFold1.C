@@ -536,8 +536,9 @@ void dsp::LoadToFold::construct () try
   detect->set_input (convolved);
   detect->set_output (convolved);
 
-// for VINCENT's new COVARIANCE CODE
-  config->ndim = 4;
+  // Currently assume full-polarization profile covariance matrix
+  if (config->profile_covariance)
+	config->ndim = 4;
 
 #if HAVE_CUDA
   if (run_on_gpu)
@@ -546,7 +547,7 @@ void dsp::LoadToFold::construct () try
 
     if (config->ndim == 4)
     {
-    	cerr << "OUT OF PLACE ALLOCATION" << endl;
+    	// cerr << "OUT OF PLACE ALLOCATION" << endl;
     	detected = new_time_series();
     	detected->set_memory (device_memory);
     	detect->set_output (detected);
@@ -554,7 +555,6 @@ void dsp::LoadToFold::construct () try
   }
 #endif
 
-  //TODO: VINCENT: HARDCODED THE STATE TO STOKES, REVERT THIS
   if (manager->get_info()->get_npol() == 1) 
   {
     cerr << "Only single polarization detection available" << endl;
@@ -562,14 +562,7 @@ void dsp::LoadToFold::construct () try
   }
   else
   {
-	  detect->set_output_state (Signal::Stokes);
-	  detect->set_output_ndim (config->ndim);
-  }
-
-  /*
-  else
-  {
-    if (config->fourth_moment)
+    if (config->fourth_moment || config->profile_covariance)
     {
       detect->set_output_state (Signal::Stokes);
       detect->set_output_ndim (4);
@@ -590,8 +583,6 @@ void dsp::LoadToFold::construct () try
                    "invalid npol config=%d input=%d",
                    config->npol, manager->get_info()->get_npol() );
   }
-  */
-
 
   if (detect->get_order_supported (TimeSeries::OrderTFP)
       && noperations == operations.size())      // no operations yet added
@@ -988,8 +979,6 @@ void dsp::LoadToFold::build_fold (TimeSeries* to_fold)
 dsp::PhaseSeriesUnloader* 
 dsp::LoadToFold::get_unloader (unsigned ifold)
 {
-	printf("GETTING UNLOADER!!!!\n");
-
   if (ifold == unloader.size())
     unloader.push_back( NULL );
 
@@ -998,23 +987,22 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
     if (Operation::verbose)
       cerr << "dsp::LoadToFold::get_unloader prepare new Archiver" << endl;
 
-
-    /*
-     * TODO: VINCENT: NEW CODE
-     *
-     */
-
     Archiver* archiver = new Archiver;
     unloader[ifold] = archiver;
     prepare_archiver(archiver);
 
-    CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
-    covarianceMatrix->set_unloader (archiver);
-    unloader[ifold] = covarianceMatrix;
+    if (config->profile_covariance)
+    {
+    	CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
+    	covarianceMatrix->set_unloader (archiver);
+    	unloader[ifold] = covarianceMatrix;
 
 #if HAVE_CUDA
-    covarianceMatrix->set_engine(new CovarianceMatrixCUDAEngine());
+    	bool run_on_gpu = thread_id < config->get_cuda_ndevice();
+        if (run_on_gpu)
+          covarianceMatrix->set_engine(new CovarianceMatrixCUDAEngine());
 #endif
+    }
 
   }
 
@@ -1210,9 +1198,7 @@ void dsp::LoadToFold::configure_fold (unsigned ifold, TimeSeries* to_fold)
 #if HAVE_CUDA
   if (gpu_stream != undefined_stream)
   {
-	  //TODO: VINCENT - THIS IS DEBUG ONLY
-	  bool Vincent_covariance = true;
-	  bool hits_on_gpu = config->sk_zap | Vincent_covariance;
+	  bool hits_on_gpu = config->sk_zap || config->profile_covariance;
 	  cudaStream_t stream = (cudaStream_t) gpu_stream;
 	  if (config->cyclic_nchan)
 		fold[ifold]->set_engine (new CUDA::CyclicFoldEngineCUDA(stream));
