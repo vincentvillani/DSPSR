@@ -250,7 +250,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 	//Reset d_zeroes to false
 	cudaMemset(d_zeroes, 0, sizeof(bool));
 
-
+	printf("Starting CheckForZeroesKernels: GridDim: %u, BlockDim %u\n", gridDim, blockDim);
 	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
 
 	//TODO: VINCENT: DEBUG
