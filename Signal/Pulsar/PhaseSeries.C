@@ -34,14 +34,6 @@ void dsp::PhaseSeries::init ()
   hits_size = 0;
 
   _psc = NULL;
-
-#if HAVE_CUDA
-  if(!memory->on_host())
-  {
-	  printf("PSC SET!\n");
-	  _psc = new PhaseSeriesCombinerCUDA();
-  }
-#endif
 }
 
 dsp::PhaseSeries::PhaseSeries () : TimeSeries()
@@ -62,6 +54,9 @@ dsp::PhaseSeries::~PhaseSeries ()
   if (hits)
     hits_memory->do_free(hits);
   hits = 0;
+
+  if(_psc != NULL)
+	  delete _psc;
 }
 
 void dsp::PhaseSeries::set_hits_memory (Memory* m)
@@ -455,6 +450,16 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 			" this=" << this << " that=" << prof << endl;
 
 #if HAVE_CUDA
+
+
+  if(!get_hits_memory()->on_host())
+  {
+	  //Allocate a phase series cuda combiner, if it hasnt already been allocated
+	  if(_psc == NULL)
+		  _psc = new PhaseSeriesCombinerCUDA();
+  }
+
+  //_psc should be null if hits memory is on the host
   if(_psc != NULL)
   {
 	  printf("Combining!!!!!!!!!!!!!!!!\n");
