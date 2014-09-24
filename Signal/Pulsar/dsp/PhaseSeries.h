@@ -49,6 +49,7 @@ namespace dsp {
     friend class PhaseLockedFilterbank;
     friend class PhaseSeriesCombinerCUDA;
     friend class CovarianceMatrixResult;
+    friend class CovarianceMatrixCUDAEngine;
 
   public:
 

@@ -81,7 +81,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	float* d_runningMean;
 	float* d_result;
 
-
 	unsigned int meanBlockDim = 256;
 	unsigned int meanGridDim =  ceil( ampsLength / meanBlockDim);
 	unsigned int outerProductBlockSize = 256;
