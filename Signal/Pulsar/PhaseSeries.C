@@ -36,11 +36,11 @@ void dsp::PhaseSeries::init ()
   _psc = NULL;
 
 #if HAVE_CUDA
-  //if(!memory->on_host())
-  //{
+  if(!memory->on_host())
+  {
 	  printf("PSC SET!\n");
 	  _psc = new PhaseSeriesCombinerCUDA();
-  //}
+  }
 #endif
 }
 
