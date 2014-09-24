@@ -792,12 +792,15 @@ void dsp::Fold::fold (uint64_t nweights,
 		  binplan[idat-idat_start] = folding_nbin;
 		else
 		{
+			cerr << "BEFORE IF" << endl;
 		  //TODO: VINCENT: ADDED CODE HERE
-		  if (!hitsOnHost && !zeroed_samples)
+		  if (!hitsOnHost)
 		  {
+			cerr << "IN IF STATEMENT" << endl;
 			hits[ibin]++;
 			ndat_folded ++;
 		  }
+		  cerr << "AFTER IF" << endl;
 		}
 	  }
   }
