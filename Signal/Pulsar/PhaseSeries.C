@@ -454,11 +454,13 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 
   if(!get_hits_memory()->on_host())
   {
+	  printf("PSC ALLOCATED\n");
+	  exit(0);
+
 	  //Allocate a phase series cuda combiner, if it hasnt already been allocated
 	  if(_psc == NULL)
 		  _psc = new PhaseSeriesCombinerCUDA();
-	  printf("PSC ALLOCATED\n");
-	  exit(0);
+
   }
 
   //_psc should be null if hits memory is on the host
