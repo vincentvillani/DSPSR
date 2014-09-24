@@ -37,15 +37,14 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 	unsigned int hitsLength = cmr->getHitsLength();
-	unsigned int* d_hits = cmr->getHits();
-	const unsigned int* h_hits;
+	//const unsigned int* d_hits = cmr->getHits();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
 
 
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		const unsigned int* d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
 		//gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
 
 		//If there are bins with zeroes, discard everything
