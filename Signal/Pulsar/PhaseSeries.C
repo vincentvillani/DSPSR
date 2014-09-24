@@ -455,19 +455,23 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 
   if(!get_hits_memory()->on_host())
   {
-	  printf("PSC ALLOCATED\n");
-	  exit(0);
+
 
 	  //Allocate a phase series cuda combiner, if it hasnt already been allocated
 	  if(_psc == NULL)
+	  {
 		  _psc = new PhaseSeriesCombinerCUDA();
+		  printf("PSC ALLOCATED\n");
+	  }
+
+
 
   }
 
   //_psc should be null if hits memory is on the host
   if(_psc != NULL)
   {
-	  printf("Combining!!!!!!!!!!!!!!!!\n");
+	  printf("COMBINING ON GPU!\n");
 	  _psc->combine(this, prof);
 	  return;
   }
