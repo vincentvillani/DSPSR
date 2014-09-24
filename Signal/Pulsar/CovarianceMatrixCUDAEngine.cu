@@ -40,7 +40,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//const unsigned int* d_hits = cmr->getHits();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
-	PhaseSeries clonedPhaseSeries = PhaseSeries(*ps);
+	PhaseSeries clonedPhaseSeries;
+	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
+	clonedPhaseSeries = *ps;
 
 	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
 
