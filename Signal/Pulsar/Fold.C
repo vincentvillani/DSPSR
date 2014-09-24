@@ -794,7 +794,7 @@ void dsp::Fold::fold (uint64_t nweights,
 		{
 			cerr << "BEFORE IF" << endl;
 		  //TODO: VINCENT: ADDED CODE HERE
-		  if (!hitsOnHost)
+		  if (hitsOnHost)
 		  {
 			cerr << "IN IF STATEMENT" << endl;
 			hits[ibin]++;
