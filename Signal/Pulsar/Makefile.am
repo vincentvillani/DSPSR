@@ -19,8 +19,8 @@ Fold.C                  UnloaderShare.C \
 LoadToFold1.C           PhaseLockedFilterbank.C \
 LoadToFoldConfig.C      PhaseSeries.C  \
 LoadToFoldN.C           PhaseSeriesUnloader.C \
-CyclicFold.C 			CovarianceMatrix.C CovarianceMatrixResult.C \
-DevToHostCuda.C
+CyclicFold.C 			CovarianceMatrix.C \
+CovarianceMatrixResult.C DevToHostCuda.C
 
 if HAVE_CUFFT
 

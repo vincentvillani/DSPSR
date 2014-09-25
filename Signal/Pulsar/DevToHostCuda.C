@@ -15,7 +15,7 @@ dsp::DevToHostCuda::DevToHostCuda(cudaStream_t stream)
 
 dsp::DevToHostCuda::~DevToHostCuda()
 {
-	//DO NOTHING? correct?
+	//DO NOTHING?
 }
 
 

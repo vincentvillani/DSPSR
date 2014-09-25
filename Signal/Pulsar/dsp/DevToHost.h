@@ -20,8 +20,8 @@ namespace dsp
 	{
 	public:
 
-		DevToHost();
-		virtual ~DevToHost();
+		DevToHost(){};
+		virtual ~DevToHost(){};
 		virtual void transfer(const PhaseSeries* from, PhaseSeries* to) = 0;
 	};
 
