@@ -99,6 +99,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_phaseSeries->set_hits_memory( ps->hits_memory ); //TODO: VINCENT: IS THIS CORRECT?
 		_phaseSeries->operator =(*ps);
 
+		cerr << "AFER OPERATOR=" << std::endl;
 		/*
 		if(ps->get_memory()->on_host())
 			printf("TS: MEM ON HOST\n");
