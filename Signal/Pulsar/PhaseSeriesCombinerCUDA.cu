@@ -68,7 +68,9 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 
 	//TODO: VINCENT: ADD THIS PART BACK IN
 	//combine the time series part
+	cerr << "BEFORE TSC" << std::endl;
 	_tsc->combine(lhs, rhs);
+	cerr << "AFTER TSC" << std::endl;
 
 	const unsigned int hitLength = rhs->get_nbin() * rhs->hits_nchan;
 	unsigned int nHitChan = rhs->get_hits_nchan();
