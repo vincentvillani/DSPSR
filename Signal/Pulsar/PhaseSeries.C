@@ -288,6 +288,10 @@ void dsp::PhaseSeries::copy_configuration (const Observation* copy)
 
 void dsp::PhaseSeries::copy_attributes (const PhaseSeries* copy)
 {
+  // if both hits arrays are on host memory
+  if (get_hits_memory()->on_host() != copy->get_hits_memory()->on_host())
+	  throw Error(InvalidState, "PhaseSeries::operator=", "Memory is split between host and device");
+
   reference_phase    = copy->reference_phase;
   integration_length = copy->integration_length;
   ndat_total         = copy->ndat_total;
@@ -312,11 +316,7 @@ void dsp::PhaseSeries::copy_attributes (const PhaseSeries* copy)
            << copy->hits_size << ")" << endl;
   }
 
-  // if both hits arrays are on host memory
-  if (get_hits_memory()->on_host() && copy->get_hits_memory()->on_host())
-    hits_memory->do_copy ( hits, copy->hits, copy->hits_size);
-  else if(!get_hits_memory()->on_host() && !copy->get_hits_memory()->on_host()) //Assumed both are on a cuda device
-	  hits_memory->do_copy ( hits, copy->hits, copy->hits_size);
+  hits_memory->do_copy ( hits, copy->hits, copy->hits_size);
 
   zeroed_data = copy->zeroed_data;
   hits_nchan = copy->hits_nchan;
