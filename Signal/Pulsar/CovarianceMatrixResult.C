@@ -133,7 +133,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
 		_outerProductsLength = freqChanNum * covarianceMatrixLength;
 
-		cerr << "HERE3" << std::endl;
 
 		//TODO: VINCENT: FIX THIS
 		if(_useCUDA)
@@ -180,8 +179,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			_runningMeanSum = new float[_runningMeanSumLength];
 			_amps = new float[getAmpsLength()];
 		}
-
-		cerr << "HERE4" << std::endl;
 
 	}
 
