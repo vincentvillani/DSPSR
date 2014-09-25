@@ -150,6 +150,14 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		outerProductKernel <<<outerProductGridDim, outerProductBlockSize>>>
 				(d_result, covMatrixLength, d_amps, ampsLength);
 
+		//TODO: DEBUG
+		error = cudaPeekAtLastError();
+		if(error != cudaSuccess)
+		{
+			printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+			exit(1);
+		}
+
 	}
 
 

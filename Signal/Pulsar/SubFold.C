@@ -117,7 +117,7 @@ void dsp::SubFold::transformation () try
   if (verbose)
     cerr << "dsp::SubFold::transformation" << endl;
 
-  cerr << "ZERO" << endl;
+  //cerr << "ZERO" << endl;
 
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
   {
@@ -128,7 +128,7 @@ void dsp::SubFold::transformation () try
   if (!built)
     prepare ();
 
-  cerr << "FIRST" << endl;
+  //cerr << "FIRST" << endl;
 
   // flag that the input TimeSeries contains data for another sub-integration
   bool more_data = true;
@@ -136,18 +136,18 @@ void dsp::SubFold::transformation () try
 
   while (more_data)
   {
-	cerr << "SECOND" << endl;
+	//cerr << "SECOND" << endl;
     divider.set_bounds( get_input() );
-    cerr << "THIRD" << endl;
+    //cerr << "THIRD" << endl;
 
     if (!divider.get_fractional_pulses())
     {
       get_output()->set_ndat_expected( divider.get_division_ndat() );
-      cerr << "FOURTH" << endl;
+      //cerr << "FOURTH" << endl;
     }
 
     more_data = divider.get_in_next ();
-    cerr << "FIFTH" << endl;
+    //cerr << "FIFTH" << endl;
 
     if (first_division && divider.get_new_division())
     {
@@ -157,18 +157,18 @@ void dsp::SubFold::transformation () try
          processing in parallel. */
 
       unload_partial ();
-      cerr << "SIXTH" << endl;
+      //cerr << "SIXTH" << endl;
     }
 
-    cerr << "SEVENTH" << endl;
+    //cerr << "SEVENTH" << endl;
     if (!divider.get_is_valid())
     {
-      cerr << "EIGTH" << endl;
+      //cerr << "EIGTH" << endl;
       continue;
 
     }
 
-    cerr << "NINTH" << endl;
+    //cerr << "NINTH" << endl;
     Fold::transformation ();
 
     printf("TRANSFORMATION IS COMPLETE\n");
