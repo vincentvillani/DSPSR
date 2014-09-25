@@ -46,8 +46,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries = *ps;
 
-	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
-
+	//Check for zeroes
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
 		unsigned int* d_hits = getHitsPtr(&clonedPhaseSeries, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
@@ -61,6 +60,9 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
+	cmr->getPhaseSeries()->combine(ps);
+
+	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
 
 
 	//TODO: VINCENT: DEBUG
@@ -68,7 +70,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
 	printf("Value: %f\n", val);
 
-	cmr->getPhaseSeries()->combine(ps);
+
 
 }
 

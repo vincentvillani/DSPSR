@@ -49,19 +49,19 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 {
 	if(lhs == NULL || rhs == NULL)
 	{
-		//printf("Returning 1\n");
+		printf("Returning 1\n");
 		return;
 	}
 
 	if(rhs->get_nbin() == 0 || rhs->get_integration_length() == 0.0)
 	{
-		//printf("Returning 2\n");
+		printf("Returning 2\n");
 		return;
 	}
 
 	if( !lhs->mixable(*rhs, rhs->get_nbin() ) )
 	{
-		//printf("Returning 3\n");
+		printf("Returning 3\n");
 		return;
 	}
 
@@ -116,28 +116,6 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 		exit(2);
 	}
 
-	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
-	//copy the data back to the host
-	//gpuErrchk(cudaMemcpy(h_lhsHits, d_temp_data1, sizeof(unsigned int) * totalHitLength, cudaMemcpyDeviceToHost));
-
-	/*
-	for(unsigned int i = 0; i < nHitChan; ++i)
-	{
-		/*
-		if(lhs->get_memory()->on_host())
-		{
-			printf("MEMORY IS ON HOST\n");
-		}
-		else
-			printf("MEMORY IS NOT ON HOST\n");
-
-
-		//TODO: VINCENT NO NEED TO COPY IN THE FINAL VERSION?
-
-		printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
-		genericAddKernel <<<gridDim, blockDim>>> (hitLength, d_lhsHits + (i * hitLength), d_rhsHits + (i * hitLength));
-	}
-*/
 
 	lhs->integration_length += rhs->integration_length;
 	lhs->ndat_total += rhs->ndat_total;
