@@ -9,6 +9,7 @@
 #include "dsp/PhaseSeries.h"
 #include "dsp/CovarianceMatrixKernels.h"
 #include "dsp/Memory.h"
+#include <iostream>
 
 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
@@ -70,7 +71,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* const lhs, const PhaseSe
 	//combine the time series part
 	cerr << "BEFORE TSC" << std::endl;
 	_tsc->combine(lhs, rhs);
-	std::out << "AFTER TSC" << std::endl;
+	std::cerr << "AFTER TSC" << std::endl;
 
 	const unsigned int hitLength = rhs->get_nbin() * rhs->hits_nchan;
 	unsigned int nHitChan = rhs->get_hits_nchan();
