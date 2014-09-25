@@ -43,7 +43,7 @@ private:
 	float* compute_outer_product_phase_series_device(CovarianceMatrixResult* cmr); //Compute the outer product for a phase series
 	bool hitsContainsZeroes(unsigned int* d_hits, unsigned int hitLength); //Does this array contain any zeroes?
 
-	unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
+	const unsigned int* getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan);
 	void outputUpperTriangularMatrix(float* result, unsigned int rowLength, std::string filename);
 
 };

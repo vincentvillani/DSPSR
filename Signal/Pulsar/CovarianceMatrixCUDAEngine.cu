@@ -111,7 +111,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		}
 
 		//first normalise/compute the mean of the amps by dividing it by the hits
-		float* d_amps = ps->get_datptr(i, 0);
+		const float* d_amps = ps->get_datptr(i, 0);
 		//gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
 
 		//h_hits values should be copied over to d_hits before this function is called
@@ -286,7 +286,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 
 
 
-unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
+const unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
 {
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
