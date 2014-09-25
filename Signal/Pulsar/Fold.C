@@ -122,6 +122,12 @@ void dsp::Fold::combine (const Operation* other)
 
 dsp::PhaseSeries* dsp::Fold::get_result () const
 {
+	if(engine)
+		return engine->get_profiles();
+	else
+		return output;
+
+  /*
   if (engine)
   {
     engine->synch (output);
@@ -132,6 +138,7 @@ dsp::PhaseSeries* dsp::Fold::get_result () const
   }
 
   return output;
+  */
 }
 
 void dsp::Fold::reset ()

@@ -34,6 +34,7 @@ void dsp::PhaseSeries::init ()
   hits_size = 0;
 
   _psc = NULL;
+  _devToHost = NULL;
 }
 
 dsp::PhaseSeries::PhaseSeries () : TimeSeries()
@@ -65,6 +66,16 @@ void dsp::PhaseSeries::set_hits_memory (Memory* m)
     resize_hits (0);
 
   hits_memory = m;
+}
+
+void dsp::PhaseSeries::set_dev_to_host(DevToHost* dth)
+{
+	_devToHost = dth;
+}
+
+dsp::DevToHost* dsp::PhaseSeries::get_dev_to_host()
+{
+	return _devToHost;
 }
 
 const dsp::Memory* dsp::PhaseSeries::get_hits_memory () const
@@ -311,8 +322,10 @@ void dsp::PhaseSeries::copy_attributes (const PhaseSeries* copy)
   hits_nchan = copy->hits_nchan;
   hits_size = copy->hits_size;
 
+#if HAVE_CUDA
   if(copy->_psc != NULL)
 	  _psc = new PhaseSeriesCombinerCUDA();
+#endif
 
   if (copy->folding_predictor)
     folding_predictor = copy->folding_predictor->clone();

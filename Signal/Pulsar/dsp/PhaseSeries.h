@@ -39,6 +39,7 @@ namespace dsp {
   
   class PhaseSeriesCombinerCUDA;
 
+  class DevToHost;
 
 
   //! Data as a function of pulse phase
@@ -181,6 +182,10 @@ namespace dsp {
     //! Get the hits memory manager
     const Memory* get_hits_memory () const;
 
+    void set_dev_to_host(DevToHost* dth);
+    DevToHost* get_dev_to_host();
+
+
   protected:
 
     //! Period at which CAL data is folded
@@ -227,8 +232,10 @@ namespace dsp {
     Reference::To<Memory> hits_memory;
 
 
-    //Reference::To<PhaseSeriesCombinerCUDA> _psc;
-    PhaseSeriesCombinerCUDA* _psc;
+    //TODO: VINCENT: MAKE THESE REFERENCE::TO INSTANCES EVENTUALLY
+    PhaseSeriesCombinerCUDA* _psc; //Combines two phase series on a device
+    DevToHost* _devToHost; //Transfers a phase series from device to host
+
 
   private:
 
