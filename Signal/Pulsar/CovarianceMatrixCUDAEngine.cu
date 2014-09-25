@@ -40,11 +40,13 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//const unsigned int* d_hits = cmr->getHits();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
+	/*
 	//TODO: VINCENT: IS THIS OK? MEMORY LEAK?
 	PhaseSeries clonedPhaseSeries;
 	clonedPhaseSeries.set_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries = *ps;
+	*/
 
 	//TODO: VINCENT: REMOVE THIS AFTER PHASESERIESCOMBINECUDAIS SHOWN TO WORK
 	cmr->getPhaseSeries()->combine(ps);
@@ -52,7 +54,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//Check for zeroes
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		unsigned int* d_hits = getHitsPtr(&clonedPhaseSeries, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		unsigned int* d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
 
 		//If there are bins with zeroes, discard everything
 		if ( hitsContainsZeroes(d_hits + (chan * hitsLength), hitsLength) )
@@ -65,7 +67,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	//cmr->getPhaseSeries()->combine(ps);
 
-	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
+	computeCovarianceMatrix(cmr, ps);
 
 
 	//TODO: VINCENT: DEBUG

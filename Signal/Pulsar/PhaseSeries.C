@@ -476,8 +476,6 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 
   if(!get_hits_memory()->on_host())
   {
-
-
 	  //Allocate a phase series cuda combiner, if it hasnt already been allocated
 	  if(_psc == NULL)
 	  {
