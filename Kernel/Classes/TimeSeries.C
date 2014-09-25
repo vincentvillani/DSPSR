@@ -173,7 +173,9 @@ void dsp::TimeSeries::decrease_ndat (uint64_t new_ndat)
 
 dsp::TimeSeries& dsp::TimeSeries::operator = (const TimeSeries& copy)
 {
+  cerr << "TIME SERIES BEFORE" << std::endl;
   DataSeries::operator=(copy);
+  cerr << "TIME SERIES AFTER" << std::endl;
   order = copy.order;
   data = (float*)buffer;
   return *this;

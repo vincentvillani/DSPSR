@@ -280,7 +280,9 @@ dsp::DataSeries& dsp::DataSeries::operator = (const DataSeries& copy)
   if (this == &copy)
     return *this;
 
+  cerr << "DATA SERIES BEFORE" << std::endl;
   Observation::operator = (copy);
+  cerr << "DATA SERIES AFTER" << std::endl;
 
   resize (copy.get_ndat());
 
