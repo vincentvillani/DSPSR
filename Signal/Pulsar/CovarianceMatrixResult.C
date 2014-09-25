@@ -96,9 +96,13 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 		//Clone the initial phaseSeries
 		_phaseSeries = new PhaseSeries();
+		cerr << "1" << std::endl;
 		_phaseSeries->set_memory( ps->memory ); //TODO: VINCENT: IS THIS CORRECT?
+		cerr << "2" << std::endl;
 		_phaseSeries->set_hits_memory( ps->hits_memory ); //TODO: VINCENT: IS THIS CORRECT?
+		cerr << "3" << std::endl;
 		_phaseSeries->operator =(*ps);
+		cerr << "4" << std::endl;
 
 		cerr << "HERE2" << std::endl;
 
