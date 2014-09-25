@@ -41,27 +41,16 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
 	//TODO: VINCENT: IS THIS OK? MEMORY LEAK?
-
 	PhaseSeries clonedPhaseSeries;
 	clonedPhaseSeries.set_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries = *ps;
 
-	if( ps->get_memory()->on_host() )
-		printf("CLONED PHASE SERIES ON HOST!\n");
-	else
-		printf("CLONED PHASE SERIES NOT ON HOST!\n");
-
-
-
-
 	computeCovarianceMatrix(cmr, &clonedPhaseSeries);
-
 
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
 		unsigned int* d_hits = getHitsPtr(&clonedPhaseSeries, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
-		//gpuErrchk( cudaMemcpy(d_hits + (chan * hitsLength), h_hits, sizeof(unsigned int) * hitsLength, cudaMemcpyHostToDevice) ); 	//Copy the hits data over to the device
 
 		//If there are bins with zeroes, discard everything
 		if ( hitsContainsZeroes(d_hits + (chan * hitsLength), hitsLength) )

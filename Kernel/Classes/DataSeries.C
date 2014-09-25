@@ -280,18 +280,11 @@ dsp::DataSeries& dsp::DataSeries::operator = (const DataSeries& copy)
   if (this == &copy)
     return *this;
 
-  cerr << "DATA SERIES BEFORE" << std::endl;
   Observation::operator = (copy);
-  cerr << "DATA SERIES AFTER" << std::endl;
 
   resize (copy.get_ndat());
 
   uint64_t npt = (get_ndat() * get_ndim() * get_nbit())/8;
-
-  if(memory->on_host())
-	  cerr << "MEMORY IS ON THE HOST" << std::endl;
-  else
-	  cerr << "MEMORY IS ON THE DEVICE" << std::endl;
 
   for (unsigned ichan=0; ichan<get_nchan(); ichan++){
     for (unsigned ipol=0; ipol<get_npol(); ipol++) {
