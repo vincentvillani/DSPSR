@@ -8,7 +8,7 @@
 #include "dsp/CovarianceMatrixKernels.h"
 
 
-__global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
+__global__ void outerProductKernel(float* result, unsigned int resultLength, const float* vec, unsigned int vecLength)
 {
 	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < resultLength; absoluteThreadIdx += gridDim.x * blockDim.x)
 	{
@@ -33,7 +33,7 @@ __global__ void outerProductKernel(float* result, unsigned int resultLength, flo
 
 
 //(d_amps, ampsLength, d_hits, stokesLength)
-__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength)
+__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, const unsigned int* d_hits, unsigned int stokesLength)
 {
 	unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x;
 
