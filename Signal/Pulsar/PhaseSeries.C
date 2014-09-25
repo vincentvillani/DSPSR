@@ -449,13 +449,10 @@ dsp::PhaseSeries::operator = (const PhaseSeries& prof) try
     cerr << "dsp::PhaseSeries::operator = call TimeSeries::operator =" << endl;
   TimeSeries::operator = (prof);
 
-  cerr << "x" << std::endl;
-
   if (verbose)
     cerr << "dsp::PhaseSeries::operator = copy attributes" << endl;
 
   copy_attributes (&prof);
-  cerr << "xx" << std::endl;
 
   return *this;
 }
