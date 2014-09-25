@@ -288,6 +288,11 @@ dsp::DataSeries& dsp::DataSeries::operator = (const DataSeries& copy)
 
   uint64_t npt = (get_ndat() * get_ndim() * get_nbit())/8;
 
+  if(memory->on_host())
+	  cerr << "MEMORY IS ON THE HOST" << std::endl;
+  else
+	  cerr << "MEMORY IS ON THE DEVICE" << std::endl;
+
   for (unsigned ichan=0; ichan<get_nchan(); ichan++){
     for (unsigned ipol=0; ipol<get_npol(); ipol++) {
       unsigned char* dest = get_udatptr (ichan, ipol);
