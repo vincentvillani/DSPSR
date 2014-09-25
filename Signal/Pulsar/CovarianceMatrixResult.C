@@ -92,7 +92,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	{
 		_setup = true;
 
-		cerr << "HERE1" << endl;
+		cerr << "HERE1" << std::endl;
 
 		//Clone the initial phaseSeries
 		_phaseSeries = new PhaseSeries();
@@ -100,7 +100,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_phaseSeries->set_hits_memory( ps->hits_memory ); //TODO: VINCENT: IS THIS CORRECT?
 		_phaseSeries->operator =(*ps);
 
-		cerr << "HERE2" << endl;
+		cerr << "HERE2" << std::endl;
 
 		_binNum = binNum;
 		_freqChanNum = freqChanNum;
@@ -112,7 +112,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_runningMeanSumLength = freqChanNum * binNum * stokesLength;
 		_outerProductsLength = freqChanNum * covarianceMatrixLength;
 
-		cerr << "HERE3" << endl;
+		cerr << "HERE3" << std::endl;
 
 		//TODO: VINCENT: FIX THIS
 		if(_useCUDA)
@@ -160,7 +160,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			_amps = new float[getAmpsLength()];
 		}
 
-		cerr << "HERE4" << endl;
+		cerr << "HERE4" << std::endl;
 
 	}
 
