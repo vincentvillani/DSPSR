@@ -311,8 +311,10 @@ void dsp::PhaseSeries::copy_attributes (const PhaseSeries* copy)
   hits_nchan = copy->hits_nchan;
   hits_size = copy->hits_size;
 
+#if HAVE_CUDA
   if(copy->_psc != NULL)
 	  _psc = new PhaseSeriesCombinerCUDA();
+#endif
 
   if (copy->folding_predictor)
     folding_predictor = copy->folding_predictor->clone();

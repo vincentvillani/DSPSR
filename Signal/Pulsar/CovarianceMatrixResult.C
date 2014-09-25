@@ -92,8 +92,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	{
 		_setup = true;
 
-
-
 		//Clone the initial phaseSeries
 		_phaseSeries = new PhaseSeries();
 		_phaseSeries->set_memory( ps->memory ); //TODO: VINCENT: IS THIS CORRECT?
@@ -122,22 +120,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			set_npol(1);
 			set_nbit(32);
 
-			//TODO: VINCENT, NO NEED FOR THIS IN THE FINAL VERSION
-			gpuErrchk(cudaMalloc(&d_outerProducts, sizeof(float) * _outerProductsLength));
-			gpuErrchk(cudaMemset(d_outerProducts, 0, sizeof(float) * _outerProductsLength));
-
-			//TODO: VINCENT, THIS WILL AREADY BE ON THE GPU IN THE FINAL VERSION
-			//Allocate memory
-			//resize(covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
-			//memset(get_data(), 0,  sizeof(float) * covarianceMatrixLength * freqChanNum); //Set to 0
-
-
-			gpuErrchk(cudaMalloc(&_runningMeanSum, sizeof(float) * _runningMeanSumLength));
-			gpuErrchk(cudaMemset(_runningMeanSum, 0, sizeof(float) * _runningMeanSumLength));
-
-			gpuErrchk(cudaMalloc(&_amps, sizeof(float) * _stokesLength * _binNum));
-			gpuErrchk(cudaMalloc(&d_hits, sizeof(unsigned int) * _binNum * _hitChanNum));
-
 
 #endif
 		}
@@ -152,9 +134,6 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			//Allocate memory
 			resize(covarianceMatrixLength); //for each freq chan, allocate _covarianceMatrixLength number of 32 bit elements
 			memset(get_data(), 0,  sizeof(float) * _outerProductsLength); //Set to 0
-
-			_runningMeanSum = new float[_runningMeanSumLength];
-			_amps = new float[getAmpsLength()];
 		}
 
 
@@ -243,23 +222,9 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 	}
 
 
-
 	bool dsp::CovarianceMatrixResult::hasBeenSetup()
 	{
 		return _setup;
-	}
-
-
-	float* dsp::CovarianceMatrixResult::getAmps()
-	{
-		return _amps;
-	}
-
-
-
-	unsigned int* dsp::CovarianceMatrixResult::getHits()
-	{
-		return d_hits;
 	}
 
 
