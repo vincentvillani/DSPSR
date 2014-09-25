@@ -99,6 +99,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_phaseSeries->set_hits_memory( ps->hits_memory ); //TODO: VINCENT: IS THIS CORRECT?
 		_phaseSeries->operator =(*ps);
 
+		/*
 		if(ps->get_memory()->on_host())
 			printf("TS: MEM ON HOST\n");
 		else
@@ -118,6 +119,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 			printf("CMR PS: MEM ON HOST\n");
 		else
 			printf("CMR PS: MEM ON DEVICE\n");
+		*/
 
 
 		_binNum = binNum;
