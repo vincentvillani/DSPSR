@@ -18,6 +18,8 @@ namespace dsp
 	//Device -> host
 	class DevToHost
 	{
+	public:
+
 		DevToHost();
 		virtual ~DevToHost();
 		virtual void transfer(const PhaseSeries* from, PhaseSeries* to) = 0;
