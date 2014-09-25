@@ -81,7 +81,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 
-void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixResult* cmr, PhaseSeries* ps)
+void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps)
 {
 	unsigned int ampsLength = cmr->getAmpsLength();
 	unsigned int covMatrixLength = cmr->getCovarianceMatrixLength();
@@ -286,7 +286,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(unsigned int* d_hits, u
 
 
 
-unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
+unsigned int* dsp::CovarianceMatrixCUDAEngine::getHitsPtr(const PhaseSeries* phaseSeriesData, CovarianceMatrixResult* covarianceMatrixResult, int freqChan)
 {
 	//return the only channel
 	if(covarianceMatrixResult->getNumberOfHitChans() == 1)
