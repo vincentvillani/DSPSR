@@ -355,6 +355,15 @@ void dsp::Subint<Op>::unload_partial () try
 
     printf("UNLOADER PARTIAL CALLED\n");
 
+
+    if(result->get_hits_memory()->on_host())
+    	printf("Host!\n");
+    else
+    	printf("device!\n");
+
+    exit(0);
+
+    /*
 	//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
 	unsigned int* hits = new unsigned int[result->get_hits_nchan()];
 	cudaMemcpy(hits, result->get_hits(0), sizeof(unsigned int) * result->get_hits_nchan(), cudaMemcpyDeviceToHost);
@@ -364,6 +373,7 @@ void dsp::Subint<Op>::unload_partial () try
 	  printf("GP-SI: i=%d, val=%u\n", i, hits[i]);
 	}
 	delete[] hits;
+	*/
 
     unloader->partial (result);
   }
