@@ -9,6 +9,7 @@
 #define COVARIANCEMATRIXKERNELS_H_
 
 #include <cuda_runtime.h>
+#include <stdio.h>
 
 //Cuda Kernels
 __global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength);
