@@ -12,7 +12,7 @@
 
 //Cuda Kernels
 __global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength);
-__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, unsigned int* d_hits, unsigned int stokesLength);
+__global__ void meanStokesKernel(float* d_amps, unsigned int ampsLength, const unsigned int* d_hits, unsigned int stokesLength);
 __global__ void applyScaleKernel(float* amps, unsigned int ampsLength, double scaleFactor);
 __global__ void genericAddKernel(unsigned int n, float* original, const float* add);
 __global__ void genericAddKernel(unsigned int n, unsigned int* original, const unsigned int* add);
