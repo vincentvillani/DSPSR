@@ -117,7 +117,7 @@ void dsp::SubFold::transformation () try
   if (verbose)
     cerr << "dsp::SubFold::transformation" << endl;
 
-  //cerr << "ZERO" << endl;
+  cerr << "ZERO" << endl;
 
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
   {
@@ -128,7 +128,7 @@ void dsp::SubFold::transformation () try
   if (!built)
     prepare ();
 
-  //cerr << "FIRST" << endl;
+  cerr << "FIRST" << endl;
 
   // flag that the input TimeSeries contains data for another sub-integration
   bool more_data = true;
@@ -136,18 +136,18 @@ void dsp::SubFold::transformation () try
 
   while (more_data)
   {
-	//cerr << "SECOND" << endl;
+	cerr << "SECOND" << endl;
     divider.set_bounds( get_input() );
-    //cerr << "THIRD" << endl;
+    cerr << "THIRD" << endl;
 
     if (!divider.get_fractional_pulses())
     {
       get_output()->set_ndat_expected( divider.get_division_ndat() );
-      //cerr << "FOURTH" << endl;
+      cerr << "FOURTH" << endl;
     }
 
     more_data = divider.get_in_next ();
-    //cerr << "FIFTH" << endl;
+    cerr << "FIFTH" << endl;
 
     if (first_division && divider.get_new_division())
     {
@@ -159,13 +159,14 @@ void dsp::SubFold::transformation () try
       unload_partial ();
     }
 
-    //cerr << "SEVENTH" << endl;
+    cerr << "SEVENTH" << endl;
     if (!divider.get_is_valid())
     {
+      cerr << "EIGHTH" << endl;
       continue;
     }
 
-    //cerr << "NINTH" << endl;
+    cerr << "NINTH" << endl;
     Fold::transformation ();
 
     printf("TRANSFORMATION IS COMPLETE\n");
@@ -197,15 +198,7 @@ void dsp::SubFold::transformation () try
              << " unloader=" << unloader.get() << endl;
 
 
-		//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
-		unsigned int* hits = new unsigned int[result->get_hits_nchan()];
-		cudaMemcpy(hits, result->get_hits(0), sizeof(unsigned int) * result->get_hits_nchan(), cudaMemcpyDeviceToHost);
 
-		for(int i = 0; i < result->get_hits_nchan(); ++i)
-		{
-		  printf("GP-SF: i=%d, val=%u\n", i, hits[i]);
-		}
-		delete[] hits;
 
 
       unloader->unload (result);
