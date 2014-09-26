@@ -355,7 +355,7 @@ void dsp::Subint<Op>::unload_partial () try
 
     printf("UNLOADER PARTIAL CALLED\n");
 
-
+    /*
     if(result->get_hits_memory()->on_host())
     	printf("Host!\n");
     else
@@ -365,20 +365,21 @@ void dsp::Subint<Op>::unload_partial () try
     printf("Number of freq chans: %u\n", result->get_nchan());
 
 
-    //exit(0);
 
+    //TODO: VINCENT, TURN THIS OFF IN NON DEBUG
     if( result->get_nchan() == 32)
     {
-		//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
+
 		unsigned int* hits = new unsigned int[result->get_hits_nchan()];
 		cudaMemcpy(hits, result->get_hits(0), sizeof(unsigned int) * result->get_hits_nchan(), cudaMemcpyDeviceToHost);
 
 		for(int i = 0; i < result->get_nchan(); ++i)
 		{
-		  printf("GP-SI: i=%d, val=%u\n", i, hits[i]);
+			printf("GP-SI: i=%d, val=%u\n", i, hits[i]);
 		}
 		delete[] hits;
     }
+    */
 
 
     unloader->partial (result);
