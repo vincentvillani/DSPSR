@@ -361,6 +361,10 @@ void dsp::Subint<Op>::unload_partial () try
     else
     	printf("device!\n");
 
+    printf("Number of hit freqs: %u", result->get_hits_nchan());
+    printf("Number of freq chans: %u", result->get_nchan());
+
+
     exit(0);
 
     /*
