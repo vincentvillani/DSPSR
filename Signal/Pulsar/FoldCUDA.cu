@@ -115,6 +115,7 @@ uint64_t CUDA::FoldEngine::set_bins (double phi, double phase_per_sample, uint64
 }
 dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 {
+	/*
 	if(d_profiles != NULL && d_profiles->get_nchan() > 0)
 	{
 
@@ -127,6 +128,7 @@ dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 	  }
 	  delete[] hits;
 	}
+	*/
 
 
   return d_profiles;
