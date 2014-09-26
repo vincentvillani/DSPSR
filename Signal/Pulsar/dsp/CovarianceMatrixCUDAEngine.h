@@ -34,9 +34,13 @@ public:
 
 private:
 
+	CUDA::DeviceMemory* h_deviceMemory;
 
 	bool* d_zeroes; //Are zeroes present?
 	bool h_zeroes;
+
+	float* d_ampsScratch; //Scratch space for all amps values in a freq channel
+	unsigned int h_ampsScratchLength; //Length of ampsScratch i.e. stokesLength * nbin
 
 
 	void computeCovarianceMatrix(CovarianceMatrixResult* cmr, const PhaseSeries* ps);

@@ -22,8 +22,16 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
-	cudaMalloc(&d_zeroes, sizeof(bool));
+
+	h_deviceMemory = new CUDA::DeviceMemory();
+	d_zeroes = (float*)h_deviceMemory->do_allocate(sizeof(bool));
 	h_zeroes = false;
+
+	//Allocate the scratch space later, when we know how much space we need
+	//Its just easier that way...
+	d_ampsScratch = NULL;
+	h_ampsScratchLength = 0;
+
 }
 
 
@@ -36,8 +44,15 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 //SINGLE HIT DIM
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
+
+	//Allocate amps scratch if necessary
+	if(d_ampsScratch == NULL)
+	{
+		h_ampsScratchLength = cmr->getAmpsLength();
+		d_ampsScratch = (float*)h_deviceMemory->do_allocate(h_ampsScratchLength);
+	}
+
 	unsigned int hitsLength = cmr->getHitsLength();
-	//const unsigned int* d_hits = cmr->getHits();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
 	/*
@@ -47,6 +62,8 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
 	clonedPhaseSeries = *ps;
 	*/
+
+
 
 	//TODO: VINCENT: REMOVE THIS AFTER PHASESERIESCOMBINECUDAIS SHOWN TO WORK
 	cmr->getPhaseSeries()->combine(ps);
@@ -111,12 +128,11 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 		}
 
 		//first normalise/compute the mean of the amps by dividing it by the hits
-		const float* d_amps = ps->get_datptr(i, 0);
-		//gpuErrchk(cudaMemcpy(d_amps, h_amps + (i * ampsLength), sizeof(float) * ampsLength, cudaMemcpyHostToDevice));
+		h_deviceMemory->do_copy(d_ampsScratch, ps->get_datptr(chan, 0), sizeof(float) * h_ampsScratchLength);
 
 		//h_hits values should be copied over to d_hits before this function is called
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_amps, ampsLength, d_hits, stokesLength);
+		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_ampsScratch, h_ampsScratchLength, d_hits, stokesLength);
 
 		//TODO: DEBUG
 		cudaError_t error = cudaPeekAtLastError();
@@ -129,7 +145,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 		//Add the normalised amps to the running mean
 		d_runningMean = cmr->getRunningMeanSum(i);
-		genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_amps);
+		genericAddKernel <<< meanGridDim, meanBlockDim >>> (h_ampsScratchLength, d_runningMean, d_ampsScratch);
 
 		//TODO: DEBUG
 		error = cudaPeekAtLastError();
@@ -146,7 +162,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 				outerProductGridDim, outerProductBlockSize);
 		d_result = cmr->getCovarianceMatrix(i);
 		outerProductKernel <<<outerProductGridDim, outerProductBlockSize>>>
-				(d_result, covMatrixLength, d_amps, ampsLength);
+				(d_result, covMatrixLength, d_ampsScratch, h_ampsScratchLength);
 
 		//TODO: DEBUG
 		error = cudaPeekAtLastError();
