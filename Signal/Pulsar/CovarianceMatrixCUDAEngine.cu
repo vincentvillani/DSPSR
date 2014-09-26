@@ -24,7 +24,7 @@ dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 {
 
 	h_deviceMemory = new CUDA::DeviceMemory();
-	d_zeroes = (float*)h_deviceMemory->do_allocate(sizeof(bool));
+	d_zeroes = (bool*)h_deviceMemory->do_allocate(sizeof(bool));
 	h_zeroes = false;
 
 	//Allocate the scratch space later, when we know how much space we need
@@ -123,16 +123,12 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	{
 
 		if(cmr->getNumberOfHitChans() != 1)
-		{
 			d_hits += cmr->getHitsLength(); //move d_hits pointer by the appropriate amount to get the next channels data
-		}
 
-		//first normalise/compute the mean of the amps by dividing it by the hits
-		h_deviceMemory->do_copy(d_ampsScratch, ps->get_datptr(chan, 0), sizeof(float) * h_ampsScratchLength);
+		h_deviceMemory->do_copy(d_ampsScratch, ps->get_datptr(i, 0), sizeof(float) * ampsLength);
 
-		//h_hits values should be copied over to d_hits before this function is called
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_ampsScratch, h_ampsScratchLength, d_hits, stokesLength);
+		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_ampsScratch, ampsLength, d_hits, stokesLength);
 
 		//TODO: DEBUG
 		cudaError_t error = cudaPeekAtLastError();
@@ -145,7 +141,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 
 		//Add the normalised amps to the running mean
 		d_runningMean = cmr->getRunningMeanSum(i);
-		genericAddKernel <<< meanGridDim, meanBlockDim >>> (h_ampsScratchLength, d_runningMean, d_ampsScratch);
+		genericAddKernel <<< meanGridDim, meanBlockDim >>> (ampsLength, d_runningMean, d_ampsScratch);
 
 		//TODO: DEBUG
 		error = cudaPeekAtLastError();
@@ -162,7 +158,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 				outerProductGridDim, outerProductBlockSize);
 		d_result = cmr->getCovarianceMatrix(i);
 		outerProductKernel <<<outerProductGridDim, outerProductBlockSize>>>
-				(d_result, covMatrixLength, d_ampsScratch, h_ampsScratchLength);
+				(d_result, covMatrixLength, d_ampsScratch, ampsLength);
 
 		//TODO: DEBUG
 		error = cudaPeekAtLastError();
