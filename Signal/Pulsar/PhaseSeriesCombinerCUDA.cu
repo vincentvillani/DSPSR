@@ -102,8 +102,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
 
-	cudaDeviceSynchronize();
-	exit(0);
+	//cudaDeviceSynchronize();
+	//exit(0);
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error2 = cudaDeviceSynchronize();

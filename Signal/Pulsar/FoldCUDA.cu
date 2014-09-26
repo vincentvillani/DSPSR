@@ -115,6 +115,15 @@ uint64_t CUDA::FoldEngine::set_bins (double phi, double phase_per_sample, uint64
 }
 dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 {
+  //TODO: VINCENT, TURN THIS OFF IN NON DEBUG
+  unsigned int* hits = new unsigned int[d_profiles->get_nchan()];
+  cudaMemcpy(hits, d_profiles->get_hits(0), sizeof(unsigned int) * d_profiles->get_nchan(), cudaMemcpyDeviceToHost);
+  for(int i = 0; i < d_profiles->get_nchan(); ++i)
+  {
+	  printf("GP: i=%d, val=%u\n", i, hits[i]);
+  }
+  delete[] hits;
+
   return d_profiles;
 }
 

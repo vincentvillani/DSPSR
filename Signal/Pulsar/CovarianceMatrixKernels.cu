@@ -80,7 +80,7 @@ __global__ void genericAddKernel(unsigned int n, unsigned int* original, const u
 	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
 		original[absIdx] += add[absIdx];
-		printf("AddVal: %u\n", original[absIdx]);
+		//printf("AddVal: %u\n", add[absIdx]);
 	}
 }
 
