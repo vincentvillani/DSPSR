@@ -373,7 +373,7 @@ void dsp::Subint<Op>::unload_partial () try
 		unsigned int* hits = new unsigned int[result->get_hits_nchan()];
 		cudaMemcpy(hits, result->get_hits(0), sizeof(unsigned int) * result->get_hits_nchan(), cudaMemcpyDeviceToHost);
 
-		for(int i = 0; i < result->get_hits_nchan(); ++i)
+		for(int i = 0; i < result->get_nchan(); ++i)
 		{
 		  printf("GP-SI: i=%d, val=%u\n", i, hits[i]);
 		}
