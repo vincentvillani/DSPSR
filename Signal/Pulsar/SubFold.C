@@ -42,7 +42,7 @@ void dsp::SubFold::set_cerr (std::ostream& os) const
 //! Set the file unloader
 void dsp::SubFold::set_unloader (dsp::PhaseSeriesUnloader* _unloader)
 {
-	//printf("UNLOADER SET!!!!\n");
+  printf("SUBFOLD::UNLOADER SET!!!!\n");
   if (verbose)
     cerr << "dsp::SubFold::set_unloader this=" << this 
          << " unloader=" << _unloader << endl;
@@ -117,7 +117,6 @@ void dsp::SubFold::transformation () try
   if (verbose)
     cerr << "dsp::SubFold::transformation" << endl;
 
-  cerr << "ZERO" << endl;
 
   if (divider.get_turns() == 0 && divider.get_seconds() == 0.0)
   {
@@ -128,7 +127,6 @@ void dsp::SubFold::transformation () try
   if (!built)
     prepare ();
 
-  cerr << "FIRST" << endl;
 
   // flag that the input TimeSeries contains data for another sub-integration
   bool more_data = true;
@@ -136,18 +134,14 @@ void dsp::SubFold::transformation () try
 
   while (more_data)
   {
-	cerr << "SECOND" << endl;
     divider.set_bounds( get_input() );
-    cerr << "THIRD" << endl;
 
     if (!divider.get_fractional_pulses())
     {
       get_output()->set_ndat_expected( divider.get_division_ndat() );
-      cerr << "FOURTH" << endl;
     }
 
     more_data = divider.get_in_next ();
-    cerr << "FIFTH" << endl;
 
     if (first_division && divider.get_new_division())
     {
@@ -159,14 +153,12 @@ void dsp::SubFold::transformation () try
       unload_partial ();
     }
 
-    cerr << "SEVENTH" << endl;
     if (!divider.get_is_valid())
     {
-      cerr << "EIGHTH" << endl;
-      continue;
+    	continue;
     }
 
-    cerr << "NINTH" << endl;
+
     Fold::transformation ();
 
     printf("TRANSFORMATION IS COMPLETE\n");
