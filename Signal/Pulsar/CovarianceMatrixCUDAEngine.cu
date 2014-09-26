@@ -123,7 +123,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	{
 
 		if(cmr->getNumberOfHitChans() != 1)
-			const_cast<unsigned int*>(d_hits) = ps->get_hits(i); //move d_hits pointer by the appropriate amount to get the next channels data
+			(const_cast<unsigned int*>(d_hits)) = ps->get_hits(i); //move d_hits pointer by the appropriate amount to get the next channels data
 
 		h_deviceMemory->do_copy(d_ampsScratch, ps->get_datptr(i, 0), sizeof(float) * ampsLength);
 
