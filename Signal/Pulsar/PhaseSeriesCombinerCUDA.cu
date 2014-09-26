@@ -54,9 +54,9 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 		return;
 	}
 
-	if(rhs->get_nbin() == 0 || rhs->get_integration_length() == 0.0)
+	if(rhs->get_nbin() == 0) //|| rhs->get_integration_length() == 0.0)
 	{
-		printf("BIN: %u, IL: %f", rhs->get_nbin(), rhs->get_integration_length());
+		printf("BIN: %u, IL: %f\n", rhs->get_nbin(), rhs->get_integration_length());
 		printf("Returning 2\n");
 		return;
 	}
