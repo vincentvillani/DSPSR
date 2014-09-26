@@ -163,7 +163,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(_engine)
 	{
 
-
+		/*
 		//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
 		unsigned int* hits = new unsigned int[phaseSeriesData->get_hits_nchan()];
 		cudaMemcpy(hits, phaseSeriesData->get_hits(0), sizeof(unsigned int) * phaseSeriesData->get_hits_nchan(), cudaMemcpyDeviceToHost);
@@ -173,6 +173,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 		  printf("GP: i=%d, val=%u\n", i, hits[i]);
 		}
 		delete[] hits;
+		*/
 
 
 		//compute_covariance_matrix_host(phaseSeriesData);

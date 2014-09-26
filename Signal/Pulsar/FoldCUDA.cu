@@ -14,12 +14,15 @@
 
 #include "Error.h"
 #include "debug.h"
-
+#if HAVE_CUDA
 #include "dsp/DevToHostCuda.h"
+#endif
 
 #include <memory>
 
 using namespace std;
+
+
 
 CUDA::FoldEngine::FoldEngine (cudaStream_t _stream, bool _hits_on_gpu)
 {

@@ -9,8 +9,7 @@ dsp/LoadToFold1.h               dsp/PhaseLockedFilterbank.h \
 dsp/LoadToFoldConfig.h          dsp/PhaseSeries.h \
 dsp/LoadToFoldN.h               dsp/PhaseSeriesUnloader.h \
 dsp/CyclicFold.h   				dsp/CovarianceMatrix.h \
-dsp/CovarianceMatrixResult.h 	dsp/DevToHost.h \
-dsp/DevToHostCuda.h
+dsp/CovarianceMatrixResult.h 	dsp/DevToHost.h
 
 libdspsr_la_SOURCES = \
 Archiver.C                            \
@@ -20,20 +19,20 @@ LoadToFold1.C           PhaseLockedFilterbank.C \
 LoadToFoldConfig.C      PhaseSeries.C  \
 LoadToFoldN.C           PhaseSeriesUnloader.C \
 CyclicFold.C 			CovarianceMatrix.C \
-CovarianceMatrixResult.C DevToHostCuda.C
+CovarianceMatrixResult.C 
 
 if HAVE_CUFFT
 
 nobase_include_HEADERS += dsp/FoldCUDA.h dsp/TransferPhaseSeriesCUDA.h \
 			  dsp/CyclicFoldEngineCUDA.h dsp/CovarianceMatrixCUDAEngine.h \
 			  dsp/PhaseSeriesCombinerCUDA.h dsp/TimeSeriesCombinerCUDA.h \
-			  dsp/CovarianceMatrixKernels.h
+			  dsp/CovarianceMatrixKernels.h dsp/DevToHostCuda.h
 
 
 libdspsr_la_SOURCES += FoldCUDA.cu TransferPhaseSeriesCUDA.C \
 		       CyclicFoldEngineCUDA.cu CovarianceMatrixCUDAEngine.cu \
 		       PhaseSeriesCombinerCUDA.cu TimeSeriesCombinerCUDA.cu \
-		       CovarianceMatrixKernels.cu
+		       CovarianceMatrixKernels.cu DevToHostCuda.C
 
 
 endif
