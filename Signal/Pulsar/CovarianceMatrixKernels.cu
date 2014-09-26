@@ -8,7 +8,7 @@
 #include "dsp/CovarianceMatrixKernels.h"
 
 
-__global__ void outerProductKernel(float* result, unsigned int resultLength, const float* vec, unsigned int vecLength)
+__global__ void outerProductKernel(float* result, unsigned int resultLength, float* vec, unsigned int vecLength)
 {
 	for(unsigned int absoluteThreadIdx = blockDim.x * blockIdx.x + threadIdx.x; absoluteThreadIdx < resultLength; absoluteThreadIdx += gridDim.x * blockDim.x)
 	{
