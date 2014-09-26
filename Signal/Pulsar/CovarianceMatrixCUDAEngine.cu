@@ -37,7 +37,11 @@ dsp::CovarianceMatrixCUDAEngine::CovarianceMatrixCUDAEngine()
 
 dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 {
-	cudaFree(d_zeroes);
+	if(d_zeroes != NULL)
+		h_deviceMemory->do_free(d_zeroes);
+
+	if(d_ampsScratch != NULL)
+		h_deviceMemory->do_free(d_ampsScratch);
 }
 
 
