@@ -54,6 +54,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 		return;
 	}
 
+	//TODO: VINCENT: WHY ISNT INTEGRATION LENGTH COPIED OVER?
 	if(rhs->get_nbin() == 0) //|| rhs->get_integration_length() == 0.0)
 	{
 		printf("BIN: %u, IL: %f\n", rhs->get_nbin(), rhs->get_integration_length());
@@ -98,19 +99,11 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 		printf("LHS MEMORY IS NOT ON HOST\n");
 
 
-	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
-	if(d_temp_data1 == NULL || d_temp_data2 == NULL)
-	{
-		//gpuErrchk(cudaMalloc(&d_temp_data1, sizeof(unsigned int) * totalHitLength));
-		//gpuErrchk(cudaMalloc(&d_temp_data2, sizeof(unsigned int) * totalHitLength));
-	}
-
-	//TODO: VINCENT: NO NEED TO DO THIS IN THE FINAL VERSION
-	//gpuErrchk(cudaMemcpy(d_temp_data1, h_lhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
-	//gpuErrchk(cudaMemcpy(d_temp_data2, h_rhsHits, sizeof(unsigned int) * totalHitLength, cudaMemcpyHostToDevice));
-
 	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
+
+	cudaDeviceSynchronize();
+	exit(0);
 
 	//TODO: VINCENT: DEBUG
 	cudaError_t error2 = cudaDeviceSynchronize();
