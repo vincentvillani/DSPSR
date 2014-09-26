@@ -105,7 +105,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	unsigned int stokesLength = cmr->getStokesLength();
 
 
-	unsigned int* d_hits;
+	//unsigned int* d_hits;
 	float* d_runningMean;
 	float* d_result;
 
@@ -122,13 +122,15 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatrix(CovarianceMatrixRe
 	for(unsigned int i = 0; i < cmr->getNumberOfFreqChans(); ++i)
 	{
 
-		if(cmr->getNumberOfHitChans() != 1)
-			(const_cast<unsigned int*>(d_hits)) = ps->get_hits(i); //move d_hits pointer by the appropriate amount to get the next channels data
+		//if(cmr->getNumberOfHitChans() != 1)
+		//	(const_cast<unsigned int*>(d_hits)) = ps->get_hits(i); //move d_hits pointer by the appropriate amount to get the next channels data
 
 		h_deviceMemory->do_copy(d_ampsScratch, ps->get_datptr(i, 0), sizeof(float) * ampsLength);
 
 		printf("Launching Mean Kernel with gridDim: %d, blockDim: %d\n", meanGridDim, meanBlockDim);
-		meanStokesKernel <<< meanGridDim, meanBlockDim >>> (d_ampsScratch, ampsLength, const_cast<unsigned int*>(d_hits), stokesLength);
+		meanStokesKernel <<< meanGridDim, meanBlockDim >>>
+				(d_ampsScratch, ampsLength, (cmr->getNumberOfHitChans() != 1) ? ps->get_hits(i) : ps->get_hits(0),
+						stokesLength);
 
 		//TODO: DEBUG
 		cudaError_t error = cudaPeekAtLastError();
