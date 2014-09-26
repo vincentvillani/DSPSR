@@ -130,7 +130,6 @@ dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 	}
 	*/
 
-
   return d_profiles;
 }
 

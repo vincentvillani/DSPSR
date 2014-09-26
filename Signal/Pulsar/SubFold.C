@@ -157,15 +157,12 @@ void dsp::SubFold::transformation () try
          processing in parallel. */
 
       unload_partial ();
-      //cerr << "SIXTH" << endl;
     }
 
     //cerr << "SEVENTH" << endl;
     if (!divider.get_is_valid())
     {
-      //cerr << "EIGTH" << endl;
       continue;
-
     }
 
     //cerr << "NINTH" << endl;
@@ -198,6 +195,18 @@ void dsp::SubFold::transformation () try
       if (verbose)
         cerr << "dsp::SubFold::transformation this=" << this
              << " unloader=" << unloader.get() << endl;
+
+
+		//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
+		unsigned int* hits = new unsigned int[result->get_hits_nchan()];
+		cudaMemcpy(hits, result->get_hits(0), sizeof(unsigned int) * result->get_hits_nchan(), cudaMemcpyDeviceToHost);
+
+		for(int i = 0; i < result->get_hits_nchan(); ++i)
+		{
+		  printf("GP-SF: i=%d, val=%u\n", i, hits[i]);
+		}
+		delete[] hits;
+
 
       unloader->unload (result);
       zero_output ();
