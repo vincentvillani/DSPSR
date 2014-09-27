@@ -14,9 +14,9 @@
 
 #include "Error.h"
 #include "debug.h"
-#if HAVE_CUDA
-#include "dsp/DevToHostCuda.hjhihkjhkjhhkj"
-#endif
+//#if HAVE_CUDA
+#include "dsp/DevToHostCuda.h"
+//#endif
 
 #include <memory>
 
@@ -372,7 +372,7 @@ void CUDA::FoldEngine::printPS(dsp::PhaseSeries* ps)
 	 printf("Pointer: %p\n", ps);
 	 printf("Int length: %f\n", ps->get_integration_length());
 
-#if HAVE_CUDA
+
 	 unsigned int* h_hits = new unsigned int[ps->get_nbin()];
 	 unsigned int* d_hits = ps->get_hits(0);
 	 cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * ps->get_nbin(), cudaMemcpyDeviceToHost);
@@ -385,7 +385,6 @@ void CUDA::FoldEngine::printPS(dsp::PhaseSeries* ps)
 
 	 delete[] h_hits;
 
-#endif
 
 	 printf("\n\n");
 }

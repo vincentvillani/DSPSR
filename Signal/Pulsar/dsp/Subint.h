@@ -428,7 +428,7 @@ void dsp::Subint<T>::printPS(dsp::PhaseSeries* ps)
 	 printf("Pointer: %p\n", ps);
 	 printf("Int length: %f\n", ps->get_integration_length());
 
-#if HAVE_CUDA
+
 	 unsigned int* h_hits = new unsigned int[ps->get_nbin()];
 	 unsigned int* d_hits = ps->get_hits(0);
 	 cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * ps->get_nbin(), cudaMemcpyDeviceToHost);
@@ -440,7 +440,7 @@ void dsp::Subint<T>::printPS(dsp::PhaseSeries* ps)
 
 	 delete[] h_hits;
 
-#endif
+
 
 	 printf("\n\n");
  }
