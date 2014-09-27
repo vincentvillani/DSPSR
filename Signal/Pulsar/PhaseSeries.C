@@ -641,7 +641,7 @@ void dsp::PhaseSeries::print() const
 
 	for(int i = 0; i < get_nbin(); ++i)
 	{
-		printf("Hit Index %d: %u\n", i, d_hits[i]);
+		printf("Hit Index %d: %u\n", i, h_hits[i]);
 	}
 
 	delete[] h_hits;
