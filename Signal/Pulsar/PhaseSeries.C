@@ -607,7 +607,6 @@ bool dsp::PhaseSeries::has_extensions () const
 
 void dsp::PhaseSeries::print() const
 {
-	printf("FOLD PS\n");
 	(get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
 	(get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
 	printf("Pointer: %p\n", this);
