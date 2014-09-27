@@ -136,6 +136,9 @@ namespace dsp {
     //! Flag set when time divider is initialized
     bool built;
 
+
+    void printPS(PhaseSeries* ps);
+
   };
 
 }
@@ -344,6 +347,7 @@ void dsp::Subint<Op>::unload_partial () try
     std::cerr << "dsp::Subint::unload_partial to callback" << std::endl;
 
   PhaseSeries* result = Op::get_result ();
+  printPS(result);
 
   partial.send (result);
 
@@ -413,5 +417,32 @@ void dsp::Subint<Op>::zero_output ()
 #endif
     Op::reset();
 }
+
+
+template<typename T>
+void dsp::Subint<T>::printPS(dsp::PhaseSeries* ps)
+ {
+	 printf("SUBINT PS\n");
+	 (ps->get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
+	 (ps->get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
+	 printf("Pointer: %p\n", ps);
+	 printf("Int length: %f\n", ps->get_integration_length());
+
+#if HAVE_CUDA
+	 unsigned int* h_hits = new unsigned int[ps->get_nbin()];
+	 unsigned int* d_hits = ps->get_hits(0);
+	 cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * ps->get_nbin(), cudaMemcpyDeviceToHost);
+
+	 for(int i = 0; i < ps->get_nbin(); ++i)
+	 {
+		 printf("Hit Index %d: %u\n", i, d_hits[i]);
+	 }
+
+	 delete[] h_hits;
+
+#endif
+
+	 printf("\n\n");
+ }
 
 #endif

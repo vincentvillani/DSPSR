@@ -18,6 +18,8 @@
 #include "dsp/TimeSeries.h"
 #include "dsp/PhaseSeries.h"
 
+#define DEBUG
+
 namespace Pulsar
 {
   class Predictor;
@@ -245,6 +247,11 @@ namespace dsp
 
     //! The folding period last used in the fold method
     double pfold;
+
+
+#ifdef DEBUG
+    void printPS(PhaseSeries* ps) const;
+#endif
 
   };
 
