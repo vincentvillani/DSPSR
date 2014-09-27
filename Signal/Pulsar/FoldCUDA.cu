@@ -15,7 +15,7 @@
 #include "Error.h"
 #include "debug.h"
 #if HAVE_CUDA
-#include "dsp/DevToHostCuda.h"
+#include "dsp/DevToHostCuda.hjhihkjhkjhhkj"
 #endif
 
 #include <memory>
@@ -38,7 +38,7 @@ CUDA::FoldEngine::FoldEngine (cudaStream_t _stream, bool _hits_on_gpu)
 
   d_profiles = new dsp::PhaseSeries;
   d_profiles->set_memory( new CUDA::DeviceMemory(stream));
-  d_profiles->set_dev_to_host(new dsp::DevToHostCuda(stream));
+  //d_profiles->set_dev_to_host(new dsp::DevToHostCuda(stream));
   
   hits_on_gpu = _hits_on_gpu;
   if (hits_on_gpu)

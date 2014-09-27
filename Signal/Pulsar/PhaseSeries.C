@@ -68,7 +68,7 @@ void dsp::PhaseSeries::set_hits_memory (Memory* m)
   hits_memory = m;
 }
 
-void dsp::PhaseSeries::set_dev_to_host(DevToHost* dth)
+void dsp::PhaseSeries::set_dev_to_host(dsp::DevToHost* dth)
 {
 	_devToHost = dth;
 }
