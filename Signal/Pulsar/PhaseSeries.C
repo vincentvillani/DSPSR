@@ -604,3 +604,30 @@ bool dsp::PhaseSeries::has_extensions () const
   return extensions;
 }
 
+
+void dsp::PhaseSeries::print() const
+{
+	printf("FOLD PS\n");
+	(get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
+	(get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
+	printf("Pointer: %p\n", this);
+	printf("Int length: %f\n", get_integration_length());
+
+#if HAVE_CUDA
+	printf("---- HIT VALUES ----\n");
+	unsigned int* h_hits = new unsigned int[get_nbin()];
+	unsigned int* d_hits = get_hits(0);
+	cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * get_nbin(), cudaMemcpyDeviceToHost);
+
+	for(int i = 0; i < get_nbin(); ++i)
+	{
+		printf("Hit Index %d: %u\n", i, d_hits[i]);
+	}
+
+	delete[] h_hits;
+
+#endif
+
+	printf("\n\n");
+}
+

@@ -133,7 +133,8 @@ dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 	}
 	*/
 
-	printPS(d_profiles);
+	printf("\n\nFOLD CUDA\n");
+	d_profiles->print();
   return d_profiles;
 }
 
@@ -362,31 +363,5 @@ void CUDA::FoldEngine::fold ()
       check_error ("CUDA::FoldEngine::fold");
 }
 
-
-
-void CUDA::FoldEngine::printPS(dsp::PhaseSeries* ps)
-{
-	 printf("FOLD ENGINE CUDA PS\n");
-	 (ps->get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
-	 (ps->get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
-	 printf("Pointer: %p\n", ps);
-	 printf("Int length: %f\n", ps->get_integration_length());
-
-
-	 unsigned int* h_hits = new unsigned int[ps->get_nbin()];
-	 unsigned int* d_hits = ps->get_hits(0);
-	 cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * ps->get_nbin(), cudaMemcpyDeviceToHost);
-
-	 for(int i = 0; i < ps->get_nbin(); ++i)
-	 {
-		 printf("Hit Index %d: %u\n", i, d_hits[i]);
-	 }
-
-
-	 delete[] h_hits;
-
-
-	 printf("\n\n");
-}
 
 
