@@ -348,7 +348,7 @@ void dsp::Subint<Op>::unload_partial () try
   PhaseSeries* result = Op::get_result ();
 
   printf("\n\nSUB INT\n");
-  //result->print();
+  result->print();
 
   partial.send (result);
 
