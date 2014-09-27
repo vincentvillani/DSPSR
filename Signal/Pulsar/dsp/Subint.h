@@ -346,7 +346,9 @@ void dsp::Subint<Op>::unload_partial () try
     std::cerr << "dsp::Subint::unload_partial to callback" << std::endl;
 
   PhaseSeries* result = Op::get_result ();
-  printPS(result);
+
+  printf("\n\nSUB INT\n");
+  result->print();
 
   partial.send (result);
 

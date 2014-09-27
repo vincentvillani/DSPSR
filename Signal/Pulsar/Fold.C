@@ -124,7 +124,8 @@ dsp::PhaseSeries* dsp::Fold::get_result () const
 {
 	if(engine)
 	{
-		printPS(const_cast<dsp::PhaseSeries*>(engine->get_profiles()));
+		printf("\n\nFOLD\n");
+		engine->get_profiles()->print();
 		return engine->get_profiles();
 	}
 	else
