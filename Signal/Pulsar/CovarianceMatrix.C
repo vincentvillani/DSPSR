@@ -130,9 +130,8 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 #endif
 
+	printf("\n\nCOVARIANCEMATRIX PS\n");
 	phaseSeriesData->print();
-
-	exit(0);
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
