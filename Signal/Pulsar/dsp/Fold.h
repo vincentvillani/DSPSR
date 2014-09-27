@@ -18,8 +18,6 @@
 #include "dsp/TimeSeries.h"
 #include "dsp/PhaseSeries.h"
 
-#define DEBUG
-
 namespace Pulsar
 {
   class Predictor;
