@@ -73,6 +73,9 @@ namespace CUDA
     cudaStream_t stream;
 
     bool hits_on_gpu;
+
+    void printPS(dsp::PhaseSeries* ps);
+
   };
 }
 

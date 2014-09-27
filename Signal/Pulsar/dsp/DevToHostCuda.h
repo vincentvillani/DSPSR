@@ -9,7 +9,9 @@
 #define DEVTOHOSTCUDA_H_
 
 #include "dsp/DevToHost.h"
+#if HAVE_CUDA
 #include "dsp/TransferPhaseSeriesCUDA.h"
+#endif
 
 namespace dsp
 {
