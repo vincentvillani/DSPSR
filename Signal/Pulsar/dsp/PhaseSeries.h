@@ -186,6 +186,9 @@ namespace dsp {
     DevToHost* get_dev_to_host();
 
 
+    void print() const;
+
+
   protected:
 
     //! Period at which CAL data is folded

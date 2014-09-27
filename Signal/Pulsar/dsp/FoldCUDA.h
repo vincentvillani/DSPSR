@@ -74,7 +74,6 @@ namespace CUDA
 
     bool hits_on_gpu;
 
-    void printPS(dsp::PhaseSeries* ps);
 
   };
 }
