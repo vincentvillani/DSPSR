@@ -613,7 +613,15 @@ void dsp::PhaseSeries::print() const
 	printf("Int length: %f\n", get_integration_length());
 
 #if HAVE_CUDA
+
 	printf("---- HIT VALUES ----\n");
+
+
+	if(get_hits_memory()->on_host())
+	{
+		printf("HITS ON HOST NOT PRINTING THEM\n");
+		return;
+	}
 
 	printf("BIN NUM: %u\n", get_nbin());
 
