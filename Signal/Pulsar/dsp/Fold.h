@@ -249,9 +249,8 @@ namespace dsp
     double pfold;
 
 
-#ifdef DEBUG
     void printPS(PhaseSeries* ps) const;
-#endif
+
 
   };
 
