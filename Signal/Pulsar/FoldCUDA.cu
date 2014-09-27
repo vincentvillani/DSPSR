@@ -134,7 +134,7 @@ dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 	*/
 
 	printf("\n\nFOLD CUDA\n");
-	d_profiles->print();
+	//d_profiles->print();
   return d_profiles;
 }
 
