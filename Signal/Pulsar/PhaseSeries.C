@@ -616,7 +616,7 @@ void dsp::PhaseSeries::print() const
 #if HAVE_CUDA
 	printf("---- HIT VALUES ----\n");
 	unsigned int* h_hits = new unsigned int[get_nbin()];
-	unsigned int* d_hits = get_hits(0);
+	const unsigned int* d_hits = get_hits(0);
 	cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * get_nbin(), cudaMemcpyDeviceToHost);
 
 	for(int i = 0; i < get_nbin(); ++i)
