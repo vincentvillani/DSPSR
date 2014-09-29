@@ -77,15 +77,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 	std::stringstream ss;
 
-	cerr << "Before unload" << std::endl;
 	//output summed phase series, before normalisation
 	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
-	cerr << "After unload" << std::endl;
 
-	//TODO: VINCENT: DEBUG
 	compute_final_covariance_matrices_host();
-
-
 
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
@@ -95,24 +90,17 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	for(int j = 0; j < freqChanNum; ++j)
 	{
 		//write it out to a file
-		ss << "xSquaredCPU" << j << ".txt";
+		ss << "resultMatrixChan" << j << ".txt";
 		outputUpperTriangularMatrix(_covarianceMatrixResult->getCovarianceMatrix(j), binNum * stokesLength, ss.str());
 		ss.str("");
 	}
 
-
-
-	delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
 	delete _covarianceMatrixResult;
-
-	//if(_engine != NULL)
-		//delete _engine;
-
 
 
 #endif
 
-	printf("DESTRUCTOR ENDED\n");
+	//printf("DESTRUCTOR ENDED\n");
 
 }
 
@@ -122,23 +110,17 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
-#ifdef HAVE_CUDA
-
-	printf("Has cuda!\n");
-#else
-	printf("Does not have cuda\n");
-
-#endif
-
 	printf("\n\nCOVARIANCEMATRIX PS\n");
 	phaseSeriesData->print();
 
 	unsigned int binNum = phaseSeriesData->get_nbin();
 
+	/*
 	std::cerr << "dsp::CovarianceMatrix::unload Freq Chans: " << phaseSeriesData->get_nchan() << ", Binsize: "
 			<< binNum << ", NPol: " << phaseSeriesData->get_npol() << ", NDim: " << phaseSeriesData->get_ndim()
 			<< std::endl << ", hit channels: " << phaseSeriesData->get_hits_nchan() <<  ", State: " << phaseSeriesData->get_state()
 			<< std::endl;
+	*/
 
 
 	//first time this is called numBins may be zero
@@ -149,102 +131,107 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 	if(!_covarianceMatrixResult->hasBeenSetup())
 	{
 
-		//Setup the covariance matrix
+		//Setup the covariance matrix result object
 		_covarianceMatrixResult->setup(binNum, phaseSeriesData->get_nchan(), phaseSeriesData->get_ndim(),
 				covariance_matrix_length( phaseSeriesData->get_ndim() * binNum),   phaseSeriesData->get_hits_nchan(), phaseSeriesData);
 
 	}
 
 
-	//TODO: VINCENT DEBUG
+	/*
 #if !HAVE_CUDA
 	printf("StokesLength: %u\n", _covarianceMatrixResult->getStokesLength());
 	printf("Value: %f\n", _covarianceMatrixResult->getCovarianceMatrix(0)[0]);
 #endif
+*/
 
 
 	if(_engine)
 	{
-
-		/*
-		//TODO: VINCENT, TURN THIS OFF IN NON DEBUG
-		unsigned int* hits = new unsigned int[phaseSeriesData->get_hits_nchan()];
-		cudaMemcpy(hits, phaseSeriesData->get_hits(0), sizeof(unsigned int) * phaseSeriesData->get_hits_nchan(), cudaMemcpyDeviceToHost);
-
-		for(int i = 0; i < phaseSeriesData->get_hits_nchan(); ++i)
-		{
-		  printf("GP: i=%d, val=%u\n", i, hits[i]);
-		}
-		delete[] hits;
-		*/
-
-
-		//compute_covariance_matrix_host(phaseSeriesData);
+		//compute the outer product using the GPU
 		#if HAVE_CUDA
 			_engine->computeCovarianceMatricesCUDA(phaseSeriesData, _covarianceMatrixResult);
 		#endif
 	}
 	else
 	{
-		//compute the covariance matrix
+		//compute the outer product using the CPU
 		compute_covariance_matrix_host(phaseSeriesData);
 	}
 
+	//Add one to the unloadCallCount
 	_covarianceMatrixResult->iterateUnloadCallCount();
-
-	printf("FINISHED UNLOAD\n\n\n");
 }
 
 
 
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
-
 	unsigned int chanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
 	unsigned int hitChanNum = _covarianceMatrixResult->getNumberOfHitChans();
 
+	//Amp's values are set in the norm_stokes_data_host() method
+	//It's basically used as scratch space for the normalised amplitude data
+	//Only has enough memory allocated to hold one freq channels worth of amp data
+	//I.E StokesLength * BinNum == ampsLength
 	float* amps = _covarianceMatrixResult->getAmps();
 
 
 
-	//check for no hits, if they exist discard this whole phase-series
-
-	//check for no hits, if they exist discard this whole phase-series
+	//Check the hits array for 0 values, if they exist throw this whole Phase Series away and exit
 	for(unsigned int currentHitChan = 0; currentHitChan < hitChanNum; ++currentHitChan)
 	{
+		//Get a pointer to this channels hits data
+		//If there is only one hits array then this
+		//will return the same one each time
 		const unsigned int* hits = getHitsPtr(phaseSeriesData, currentHitChan);
 
 		for(unsigned int i = 0; i < binNum; ++i)
 		{
+			//Zero value detected, abort this calculation
 			if(hits[i] == 0)
 				return;
 		}
 	}
 
 
-
+	//Go through each channel and first normalise the amps values
+	//then compute the outer product and add it to the existing values
 	for(unsigned int channel = 0; channel < chanNum; ++channel)
 	{
-		//AMPLITUDE DATA
-		//IQUV, IQUV, IQUV etc etc
-		const float* stokes = phaseSeriesData->get_datptr(channel, 0); //Get a pointer to the amps data
+
+		//Get a pointer to this channels amp data from the PhaseSeries
+		const float* stokes = phaseSeriesData->get_datptr(channel, 0);
+
+		//Get a pointer to this channels hits data
+		//If there is only one hits array then this
+		//will return the same one each time
 		const unsigned int* hits = getHitsPtr(phaseSeriesData, channel);
+
+		//A place to store the outer product result
 		float* covarianceMatrix =  _covarianceMatrixResult->getCovarianceMatrix(channel);
 
-		//normalise the stokes data for this freq channel
+		//normalise the amps data for this freq channel
+		//by dividing it by its corresponding hit value
+		//Also adds the normalised amps to a running total
+		//to be used later to calcualte the covariance matrix
 		norm_stokes_data_host(stokes, hits, channel);
 
 
-		//Compute the covariance matrix
-		//ColLength == rowLength
+
+		//rowLength == colLength
 		unsigned int rowLength = binNum * stokesLength;
 
+		//Compute the outer product and add it do the previously calculated values
 		for(unsigned int row = 0; row < rowLength; ++row)
 		{
 			for(unsigned int col = row; col < rowLength; ++col)
 			{
+				//Compute the correct index to add and store the outer product result in.
+				//Calculation is basically:
+				//( (element number in a full matrix) - (number of zero values due to it being an upper triangular matrix))
 				covarianceMatrix[ (row * rowLength + col) - covariance_matrix_length(row) ] +=
 						amps[row] * amps[col];
 
@@ -253,7 +240,8 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 	}
 
-	_covarianceMatrixResult->getPhaseSeries()->combine(phaseSeriesData); //TODO: VINCENT: DO THIS ON THE GPU
+	//Combine this phase series with the previous calculated phase series
+	_covarianceMatrixResult->getPhaseSeries()->combine(phaseSeriesData);
 }
 
 
@@ -261,20 +249,26 @@ void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* ph
 
 void dsp::CovarianceMatrix::norm_stokes_data_host(const float* stokesData, const unsigned int* hits, unsigned int chan)
 {
-	unsigned int totalLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+	unsigned int totalLength = _covarianceMatrixResult->getBinNum() * stokesLength;
 
+
+	//Get a pointer to scratch space to store the normalised amps
 	float* amps = _covarianceMatrixResult->getAmps();
+
+	//Get a pointer to add the normalised amps values to
+	//This will be used later to compute the covariance matrix
 	float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(chan);
+
 
 
 	for(unsigned int i = 0; i < totalLength; ++i)
 	{
+		//Calculate the normalised amps values and store it in the scratch space
+		amps[i] = stokesData[i] / (hits[i / stokesLength]);
 
-		amps[ i ] = stokesData[ i ] / (hits[ i / stokesLength ]);
-
-		runningMeanSum[ i ] += amps[ i ];
-
+		//Add it to the running mean
+		runningMeanSum[i] += amps[i];
 	}
 }
 
@@ -287,39 +281,31 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 	unsigned int covarianceMatrixLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 	unsigned int unloadCalledNum = _covarianceMatrixResult->getUnloadCallCount();
 
-	//Get the phase series outer product
+	//Calculate and get a pointer to the Phase Series Outer Product
 	float* phaseSeriesOuterProduct =  compute_outer_product_phase_series_host();
 
 
 	for(int i = 0; i < freqChanNum; ++i)
 	{
+		//when this is called, covariance matrix should contain the outer products of the
+		//normalised amps values
 		float* covarianceMatrix = _covarianceMatrixResult->getCovarianceMatrix(i);
 
+		//Divide by the number of times unload() was called
 		for(int j = 0; j < covarianceMatrixLength; ++j)
 		{
-
+			//Divide by the number of times unload() was called
 			covarianceMatrix[j] /= unloadCalledNum;
+
+			//subtracting the normalised amps outer product (covarianceMatrix) from the phase series outer (the outer product of the running mean)
+			//should result in the final 'covariance matrix'
+			//I really should pick better names for these...
 			covarianceMatrix[j] -= phaseSeriesOuterProduct[(i * covarianceMatrixLength) + j];
 
 		}
 	}
 
-
-	/*
-	//**** DEBUG ****** TODO:VINCENT: DEBUG
-
-	std::stringstream ss;
-
-	//Write out data to a file
-	for(int j = 0; j < freqChanNum; ++j)
-	{
-		//write it out to a file
-		ss << "xMeanCPU" << j << ".txt";
-		outputUpperTriangularMatrix(phaseSeriesOuterProduct, _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength(), ss.str());
-		ss.str("");
-	}
-*/
-
+	//Free the previously allocated memory in compute_outer_product_phase_series_host()
 	delete[] phaseSeriesOuterProduct;
 }
 
@@ -328,29 +314,30 @@ void dsp::CovarianceMatrix::compute_final_covariance_matrices_host()
 
 float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 {
+	//Number of times unload() was called and a phase series was passed
+	//to the covariance matrix object
 	unsigned int unloadCallCount = _covarianceMatrixResult->getUnloadCallCount();
 	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
 	unsigned int ampsLength = _covarianceMatrixResult->getBinNum() * _covarianceMatrixResult->getStokesLength();
 
 
+	//allocate enough space to store the outer product
 	float* outerProduct = new float [freqChanNum * covarianceLength];
 
 
 	//For each freq channel
 	for(unsigned int channel = 0; channel < freqChanNum; ++channel)
 	{
-
+		//Get a pointer to the running mean data
 		float* runningMeanSum = _covarianceMatrixResult->getRunningMeanSum(channel);
 
-		//divide running mean sum by number of times called
+		//divide running mean sum by number of times unload() was called
 		for(unsigned int i = 0; i < ampsLength; ++i)
-		{
 			runningMeanSum[i] /= unloadCallCount;
-		}
 
 
-		//Do the outer product
+		//Do the outer product calculation
 		for(unsigned int row = 0; row < ampsLength; ++row)
 		{
 			for(unsigned int col = row; col < ampsLength; ++col)
@@ -371,11 +358,13 @@ float* dsp::CovarianceMatrix::compute_outer_product_phase_series_host()
 
 const unsigned int* dsp::CovarianceMatrix::getHitsPtr(const PhaseSeries* phaseSeriesData, int freqChan)
 {
-	//return the only channel
+	//If there is only one hit channel, return it every time
 	if(_covarianceMatrixResult->getNumberOfHitChans() == 1)
 		return phaseSeriesData->get_hits(0);
+
+	//Return the hits pointer using the freq channel
 	else
-		return phaseSeriesData->get_hits(freqChan); //Return the hits pointer using the freq channel
+		return phaseSeriesData->get_hits(freqChan);
 }
 
 
@@ -449,15 +438,12 @@ void dsp::CovarianceMatrix::printUpperTriangularMatrix(float* result, int rowLen
 float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, unsigned int rowLength)
 {
 	//rowLength == colLength
-
-	//printf("ROW LENGTH: %u\n", rowLength);
-
 	float* fullMatrix = new float[rowLength * rowLength];
 
 	if(fullMatrix == NULL)
 	{
 		printf("MALLOC ERROR\n");
-		exit(5);
+		return NULL;
 	}
 
 	//For each row
@@ -468,8 +454,6 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, unsigned 
 		//Compute the diagonalIdx
 		unsigned int diagonalIndex = (row * rowLength) + row;
 
-        //printf("DiagonalIndex: %d\n", diagonalIndex);
-
 		// ---- TRI MATRIX INDEXES ----
 		unsigned int triDiagonalIndex = diagonalIndex - ( (row * (row + 1)) / 2);
 
@@ -477,23 +461,6 @@ float* dsp::CovarianceMatrix::convertToSymmetric(float* upperTriangle, unsigned 
 		//print down the corresponding row and column
 		for(unsigned int printIdx = row; printIdx < rowLength; ++printIdx)
 		{
-			//TODO: VINCENT DEBUG
-            if(diagonalIndex + indexOffset > (rowLength * rowLength) - 1)
-			{
-				printf("INVALID ROW INDEX!!\n");
-                printf("diagonalIndex: %d\n", diagonalIndex);
-                printf("ROW INDEX: %d\n", diagonalIndex + indexOffset);
-
-			}
-
-            if(diagonalIndex + (rowLength * indexOffset) > (rowLength * rowLength) - 1)
-            {
-                printf("INVALID COL INDEX!!\n");
-                printf("Outer loop: %d, Inner loop: %d\n", row, printIdx);
-                printf("diagonalIndex: %d\n", diagonalIndex);
-                printf("COL INDEX: %d\n\n", diagonalIndex + (rowLength * indexOffset));
-            }
-
 			unsigned int upperTriIndex = triDiagonalIndex + indexOffset;
 
 			//place in row

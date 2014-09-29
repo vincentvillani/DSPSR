@@ -17,8 +17,6 @@
 #include "dsp/DataSeries.h"
 #include "dsp/PhaseSeries.h"
 #include "dsp/Memory.h"
-//#include "ReferenceTo.h"
-//#include "ReferenceTo.h"
 
 #if HAVE_CUDA
 #include <cuda_runtime.h>
@@ -39,10 +37,15 @@ namespace dsp
 		unsigned int _hitChanNum; //Number of hit channels
 		unsigned int _unloadCalledNum; //Number of times unload has been called
 
-		PhaseSeries* _phaseSeries;
+		PhaseSeries* _phaseSeries; //the combined phase series
 
+		//scratch space for amps data, there should be one freq channels worth
+		//i.e. _stokesLength * _binNum
 		float* _amps;
+
+		//this shouldn't exist in the final version
 		unsigned int* d_hits;
+
 
 		float* d_outerProducts; //Pointer to device memory to store summed outer products
 		unsigned int _outerProductsLength; //Total outer product length
