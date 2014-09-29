@@ -388,6 +388,15 @@ void CUDA::FoldEngine::fold ()
 		  			   ndim, folding_nbin,
 			  		   binplan_nbin, d_bin,
 			  		   hits_nchan);
+
+	  cudaDeviceSynchronize();
+	//TODO: DEBUG
+	error = cudaPeekAtLastError();
+	if(error != cudaSuccess)
+	{
+		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
+		exit(1);
+	}
   }
   else if (hits_on_gpu && hits_nchan == nchan && zeroed_samples)
   {
