@@ -379,7 +379,8 @@ void CUDA::FoldEngine::fold ()
 		 if(dsp::Operation::verbose)
 			 cerr << "CUDA::FoldEngine::fold(): " << "running fold1Bin1HitChan kernel" << std::endl;
 
-	  fold1Bin1HitChan(input, input_span,
+	  fold1Bin1HitChan <<<gridDim,blockDim,0,stream>>>
+			  	  	  (input, input_span,
 	  				   output, output_span, hits,
 		  			   ndim, folding_nbin,
 			  		   binplan_nbin, d_bin,
