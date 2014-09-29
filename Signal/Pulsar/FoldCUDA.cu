@@ -376,10 +376,10 @@ void CUDA::FoldEngine::fold ()
   dim3 blockDim (bin_threads, npol, ndim);
   dim3 gridDim (bin_blocks, nchan, 1);
 
-#if 0
+//#if 0
   cerr << "blockDim=" << blockDim << endl;
   cerr << "gridDim=" << gridDim << endl;
-#endif
+//#endif
 
   DEBUG("input span=" << input_span << " output span=" << output_span);
   DEBUG("ndim=" << ndim << " nbin=" << folding_nbin << " binplan_nbin=" << binplan_nbin);
