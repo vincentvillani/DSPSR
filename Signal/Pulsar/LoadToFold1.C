@@ -893,7 +893,7 @@ void dsp::LoadToFold::end_of_data ()
     fold[ifold]->finish();
 }
 
-void setup (dsp::Fold* fold)
+void dsp::LoadToFold::setup (dsp::Fold* fold)
 {
   if (!fold->has_output())
     fold->set_output( new dsp::PhaseSeries );

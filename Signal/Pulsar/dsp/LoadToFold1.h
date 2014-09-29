@@ -73,6 +73,9 @@ namespace dsp {
     //! Finish everything
     void finish ();
 
+    //Setup the fold
+    void setup (dsp::Fold* fold);
+
   protected:
 
     friend class LoadToFoldN;
