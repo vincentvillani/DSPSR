@@ -323,7 +323,7 @@ __global__ void fold1Bin1HitChan (const float* in_base,
     {
       total += input[i*ndim];
 
-      if(blockIdx.y == 0)
+      if(blockIdx.y == 0 && threadIdx.x < 32)
       {
     	  hits += (input[i*ndim] != 0);
     	  printf("Thread (ibin): %u, input: %f\n", ibin, input[i*ndim]);
@@ -336,7 +336,9 @@ __global__ void fold1Bin1HitChan (const float* in_base,
   if ( (threadIdx.y + threadIdx.z) == 0 && blockIdx.y == 0)
   {
 	  hits_base[ output_ibin ] += hits;
-	  printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
+
+	  if(threadIdx.x < 32)
+		  printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
   }
 
 }
