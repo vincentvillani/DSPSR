@@ -246,11 +246,12 @@ __global__ void fold1binhits (const float* in_base,
 			     unsigned in_span,
 			     float* out_base,
 			     unsigned out_span,
-           unsigned* hits_base,
+			     unsigned* hits_base,
 			     unsigned ndim,
 			     unsigned nbin,
 			     unsigned binplan_size,
-			     CUDA::bin* binplan)
+			     CUDA::bin* binplan,
+			     unsigned hit_nchan)
 {
   unsigned ibin = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -261,7 +262,11 @@ __global__ void fold1binhits (const float* in_base,
 
   in_base  += in_span  * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
   out_base += out_span * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
-  hits_base += nbin * blockIdx.y;
+
+  //If there is only one hit channel, only use that
+  if(hit_nchan != 1)
+	  hits_base += nbin * blockIdx.y;
+
 
   float total = 0;
   unsigned hits = 0;
@@ -321,10 +326,9 @@ void CUDA::FoldEngine::fold ()
 
   //cudaThreadSynchronize();
 
-  cerr << "CUDA::FoldEngine::fold(): " << "hits_nchan: " << hits_nchan << std::endl
-		  << "nchan: " << nchan << std::endl;
+  cerr << "CUDA::FoldEngine::fold(): " << "hits_nchan: " << hits_nchan << ", nchan: " << nchan << std::endl;
 
-  if (hits_on_gpu && hits_nchan == nchan)
+  if (hits_on_gpu) //&& hits_nchan == nchan)
   {
 	 if(dsp::Operation::verbose)
 		 cerr << "CUDA::FoldEngine::fold(): " << "running fold1binhits kernel" << std::endl;
@@ -332,7 +336,7 @@ void CUDA::FoldEngine::fold ()
     fold1binhits<<<gridDim,blockDim,0,stream>>> (input, input_span,
 	  				   output, output_span, hits,
 		  			   ndim, folding_nbin,
-			  		   binplan_nbin, d_bin);
+			  		   binplan_nbin, d_bin, hits_nchan);
 
   }
   else
