@@ -323,7 +323,7 @@ void CUDA::FoldEngine::fold ()
 
   if (hits_on_gpu && hits_nchan == nchan)
   {
-	 if(verbose)
+	 if(dsp::Operation::verbose)
 		 cerr << "CUDA::FoldEngine::fold(): " << "running fold1binhits kernel" << std::endl;
 
     fold1binhits<<<gridDim,blockDim,0,stream>>> (input, input_span,
@@ -335,7 +335,7 @@ void CUDA::FoldEngine::fold ()
   else
   {
 
-    if(verbose)
+    if(dsp::Operation::verbose)
     	cerr << "CUDA::FoldEngine::fold(): " << "running fold1bin kernel" << std::endl;
 
     fold1bin<<<gridDim,blockDim,0,stream>>> (input, input_span,
