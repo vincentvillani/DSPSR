@@ -321,6 +321,9 @@ void CUDA::FoldEngine::fold ()
 
   //cudaThreadSynchronize();
 
+  cerr << "CUDA::FoldEngine::fold(): " << "hits_nchan: " << hits_nchan << std::endl
+		  << "nchan: " << nchan << std::endl;
+
   if (hits_on_gpu && hits_nchan == nchan)
   {
 	 if(dsp::Operation::verbose)
