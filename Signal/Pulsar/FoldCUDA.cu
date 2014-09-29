@@ -242,7 +242,8 @@ __global__ void fold1bin (const float* in_base,
 }
 
 
-__global__ void fold1binhits (const float* in_base,
+
+__global__ void fold1Bin1HitChan (const float* in_base,
 			     unsigned in_span,
 			     float* out_base,
 			     unsigned out_span,
@@ -262,10 +263,7 @@ __global__ void fold1binhits (const float* in_base,
 
   in_base  += in_span  * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
   out_base += out_span * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
-
-  //If there is only one hit channel, only use that
-  if(hit_nchan != 1)
-	  hits_base += nbin * blockIdx.y;
+  hits_base += nbin * blockIdx.y;
 
 
   float total = 0;
@@ -278,15 +276,64 @@ __global__ void fold1binhits (const float* in_base,
     for (unsigned i=0; i < binplan[ibin].hits; i++)
     {
       total += input[i*ndim];
-      hits += (input[i*ndim] != 0);
+
+      if(blockDim.y == 0)
+    	  hits += (input[i*ndim] != 0);
     }
   }
 
   out_base[ output_ibin * ndim ] += total;
   // if ipol and idim both equal 0
-  if ((threadIdx.y + threadIdx.z) == 0)
+  if ( (threadIdx.y + threadIdx.z) == 0 && blockIdx.y == 0)
     hits_base[ output_ibin ] += hits;
 }
+
+
+
+
+__global__ void fold1binhits (const float* in_base,
+			     unsigned in_span,
+			     float* out_base,
+			     unsigned out_span,
+			     unsigned* hits_base,
+			     unsigned ndim,
+			     unsigned nbin,
+			     unsigned binplan_size,
+			     CUDA::bin* binplan)
+{
+  unsigned ibin = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (ibin >= binplan_size)
+    return;
+
+  unsigned output_ibin = binplan[ibin].ibin;
+
+  in_base  += in_span  * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
+  out_base += out_span * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
+  hits_base += nbin * blockIdx.y;
+
+
+  float total = 0;
+  unsigned hits = 0;
+
+  for (; ibin < binplan_size; ibin += nbin)
+  {
+    const float* input = in_base + binplan[ibin].offset * ndim;
+
+    for (unsigned i=0; i < binplan[ibin].hits; i++)
+    {
+      total += input[i*ndim];
+	  hits += (input[i*ndim] != 0);
+    }
+  }
+
+  out_base[ output_ibin * ndim ] += total;
+  // if ipol and idim both equal 0
+  if ( (threadIdx.y + threadIdx.z) == 0)
+    hits_base[ output_ibin ] += hits;
+}
+
+
 
 std::ostream& operator<< (std::ostream& ostr, const dim3& v)
 {
@@ -324,11 +371,19 @@ void CUDA::FoldEngine::fold ()
   DEBUG("input span=" << input_span << " output span=" << output_span);
   DEBUG("ndim=" << ndim << " nbin=" << folding_nbin << " binplan_nbin=" << binplan_nbin);
 
-  //cudaThreadSynchronize();
 
-  cerr << "CUDA::FoldEngine::fold(): " << "hits_nchan: " << hits_nchan << ", nchan: " << nchan << std::endl;
+  if(config->profile_covariance)
+  {
+		 if(dsp::Operation::verbose)
+			 cerr << "CUDA::FoldEngine::fold(): " << "running fold1Bin1HitChan kernel" << std::endl;
 
-  if (hits_on_gpu) //&& hits_nchan == nchan)
+	  fold1Bin1HitChan(input, input_span,
+	  				   output, output_span, hits,
+		  			   ndim, folding_nbin,
+			  		   binplan_nbin, d_bin,
+			  		   hits_nchan);
+  }
+  else if (hits_on_gpu && hits_nchan == nchan && zeroed_samples)
   {
 	 if(dsp::Operation::verbose)
 		 cerr << "CUDA::FoldEngine::fold(): " << "running fold1binhits kernel" << std::endl;
@@ -336,7 +391,7 @@ void CUDA::FoldEngine::fold ()
     fold1binhits<<<gridDim,blockDim,0,stream>>> (input, input_span,
 	  				   output, output_span, hits,
 		  			   ndim, folding_nbin,
-			  		   binplan_nbin, d_bin, hits_nchan);
+			  		   binplan_nbin, d_bin);
 
   }
   else
