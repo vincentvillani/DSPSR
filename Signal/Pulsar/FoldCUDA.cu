@@ -367,6 +367,7 @@ void CUDA::FoldEngine::fold ()
     bin_dim = binplan_nbin;
 
   unsigned bin_threads = 128;
+
   if (bin_threads > bin_dim)
     bin_threads = 32;
 
@@ -374,7 +375,8 @@ void CUDA::FoldEngine::fold ()
   if (bin_dim % bin_threads)
     bin_blocks ++;
 
-  dim3 blockDim (bin_threads, npol, ndim);
+  //dim3 blockDim (bin_threads, npol, ndim);
+  dim3 blockDim (1024, npol, ndim);
   dim3 gridDim (bin_blocks, nchan, 1);
 
 //#if 0
