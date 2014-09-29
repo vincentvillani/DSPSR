@@ -59,14 +59,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	unsigned int hitsLength = cmr->getHitsLength();
 	unsigned int hitChanNum = cmr->getNumberOfHitChans();
 
-	/*
-	//TODO: VINCENT: IS THIS OK? MEMORY LEAK?
-	PhaseSeries clonedPhaseSeries;
-	clonedPhaseSeries.set_memory(new CUDA::DeviceMemory());
-	clonedPhaseSeries.set_hits_memory(new CUDA::DeviceMemory());
-	clonedPhaseSeries = *ps;
-	*/
-
 
 
 	//TODO: VINCENT: REMOVE THIS AFTER PHASESERIESCOMBINECUDAIS SHOWN TO WORK
