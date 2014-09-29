@@ -334,13 +334,14 @@ __global__ void fold1Bin1HitChan (const float* in_base,
   }
 
   out_base[ output_ibin * ndim ] += total;
+
   // if ipol and idim both equal 0
   if ( (threadIdx.y + threadIdx.z) == 0 && blockIdx.y == 0)
   {
 	  hits_base[ output_ibin ] += hits;
 
 	  //if(threadIdx.x < 32)
-		//  printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
+		printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
   }
 
 }
@@ -375,8 +376,7 @@ void CUDA::FoldEngine::fold ()
   if (bin_dim % bin_threads)
     bin_blocks ++;
 
-  //dim3 blockDim (bin_threads, npol, ndim);
-  dim3 blockDim (1024, npol, ndim);
+  dim3 blockDim (bin_threads, npol, ndim);
   dim3 gridDim (bin_blocks, nchan, 1);
 
 //#if 0
