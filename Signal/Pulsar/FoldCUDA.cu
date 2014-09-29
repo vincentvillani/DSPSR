@@ -362,6 +362,7 @@ void CUDA::FoldEngine::fold ()
   send_binplan ();
 
   unsigned bin_dim = folding_nbin;
+
   if (binplan_nbin < folding_nbin)
     bin_dim = binplan_nbin;
 
@@ -379,6 +380,7 @@ void CUDA::FoldEngine::fold ()
 //#if 0
   cerr << "blockDim=" << blockDim << endl;
   cerr << "gridDim=" << gridDim << endl;
+  cerr << "binplan_nbin= " << binplan_nbin << std::endl;
 //#endif
 
   DEBUG("input span=" << input_span << " output span=" << output_span);
