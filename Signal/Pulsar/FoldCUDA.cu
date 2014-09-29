@@ -323,10 +323,12 @@ __global__ void fold1Bin1HitChan (const float* in_base,
     {
       total += input[i*ndim];
 
-      if(blockIdx.y == 0 && threadIdx.x < 32)
+      if(blockIdx.y == 0 )
       {
     	  hits += (input[i*ndim] != 0);
-    	  printf("Thread (ibin): %u, input: %f\n", ibin, input[i*ndim]);
+
+    	  //if(threadIdx.x < 32)
+    		 // printf("Thread (ibin): %u, input: %f\n", ibin, input[i*ndim]);
       }
     }
   }
@@ -337,8 +339,8 @@ __global__ void fold1Bin1HitChan (const float* in_base,
   {
 	  hits_base[ output_ibin ] += hits;
 
-	  if(threadIdx.x < 32)
-		  printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
+	  //if(threadIdx.x < 32)
+		//  printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
   }
 
 }
@@ -397,7 +399,7 @@ void CUDA::FoldEngine::fold ()
 		  			   ndim, folding_nbin,
 			  		   binplan_nbin, d_bin,
 			  		   hits_nchan);
-
+/*
 	  cudaDeviceSynchronize();
 	//TODO: DEBUG
 	cudaError_t error = cudaPeekAtLastError();
@@ -406,6 +408,7 @@ void CUDA::FoldEngine::fold ()
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(1);
 	}
+	*/
   }
   else if (hits_on_gpu && hits_nchan == nchan && zeroed_samples)
   {

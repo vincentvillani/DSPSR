@@ -612,7 +612,7 @@ void dsp::PhaseSeries::print() const
 	printf("Pointer: %p\n", this);
 	printf("Int length: %f\n", get_integration_length());
 
-#if HAVE_CUDA
+//#if HAVE_CUDA
 
 	printf("---- HIT VALUES ----\n");
 
@@ -638,6 +638,15 @@ void dsp::PhaseSeries::print() const
 		return;
 
 	cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * get_nbin(), cudaMemcpyDeviceToHost);
+
+
+
+	cudaError_t error = cudaDeviceSynchronize();
+
+	if(error != cudaSuccess)
+	{
+		printf("Error on print memcpy: %s\n", cudaGetErrorString(error));
+	}
 
 	for(int i = 0; i < get_nbin(); ++i)
 	{
