@@ -355,6 +355,7 @@ void dsp::PhaseSeries::set_hits (unsigned value)
   }
 }
 
+
 bool dsp::PhaseSeries::mixable (const Observation& obs, unsigned nbin,
 				int64_t istart, int64_t fold_ndat)
 {
@@ -393,8 +394,9 @@ bool dsp::PhaseSeries::mixable (const Observation& obs, unsigned nbin,
       set_order( series->get_order() );
       if (verbose)
         cerr << "dsp::PhaseSeries::mixable calling set_zeroed_data" << endl;
+
       set_zeroed_data( series->get_zeroed_data() );
-      if (get_zeroed_data())
+      if ( get_zeroed_data() )
         set_hits_nchan( series->get_nchan() );
     }
 
@@ -448,9 +450,7 @@ dsp::PhaseSeries::operator = (const PhaseSeries& prof) try
   if (verbose)
     cerr << "dsp::PhaseSeries::operator = call TimeSeries::operator =" << endl;
 
-  cerr << "PHASE SERIES BEFORE" << std::endl;
   TimeSeries::operator = (prof);
-  cerr << "PHASE SERIES AFTER" << std::endl;
 
   if (verbose)
     cerr << "dsp::PhaseSeries::operator = copy attributes" << endl;

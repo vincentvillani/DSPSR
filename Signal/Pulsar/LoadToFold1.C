@@ -897,6 +897,9 @@ void setup (dsp::Fold* fold)
 {
   if (!fold->has_output())
     fold->set_output( new dsp::PhaseSeries );
+
+  if(config->profile_covariance)
+	  fold->get_output()->set_hits_nchan(config->filterbank.get_nchan());
 }
 
 template<class T>

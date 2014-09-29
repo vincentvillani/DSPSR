@@ -118,24 +118,9 @@ uint64_t CUDA::FoldEngine::set_bins (double phi, double phase_per_sample, uint64
 }
 dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 {
-	/*
-	if(d_profiles != NULL && d_profiles->get_nchan() > 0)
-	{
-
-	  //TODO: VINCENT, TURN THIS OFF IN NON DEBUG
-	  unsigned int* hits = new unsigned int[d_profiles->get_nchan()];
-	  cudaMemcpy(hits, d_profiles->get_hits(0), sizeof(unsigned int) * d_profiles->get_nchan(), cudaMemcpyDeviceToHost);
-	  for(int i = 0; i < d_profiles->get_nchan(); ++i)
-	  {
-		  printf("GP: i=%d, val=%u\n", i, hits[i]);
-	  }
-	  delete[] hits;
-	}
-	*/
-
 	printf("\n\nFOLD CUDA\n");
 	d_profiles->print();
-  return d_profiles;
+    return d_profiles;
 }
 
 void CUDA::FoldEngine::synch (dsp::PhaseSeries* output) try
@@ -336,8 +321,11 @@ void CUDA::FoldEngine::fold ()
 
   //cudaThreadSynchronize();
 
-  if (hits_on_gpu && zeroed_samples && hits_nchan == nchan)
+  if (hits_on_gpu && hits_nchan == nchan)
   {
+	 if(verbose)
+		 cerr << "CUDA::FoldEngine::fold(): " << "running fold1binhits kernel" << std::endl;
+
     fold1binhits<<<gridDim,blockDim,0,stream>>> (input, input_span,
 	  				   output, output_span, hits,
 		  			   ndim, folding_nbin,
@@ -346,6 +334,10 @@ void CUDA::FoldEngine::fold ()
   }
   else
   {
+
+    if(verbose)
+    	cerr << "CUDA::FoldEngine::fold(): " << "running fold1bin kernel" << std::endl;
+
     fold1bin<<<gridDim,blockDim,0,stream>>> (input, input_span,
                output, output_span,
                ndim, folding_nbin,
