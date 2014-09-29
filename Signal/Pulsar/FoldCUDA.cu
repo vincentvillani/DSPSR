@@ -391,7 +391,7 @@ void CUDA::FoldEngine::fold ()
 
 	  cudaDeviceSynchronize();
 	//TODO: DEBUG
-	error = cudaPeekAtLastError();
+	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
