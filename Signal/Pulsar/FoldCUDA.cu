@@ -372,7 +372,9 @@ void CUDA::FoldEngine::fold ()
   DEBUG("ndim=" << ndim << " nbin=" << folding_nbin << " binplan_nbin=" << binplan_nbin);
 
 
-  if(config->profile_covariance)
+  //In profile_covariance mode
+  //reallllllly hacky....
+  if(hits_on_gpu && hits_nchan != nchan)
   {
 		 if(dsp::Operation::verbose)
 			 cerr << "CUDA::FoldEngine::fold(): " << "running fold1Bin1HitChan kernel" << std::endl;
