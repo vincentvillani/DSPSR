@@ -612,7 +612,7 @@ void dsp::PhaseSeries::print() const
 	printf("Pointer: %p\n", this);
 	printf("Int length: %f\n", get_integration_length());
 
-//#if HAVE_CUDA
+#if HAVE_CUDA
 
 	printf("---- HIT VALUES ----\n");
 
