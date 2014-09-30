@@ -284,8 +284,8 @@ __global__ void fold1binhits (const float* in_base,
 
   out_base[ output_ibin * ndim ] += total;
   // if ipol and idim both equal 0
-  if ( (threadIdx.y + threadIdx.z) == 0 && (hits_nchan > 1 || blockIdx.y == 0))
-    hits_base[ output_ibin ] += hits;
+  //if ( (threadIdx.y + threadIdx.z) == 0 && (hits_nchan > 1 || blockIdx.y == 0))
+    //hits_base[ output_ibin ] += hits;
 }
 
 
