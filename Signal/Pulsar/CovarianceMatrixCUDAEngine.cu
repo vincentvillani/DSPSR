@@ -78,8 +78,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
-	//cmr->getPhaseSeries()->combine(ps);
-
 	computeCovarianceMatrix(cmr, ps);
 
 
