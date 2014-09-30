@@ -50,8 +50,8 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 
 		//TODO: VINCENT: REMOVE THIS
 #if HAVE_CUDA
-		_useCUDA = true;
-		printf("USE CUDA IS TRUE!\n");
+		_useCUDA = false;
+		printf("USE CUDA IS FALSE!\n");
 #endif
 	}
 
