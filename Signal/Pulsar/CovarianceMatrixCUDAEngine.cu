@@ -54,7 +54,6 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	cudaMemcpy(&val, ps->get_datptr(0, 0), sizeof(float), cudaMemcpyDeviceToHost);
 	fprintf(stderr, "GPU: PS amps value: %f\n", val);
 
-	exit(0);
 
 	//Allocate amps scratch if necessary
 	if(d_ampsScratch == NULL)
