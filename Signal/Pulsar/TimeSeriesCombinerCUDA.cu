@@ -63,14 +63,14 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 
 	if( rhs->get_memory()->on_host() )
-		printf("RHS MEMORY IS ON HOST\n");
+		fprintf(stderr,"RHS MEMORY IS ON HOST\n");
 	else
-		printf("RHS MEMORY IS NOT ON HOST\n");
+		fprintf(stderr,"RHS MEMORY IS NOT ON HOST\n");
 
 	if( lhs->get_memory()->on_host() )
-		printf("LHS MEMORY IS ON HOST\n");
+		fprintf(stderr,"LHS MEMORY IS ON HOST\n");
 	else
-		printf("LHS MEMORY IS NOT ON HOST\n");
+		fprintf(stderr,"LHS MEMORY IS NOT ON HOST\n");
 
 
 
@@ -85,14 +85,14 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 
 
 
-		printf("TIME SERIES: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+		fprintf(stderr,"TIME SERIES: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 		genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
 
 		//TODO: VINCENT: DEBUG
 		cudaError_t error2 = cudaPeekAtLastError();
 		if(error2 != cudaSuccess)
 		{
-			printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+			fprintf(stderr,"CUDA ERROR: %s\n", cudaGetErrorString(error2));
 			exit(2);
 		}
 
@@ -109,16 +109,16 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 			d_data1 = lhs->get_datptr (ichan, ipol);
 			const float* d_data2 = rhs->get_datptr (ichan, ipol);
 
-			printf("TS: %p, %p\n", d_data1, d_data2);
+			fprintf(stderr,"TS: %p, %p\n", d_data1, d_data2);
 
-			printf("TIME SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+			fprintf(stderr,"TIME SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 			genericAddKernel <<< gridDim, blockDim >>> (npt, d_data1, d_data2);
 
 			//TODO: VINCENT: DEBUG
 			cudaError_t error2 = cudaPeekAtLastError();
 			if(error2 != cudaSuccess)
 			{
-				printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+				fprintf(stderr,"CUDA ERROR: %s\n", cudaGetErrorString(error2));
 				exit(2);
 			}
 		}

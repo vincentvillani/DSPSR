@@ -253,8 +253,8 @@ MJD dsp::PhaseSeries::get_mid_time (bool phased) const
 //! Reset all phase bin totals to zero
 void dsp::PhaseSeries::zero () try
 {
-  if (verbose)
-    cerr << "PhaseSeries::zero" << endl;
+  //if (verbose)
+    cerr << "PhaseSeries::zero this=" << this << endl;
 
   integration_length = 0.0;
   ndat_total = 0;
@@ -482,7 +482,7 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
 	  if(_psc == NULL)
 	  {
 		  _psc = new PhaseSeriesCombinerCUDA();
-		  printf("PSC ALLOCATED\n");
+		  fprintf(stderr,"PSC ALLOCATED\n");
 	  }
 
 
@@ -492,13 +492,13 @@ void dsp::PhaseSeries::combine (const PhaseSeries* prof) try
   //_psc should be null if hits memory is on the host
   if(_psc != NULL)
   {
-	  printf("COMBINING ON GPU!\n");
+	  fprintf(stderr,"COMBINING ON GPU!\n");
 	  _psc->combine(this, prof);
 	  return;
   }
 #endif
 
-  printf("COMBINING ON HOST!\n");
+  fprintf(stderr,"COMBINING ON HOST!\n");
 
 
   if (!prof || prof->get_nbin() == 0)
@@ -608,27 +608,27 @@ bool dsp::PhaseSeries::has_extensions () const
 void dsp::PhaseSeries::print() const
 {
 
-	(get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
-	(get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
-	printf("Pointer: %p\n", this);
-	printf("Int length: %lf\n", get_integration_length());
+	(get_memory()->on_host()) ? fprintf(stderr,"TS MEM ON HOST\n") : fprintf(stderr,"TS MEM ON DEVICE\n");
+	(get_hits_memory()->on_host()) ? fprintf(stderr,"PS MEM ON HOST\n") : fprintf(stderr,"PS MEM ON DEVICE\n");
+	fprintf(stderr,"Pointer: %p\n", this);
+	fprintf(stderr,"Int length: %lf\n", get_integration_length());
 
 #if HAVE_CUDA
 
-	printf("---- HIT VALUES ----\n");
+	fprintf(stderr,"---- HIT VALUES ----\n");
 
 
 	if(get_hits_memory()->on_host())
 	{
-		printf("HITS ON HOST NOT PRINTING THEM\n");
+		fprintf(stderr,"HITS ON HOST NOT PRINTING THEM\n");
 		return;
 	}
 
-	printf("BIN NUM: %u\n", get_nbin());
+	fprintf(stderr,"BIN NUM: %u\n", get_nbin());
 
 	if(get_nbin() == 0)
 	{
-		printf("\n\n");
+		fprintf(stderr,"\n\n");
 		return;
 	}
 
@@ -648,7 +648,7 @@ void dsp::PhaseSeries::print() const
 
 	if(error != cudaSuccess)
 	{
-		printf("Error on print memcpy: %s\n", cudaGetErrorString(error));
+		fprintf(stderr,"Error on print memcpy: %s\n", cudaGetErrorString(error));
 	}
 
 	unsigned zeroes = 0;
@@ -665,15 +665,15 @@ void dsp::PhaseSeries::print() const
 		    if (h_hits[i] < min)
 		    	min = h_hits[i];
 		}
-		// printf("Hit Index %d: %u\n", i, h_hits[i]);
+		// fprintf(stderr,"Hit Index %d: %u\n", i, h_hits[i]);
 	}
-	printf ("Zeroes: %u  Min: %u  Max: %u\n", zeroes, min, max);
+	fprintf(stderr,"Zeroes: %u  Min: %u  Max: %u\n", zeroes, min, max);
 
 	delete[] h_hits;
 
 #endif
 
-	printf("\n\n");
+	fprintf(stderr,"\n\n");
 
 }
 

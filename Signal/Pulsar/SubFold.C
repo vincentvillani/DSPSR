@@ -42,7 +42,7 @@ void dsp::SubFold::set_cerr (std::ostream& os) const
 //! Set the file unloader
 void dsp::SubFold::set_unloader (dsp::PhaseSeriesUnloader* _unloader)
 {
-  printf("SUBFOLD::UNLOADER SET!!!!\n");
+  fprintf(stderr,"SUBFOLD::UNLOADER SET!!!!\n");
   if (verbose)
     cerr << "dsp::SubFold::set_unloader this=" << this 
          << " unloader=" << _unloader << endl;
@@ -161,7 +161,7 @@ void dsp::SubFold::transformation () try
 
     Fold::transformation ();
 
-    printf("TRANSFORMATION IS COMPLETE\n");
+    fprintf(stderr,"TRANSFORMATION IS COMPLETE\n");
 
     if (!divider.get_end_reached())
       continue;
@@ -185,15 +185,13 @@ void dsp::SubFold::transformation () try
 
     if (unloader && keep(result))
     {
-      if (verbose)
+      //if (verbose)
         cerr << "dsp::SubFold::transformation this=" << this
              << " unloader=" << unloader.get() << endl;
 
-
-
-
-
       unloader->unload (result);
+
+      cerr << "dsp::SubFold::transformation zero_output" << endl;
       zero_output ();
     }
   }
@@ -238,7 +236,7 @@ catch (Error& error)
 
 void dsp::SubFold::unload_partial () try
 {
-  if (verbose)
+  //if (verbose)
     cerr << "dsp::SubFold::unload_partial to callback" << endl;
 
   PhaseSeries* result = get_result ();
@@ -272,9 +270,13 @@ void dsp::SubFold::zero_output ()
     path = output->get_extensions()->get<SignalPath>();
 
   if (path)
+  {
+    cerr << "dsp::SubFold::zero_output SignalPath::reset" << endl;
     path->reset();
-  else
+    return;
+  }
 #endif
-    reset();
+  cerr << "dsp::SubFold::zero_output this->reset" << endl;
+  reset();
 }
 

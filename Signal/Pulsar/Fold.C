@@ -124,7 +124,7 @@ dsp::PhaseSeries* dsp::Fold::get_result () const
 {
 	if(engine)
 	{
-		printf("FOLD::get_result\n");
+		fprintf(stderr,"FOLD::get_result\n");
 		engine->get_profiles()->print();
 		return engine->get_profiles();
 	}
@@ -147,7 +147,7 @@ dsp::PhaseSeries* dsp::Fold::get_result () const
 
 void dsp::Fold::reset ()
 {
-  if (verbose)
+  //if (verbose)
     cerr << "dsp::Fold::reset" << endl;
 
   Operation::reset ();
@@ -200,7 +200,7 @@ void dsp::Fold::prepare (const Observation* observation)
 
   if (folding_period > 0)
   {
-    if (verbose)
+    //if (verbose)
       cerr << "dsp::Fold::prepare using folding_period="
            << folding_period << endl;
     pulsar_ephemeris = 0;
@@ -212,7 +212,7 @@ void dsp::Fold::prepare (const Observation* observation)
 
   if (folding_predictor)
   {
-    if (verbose)
+    //if (verbose)
       cerr << "dsp::Fold::prepare using given predictor" << endl;
     built = true;
     reset ();
@@ -228,7 +228,7 @@ void dsp::Fold::prepare (const Observation* observation)
     pulsar_ephemeris = lookup (pulsar);
   }
 
-  if (verbose)
+  //if (verbose)
     cerr << "dsp::Fold::prepare creating predictor" << endl;
 
   folding_predictor = get_folding_predictor (pulsar_ephemeris, observation);
@@ -481,7 +481,7 @@ const Pulsar::Parameters* dsp::Fold::get_pulsar_ephemeris () const
 
 void dsp::Fold::set_input (const TimeSeries* _input)
 {
-	printf("SETTING INPUT\n");
+	fprintf(stderr,"SETTING INPUT\n");
 
   if (verbose)
     cerr << "dsp::Fold::set_input (TimeSeries* =" << _input << ")" << endl;
@@ -548,7 +548,8 @@ void dsp::Fold::transformation () try
 
   PhaseSeries* use = get_output();
 
-  if ( use->integration_length &&
+  if ( use->integration_length != 0 
+       &&
        use->get_reference_phase() != get_reference_phase() )
     throw Error (InvalidState, "dsp::Fold::transformation",
                  "output reference phase=%lf != reference phase=%lf",
@@ -642,7 +643,7 @@ void dsp::Fold::fold (uint64_t nweights,
                       unsigned weight_idat)
 {
 
-	printf("FOLDING HAS BEGUN!!!!\n");
+	fprintf(stderr,"FOLDING HAS BEGUN!!!!\n");
 
   if (!folding_nbin)
   {
@@ -843,7 +844,7 @@ void dsp::Fold::fold (uint64_t nweights,
   if (engine)
   {
     engine->fold ();
-    if (zeroed_samples) // why is this only done if zeroed_samples was true (if rfi was flagged?) shouldn't it always happen?
+    if (!hitsOnHost)
     {
     	if (verbose) {
     		cerr << "Fold::fold finishing fold w/ engine. zeroed_samples was true so correcting integration length from:" << result->integration_length

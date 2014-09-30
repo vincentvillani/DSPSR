@@ -50,30 +50,30 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 {
 	if(lhs == NULL || rhs == NULL)
 	{
-		printf("Returning 1\n");
+		fprintf(stderr,"Returning 1\n");
 		return;
 	}
 
 	//TODO: VINCENT: WHY ISNT INTEGRATION LENGTH COPIED OVER?
 	if(rhs->get_nbin() == 0) //|| rhs->get_integration_length() == 0.0)
 	{
-		printf("BIN: %u, IL: %f\n", rhs->get_nbin(), rhs->get_integration_length());
-		printf("Returning 2\n");
+		fprintf(stderr,"BIN: %u, IL: %f\n", rhs->get_nbin(), rhs->get_integration_length());
+		fprintf(stderr,"Returning 2\n");
 		return;
 	}
 
 	if( !lhs->mixable(*rhs, rhs->get_nbin() ) )
 	{
-		printf("Returning 3\n");
+		fprintf(stderr,"Returning 3\n");
 		return;
 	}
 
 
 	//TODO: VINCENT: ADD THIS PART BACK IN
 	//combine the time series part
-	printf("BEFORE TSC\n");
+	fprintf(stderr,"BEFORE TSC\n");
 	_tsc->combine(lhs, rhs);
-	printf("AFTER TSC\n");
+	fprintf(stderr,"AFTER TSC\n");
 
 	const unsigned int hitLength = rhs->get_nbin() * rhs->hits_nchan;
 	unsigned int nHitChan = rhs->get_hits_nchan();
@@ -86,20 +86,20 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
 
 
-	printf("PS: %p, %p\n", h_lhsHits, h_rhsHits);
+	fprintf(stderr,"PS: %p, %p\n", h_lhsHits, h_rhsHits);
 
 	if( rhs->get_memory()->on_host() )
-		printf("RHS MEMORY IS ON HOST\n");
+		fprintf(stderr,"RHS MEMORY IS ON HOST\n");
 	else
-		printf("RHS MEMORY IS NOT ON HOST\n");
+		fprintf(stderr,"RHS MEMORY IS NOT ON HOST\n");
 
 	if( lhs->get_memory()->on_host() )
-		printf("LHS MEMORY IS ON HOST\n");
+		fprintf(stderr,"LHS MEMORY IS ON HOST\n");
 	else
-		printf("LHS MEMORY IS NOT ON HOST\n");
+		fprintf(stderr,"LHS MEMORY IS NOT ON HOST\n");
 
 
-	printf("PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
+	fprintf(stderr,"PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
 
 	//cudaDeviceSynchronize();
@@ -109,7 +109,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	cudaError_t error2 = cudaDeviceSynchronize();
 	if(error2 != cudaSuccess)
 	{
-		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
+		fprintf(stderr,"CUDA ERROR: %s\n", cudaGetErrorString(error2));
 		exit(2);
 	}
 
