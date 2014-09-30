@@ -53,7 +53,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	if(d_ampsScratch == NULL)
 	{
 		h_ampsScratchLength = cmr->getAmpsLength();
-		d_ampsScratch = (float*)h_deviceMemory->do_allocate(h_ampsScratchLength);
+		cudaMalloc(&d_ampsScratch, sizeof(float) * h_ampsScratchLength);
 	}
 
 	unsigned int hitsLength = cmr->getHitsLength();
