@@ -105,10 +105,27 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 
 
 	//TODO: VINCENT: DEBUG
+	cudaError_t error4 = cudaPeekAtLastError();
+	if(error2 != cudaSuccess)
+	{
+		fprintf(stderr,"CUDA ERROR4: %s\n", cudaGetErrorString(error2));
+		exit(2);
+	}
+
+	//TODO: VINCENT: DEBUG
 	cudaError_t error2 = cudaDeviceSynchronize();
 	if(error2 != cudaSuccess)
 	{
-		fprintf(stderr,"CUDA ERROR: %s\n", cudaGetErrorString(error2));
+		fprintf(stderr,"CUDA ERROR2: %s\n", cudaGetErrorString(error2));
+		exit(2);
+	}
+
+
+	//TODO: VINCENT: DEBUG
+	cudaError_t error3 = cudaPeekAtLastError();
+	if(error2 != cudaSuccess)
+	{
+		fprintf(stderr,"CUDA ERROR3: %s\n", cudaGetErrorString(error2));
 		exit(2);
 	}
 
