@@ -657,11 +657,12 @@ void dsp::PhaseSeries::print() const
 	{
 		if (h_hits[i] == 0)
 			zeroes ++;
-		else if (h_hits[i] > max)
-			max = h_hits[i];
-		else if (h_hits[i] < min)
-			min = h_hits[i];
-
+		else {
+			if (h_hits[i] > max)
+				max = h_hits[i];
+		    if (h_hits[i] < min)
+		    	min = h_hits[i];
+		}
 		// printf("Hit Index %d: %u\n", i, h_hits[i]);
 	}
 	printf ("Zeroes: %u  Min: %u  Max: %u\n", zeroes, min, max);
