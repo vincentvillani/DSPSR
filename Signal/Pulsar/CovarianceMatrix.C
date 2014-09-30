@@ -22,55 +22,58 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 
 #if HAVE_CUDA
 
-	printf("CUDA Destructor called\n");
-
-	if(_covarianceMatrixResult->getNumberOfFreqChans() == 0 || _covarianceMatrixResult->getBinNum() == 0)
+	if(_useCuda)
 	{
-		std::cerr << "Something terrible has happened: freqChan: " << _covarianceMatrixResult->getNumberOfFreqChans()
-				<< " binNum: " << _covarianceMatrixResult->getBinNum() << std::endl;
-		return;
+		printf("CUDA Destructor called\n");
+
+		if(_covarianceMatrixResult->getNumberOfFreqChans() == 0 || _covarianceMatrixResult->getBinNum() == 0)
+		{
+			std::cerr << "Something terrible has happened: freqChan: " << _covarianceMatrixResult->getNumberOfFreqChans()
+					<< " binNum: " << _covarianceMatrixResult->getBinNum() << std::endl;
+			return;
+		}
+
+		unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
+		unsigned int binNum = _covarianceMatrixResult->getBinNum();
+		unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
+		unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
+
+		float* d_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
+
+		//TODO: VINCENT: DEBUG
+		//*** DEBUG ****
+		float* h_outerProducts = new float[freqChanNum * covarianceLength];
+		cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
+
+
+
+		//Print out results to a file
+		//TODO: VINCENT: DEBUG
+		std::stringstream ss;
+
+		//cerr << "Before unload" << std::endl;
+		//output summed phase series, before normalisation
+		//_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
+		//cerr << "After unload" << std::endl;
+
+
+
+		//Write out data to a file
+		for(int j = 0; j < freqChanNum; ++j)
+		{
+			//write it out to a file
+			ss << "resultMatrixChan" << j << ".txt";
+			outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
+			ss.str("");
+		}
+
+
+
+		delete[] h_outerProducts;
+		cudaFree(d_outerProducts);
+		//delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
+		delete _covarianceMatrixResult;
 	}
-
-	unsigned int freqChanNum = _covarianceMatrixResult->getNumberOfFreqChans();
-	unsigned int binNum = _covarianceMatrixResult->getBinNum();
-	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
-	unsigned int covarianceLength = _covarianceMatrixResult->getCovarianceMatrixLength();
-
-	float* d_outerProducts = _engine->compute_final_covariance_matrices_device(_covarianceMatrixResult);
-
-	//TODO: VINCENT: DEBUG
-	//*** DEBUG ****
-	float* h_outerProducts = new float[freqChanNum * covarianceLength];
-	cudaMemcpy(h_outerProducts, _covarianceMatrixResult->getCovarianceMatrix(0), sizeof(float) * freqChanNum * covarianceLength, cudaMemcpyDeviceToHost);
-
-
-
-	//Print out results to a file
-	//TODO: VINCENT: DEBUG
-	std::stringstream ss;
-
-	//cerr << "Before unload" << std::endl;
-	//output summed phase series, before normalisation
-	//_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
-	//cerr << "After unload" << std::endl;
-
-
-
-	//Write out data to a file
-	for(int j = 0; j < freqChanNum; ++j)
-	{
-		//write it out to a file
-		ss << "resultMatrixChan" << j << ".txt";
-		outputUpperTriangularMatrix(h_outerProducts + (j * covarianceLength), binNum * stokesLength, ss.str());
-		ss.str("");
-	}
-
-
-
-	delete[] h_outerProducts;
-	cudaFree(d_outerProducts);
-	//delete _unloader; //TODO: VINCENT: IS THIS CORRECT?
-	delete _covarianceMatrixResult;
 
 
 #else
