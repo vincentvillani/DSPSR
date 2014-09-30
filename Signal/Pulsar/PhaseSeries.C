@@ -611,7 +611,7 @@ void dsp::PhaseSeries::print() const
 	(get_memory()->on_host()) ? printf("TS MEM ON HOST\n") : printf("TS MEM ON DEVICE\n");
 	(get_hits_memory()->on_host()) ? printf("PS MEM ON HOST\n") : printf("PS MEM ON DEVICE\n");
 	printf("Pointer: %p\n", this);
-	printf("Int length: %f\n", get_integration_length());
+	printf("Int length: %lf\n", get_integration_length());
 
 #if HAVE_CUDA
 
@@ -637,6 +637,8 @@ void dsp::PhaseSeries::print() const
 	const unsigned int* d_hits = get_hits(0);
 	if(d_hits == NULL)
 		return;
+
+	cudaDeviceSynchronize();
 
 	cudaMemcpy(h_hits, d_hits, sizeof(unsigned int) * get_nbin(), cudaMemcpyDeviceToHost);
 
