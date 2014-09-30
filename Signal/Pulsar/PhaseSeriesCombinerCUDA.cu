@@ -79,14 +79,14 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	unsigned int nHitChan = lhs->get_hits_nchan();
 	unsigned int totalHitLength = hitLength * nHitChan;
 
-	unsigned int* h_lhsHits = lhs->hits;
-	unsigned int* h_rhsHits = rhs->hits;
+	unsigned int* d_lhsHits = lhs->hits;
+	unsigned int* d_rhsHits = rhs->hits;
 
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
 
 
-	fprintf(stderr,"PS: %p, %p\n", h_lhsHits, h_rhsHits);
+	fprintf(stderr,"PS: %p, %p\n", d_lhsHits, d_rhsHits);
 
 	if( rhs->get_memory()->on_host() )
 		fprintf(stderr,"RHS MEMORY IS ON HOST\n");
@@ -100,7 +100,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 
 
 	fprintf(stderr,"PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
-	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, h_lhsHits, h_rhsHits);
+	fprintf(stderr, "totalHitLength: %u\n", totalHitLength);
+	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_lhsHits, d_rhsHits);
 
 
 	//TODO: VINCENT: DEBUG
