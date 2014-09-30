@@ -79,8 +79,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	unsigned int nHitChan = lhs->get_hits_nchan();
 	unsigned int totalHitLength = hitLength * nHitChan;
 
-	unsigned int* d_lhsHits = lhs->hits;
-	unsigned int* d_rhsHits = rhs->hits;
+	unsigned int* d_lhsHits = lhs->get_hits(0);
+	unsigned int* d_rhsHits = rhs->get_hits(0);
 
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
@@ -101,7 +101,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 
 	fprintf(stderr,"PHASE SERIES COMBINE: Launching GenericAddKernel with Grid Dim: %u, Block Dim: %u\n", gridDim, blockDim);
 	fprintf(stderr, "totalHitLength: %u\n", totalHitLength);
-	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_lhsHits, const_cast<unsigned int*> (d_rhsHits));
+	genericAddKernel <<<gridDim, blockDim>>> (totalHitLength, d_lhsHits, d_rhsHits);
 
 
 	//TODO: VINCENT: DEBUG
