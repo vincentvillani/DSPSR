@@ -74,7 +74,7 @@ __global__ void genericAddKernel(unsigned int n, float* original, const float* a
 
 
 //Kernel for generically adding things on the GPU
-__global__ void genericAddKernel(unsigned long long int n, float* original, const float* add)
+__global__ void genericAddKernel(uint64_t n, float* original, const float* add)
 {
 	for(unsigned int absIdx = blockDim.x * blockIdx.x + threadIdx.x; absIdx < n; absIdx += gridDim.x * blockDim.x)
 	{
