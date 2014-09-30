@@ -110,6 +110,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
+	fprintf(stderr, "Value: %f\n", phaseSeriesData->get_datptr(0, 0));
+
+	exit(0);
+
 	printf("\n\nCOVARIANCEMATRIX PS\n");
 	phaseSeriesData->print();
 

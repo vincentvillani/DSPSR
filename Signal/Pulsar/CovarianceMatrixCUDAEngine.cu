@@ -49,6 +49,13 @@ dsp::CovarianceMatrixCUDAEngine::~CovarianceMatrixCUDAEngine()
 void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseSeries* ps, CovarianceMatrixResult* cmr)
 {
 
+	//TODO: VINCENT: DEBUG
+	float val;
+	cudaMemcpy(&val, ps->get_datptr(0, 0), sizeof(float), cudaMemcpyDeviceToHost);
+	fprintf(stderr, "Value: %f\n", val);
+
+	exit(0);
+
 	//Allocate amps scratch if necessary
 	if(d_ampsScratch == NULL)
 	{
@@ -82,10 +89,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	computeCovarianceMatrix(cmr, ps);
 
 
-	//TODO: VINCENT: DEBUG
-	float val;
-	cudaMemcpy(&val, cmr->getCovarianceMatrix(0), sizeof(float), cudaMemcpyDeviceToHost);
-	fprintf(stderr, "Value: %f\n", val);
+
 
 
 
