@@ -75,8 +75,8 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	_tsc->combine(lhs, rhs);
 	fprintf(stderr,"AFTER TSC\n");
 
-	const unsigned int hitLength = rhs->get_nbin() * rhs->hits_nchan;
-	unsigned int nHitChan = rhs->get_hits_nchan();
+	const unsigned int hitLength = lhs->get_nbin() * lhs->hits_nchan;
+	unsigned int nHitChan = lhs->get_hits_nchan();
 	unsigned int totalHitLength = hitLength * nHitChan;
 
 	unsigned int* h_lhsHits = lhs->hits;
