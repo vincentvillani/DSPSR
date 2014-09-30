@@ -280,7 +280,7 @@ bool dsp::CovarianceMatrixCUDAEngine::hitsContainsZeroes(const unsigned int* d_h
 	checkForZeroesKernel<<< gridDim, blockDim >>> (d_hits, hitLength, d_zeroes);
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error2 = cudaPeekAtLastError();
+	cudaError_t error2 = cudaDeviceSynchronize();
 	if(error2 != cudaSuccess)
 	{
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error2));
