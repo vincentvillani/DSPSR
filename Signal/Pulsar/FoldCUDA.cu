@@ -118,8 +118,8 @@ uint64_t CUDA::FoldEngine::set_bins (double phi, double phase_per_sample, uint64
 }
 dsp::PhaseSeries* CUDA::FoldEngine::get_profiles ()
 {
-	printf("\n\nFOLD CUDA\n");
-	d_profiles->print();
+	//printf("\n\nFOLD CUDA\n");
+	//d_profiles->print();
     return d_profiles;
 }
 
