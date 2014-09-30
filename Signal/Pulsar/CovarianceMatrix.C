@@ -169,7 +169,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
 
-	//fprintf(stderr, "CPU: PS amps value: %f\n", *phaseSeriesData->get_datptr(0, 0));
+	fprintf(stderr, "CPU: PS amps value: %f\n", *phaseSeriesData->get_datptr(0, 0));
 
 	unsigned int chanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
