@@ -52,7 +52,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//TODO: VINCENT: DEBUG
 	float val;
 	cudaMemcpy(&val, ps->get_datptr(0, 0), sizeof(float), cudaMemcpyDeviceToHost);
-	fprintf(stderr, "Value: %f\n", val);
+	fprintf(stderr, "GPU: PS amps value: %f\n", val);
 
 	exit(0);
 
@@ -74,7 +74,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 	//Check for zeroes
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
 	{
-		const unsigned int* d_hits = getHitsPtr(ps, cmr, chan); // TODO: VINCENT: Are hit chans guaranteed to be next to each other? if so I can just copy all at once
+		const unsigned int* d_hits = getHitsPtr(ps, cmr, chan);
 
 		//If there are bins with zeroes, discard everything
 		if ( hitsContainsZeroes(d_hits + (chan * hitsLength), hitsLength) )
