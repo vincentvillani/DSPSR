@@ -48,10 +48,10 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 	//TODO: VINCENT: DEBUG
 	std::stringstream ss;
 
-	cerr << "Before unload" << std::endl;
+	//cerr << "Before unload" << std::endl;
 	//output summed phase series, before normalisation
-	_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
-	cerr << "After unload" << std::endl;
+	//_unloader->unload(_covarianceMatrixResult->getPhaseSeries());
+	//cerr << "After unload" << std::endl;
 
 
 

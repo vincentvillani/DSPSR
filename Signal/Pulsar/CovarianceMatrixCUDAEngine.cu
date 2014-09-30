@@ -189,14 +189,14 @@ float* dsp::CovarianceMatrixCUDAEngine::compute_final_covariance_matrices_device
 	genericDivideKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), cmr->getUnloadCallCount());
 
 	//TODO: VINCENT: DEBUG
-	cudaError_t error = cudaPeekAtLastError();
+	cudaError_t error = cudaDeviceSynchronize();
 	if(error != cudaSuccess)
 	{
 		fprintf(stderr ,"CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(2);
 	}
 
-
+	fprintf(stderr ,"Launching generic subtraction kernel with gridDim: %u, blockDim: %u\n", gridDim, blockDim);
 	genericSubtractionKernel <<< gridDim, blockDim >>> (totalElementLength, cmr->getCovarianceMatrix(0), d_phaseSeriesOuterProduct);
 
 	//TODO: VINCENT: DEBUG
