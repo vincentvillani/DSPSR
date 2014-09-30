@@ -251,7 +251,8 @@ __global__ void fold1binhits (const float* in_base,
 			     unsigned ndim,
 			     unsigned nbin,
 			     unsigned binplan_size,
-			     CUDA::bin* binplan)
+			     CUDA::bin* binplan,
+			     unsigned hits_nchan)
 {
   unsigned ibin = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -262,7 +263,9 @@ __global__ void fold1binhits (const float* in_base,
 
   in_base  += in_span  * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
   out_base += out_span * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
-  hits_base += nbin * blockIdx.y;
+
+  if(hits_nchan > 1)
+	  hits_base += nbin * blockIdx.y;
 
 
   float total = 0;
@@ -281,70 +284,12 @@ __global__ void fold1binhits (const float* in_base,
 
   out_base[ output_ibin * ndim ] += total;
   // if ipol and idim both equal 0
-  if ( (threadIdx.y + threadIdx.z) == 0)
+  if ( (threadIdx.y + threadIdx.z) == 0 && (hits_nchan > 1 || blockIdx.y == 0))
     hits_base[ output_ibin ] += hits;
 }
 
 
 
-
-__global__ void fold1Bin1HitChan (const float* in_base,
-			     unsigned in_span,
-			     float* out_base,
-			     unsigned out_span,
-			     unsigned* hits_base,
-			     unsigned ndim,
-			     unsigned nbin,
-			     unsigned binplan_size,
-			     CUDA::bin* binplan,
-			     unsigned hit_nchan)
-{
-
-  unsigned ibin = blockIdx.x * blockDim.x + threadIdx.x;
-
-  if (ibin >= binplan_size)
-    return;
-
-  unsigned output_ibin = binplan[ibin].ibin;
-
-  in_base  += in_span  * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
-  out_base += out_span * (blockIdx.y * blockDim.y + threadIdx.y) + threadIdx.z;
-  hits_base += nbin * blockIdx.y;
-
-
-  float total = 0;
-  unsigned hits = 0;
-
-  for (; ibin < binplan_size; ibin += nbin)
-  {
-    const float* input = in_base + binplan[ibin].offset * ndim;
-
-    for (unsigned i=0; i < binplan[ibin].hits; i++)
-    {
-      total += input[i*ndim];
-
-      if(blockIdx.y == 0 )
-      {
-    	  hits += (input[i*ndim] != 0);
-
-    	  //if(threadIdx.x < 32)
-    		 // printf("Thread (ibin): %u, input: %f\n", ibin, input[i*ndim]);
-      }
-    }
-  }
-
-  out_base[ output_ibin * ndim ] += total;
-
-  // if ipol and idim both equal 0
-  if ( (threadIdx.y + threadIdx.z) == 0 && blockIdx.y == 0)
-  {
-	  hits_base[ output_ibin ] += hits;
-
-	  //if(threadIdx.x < 32)
-		printf("Thread (ibin): %u, output_ibin: %u, hitsValue: %u\n", ibin, output_ibin, hits_base[ output_ibin ]);
-  }
-
-}
 
 
 
@@ -389,22 +334,19 @@ void CUDA::FoldEngine::fold ()
   DEBUG("ndim=" << ndim << " nbin=" << folding_nbin << " binplan_nbin=" << binplan_nbin);
 
 
-  //In profile_covariance mode
-  //reallllllly hacky....
-  //TODO: VINCENT - CHANGE THIS
-  if(hits_on_gpu && hits_nchan != nchan)
+  if(hits_on_gpu)
   {
 	 if(dsp::Operation::verbose)
 			 cerr << "CUDA::FoldEngine::fold(): " << "running fold1Bin1HitChan kernel" << std::endl;
 
-	  fold1Bin1HitChan <<<gridDim,blockDim,0,stream>>>
+	 fold1binhits <<<gridDim,blockDim,0,stream>>>
 			  	  	  (input, input_span,
 	  				   output, output_span, hits,
 		  			   ndim, folding_nbin,
 			  		   binplan_nbin, d_bin,
 			  		   hits_nchan);
-/*
-	  cudaDeviceSynchronize();
+
+	cudaDeviceSynchronize();
 	//TODO: DEBUG
 	cudaError_t error = cudaPeekAtLastError();
 	if(error != cudaSuccess)
@@ -412,17 +354,6 @@ void CUDA::FoldEngine::fold ()
 		printf("CUDA ERROR: %s\n", cudaGetErrorString(error));
 		exit(1);
 	}
-	*/
-  }
-  else if (hits_on_gpu && hits_nchan == nchan && zeroed_samples)
-  {
-	 if(dsp::Operation::verbose)
-		 cerr << "CUDA::FoldEngine::fold(): " << "running fold1binhits kernel" << std::endl;
-
-    fold1binhits<<<gridDim,blockDim,0,stream>>> (input, input_span,
-	  				   output, output_span, hits,
-		  			   ndim, folding_nbin,
-			  		   binplan_nbin, d_bin);
 
   }
   else
