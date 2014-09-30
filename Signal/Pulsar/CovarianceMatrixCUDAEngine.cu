@@ -62,7 +62,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 
 	//TODO: VINCENT: REMOVE THIS AFTER PHASESERIESCOMBINECUDAIS SHOWN TO WORK
-	cmr->getPhaseSeries()->combine(ps);
+	//cmr->getPhaseSeries()->combine(ps);
 
 	//Check for zeroes
 	for(unsigned int chan = 0; chan < hitChanNum; ++chan)
@@ -78,7 +78,7 @@ void dsp::CovarianceMatrixCUDAEngine::computeCovarianceMatricesCUDA(const PhaseS
 
 	}
 
-	//cmr->getPhaseSeries()->combine(ps);
+	cmr->getPhaseSeries()->combine(ps);
 
 	computeCovarianceMatrix(cmr, ps);
 
