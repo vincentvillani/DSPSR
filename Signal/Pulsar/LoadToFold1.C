@@ -996,7 +996,7 @@ dsp::LoadToFold::get_unloader (unsigned ifold)
 
     if (config->profile_covariance)
     {
-    	CovarianceMatrix* covarianceMatrix = new CovarianceMatrix();
+    	CovarianceMatrix* covarianceMatrix = new CovarianceMatrix(true);
     	covarianceMatrix->set_unloader (archiver);
     	unloader[ifold] = covarianceMatrix;
 

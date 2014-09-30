@@ -102,11 +102,12 @@ namespace dsp
 		void copyAndPrint(float* deviceData, int arrayLength, int rowLength);
 
 
+		bool _useCuda; //Should cuda be used?
 
 
 	public:
 
-		CovarianceMatrix();
+		CovarianceMatrix(bool useCuda);
 		//TODO: VINCENT: ACTUALLY IMPLEMENT THIS
 		PhaseSeriesUnloader* clone () const{return NULL;}
 

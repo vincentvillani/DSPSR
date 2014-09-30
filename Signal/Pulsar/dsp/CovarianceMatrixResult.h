@@ -62,7 +62,7 @@ namespace dsp
 
 
 	public:
-		CovarianceMatrixResult();
+		CovarianceMatrixResult(bool useCuda);
 		~CovarianceMatrixResult();
 
 		//TODO: VINCENT: DO THIS PROPERLY

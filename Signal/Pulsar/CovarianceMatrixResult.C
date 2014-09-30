@@ -22,7 +22,7 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 }
 #endif
 
-	dsp::CovarianceMatrixResult::CovarianceMatrixResult()
+	dsp::CovarianceMatrixResult::CovarianceMatrixResult(bool useCuda)
 	{
 		_binNum = 0;
 		_freqChanNum = 0;
@@ -43,15 +43,15 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true)
 		_amps = NULL;
 		d_hits = NULL;
 
-		_useCUDA = false;
+		_useCUDA = useCuda;
 		_setup = false;
 
 
 
 		//TODO: VINCENT: REMOVE THIS
 #if HAVE_CUDA
-		_useCUDA = false;
-		printf("USE CUDA IS FALSE!\n");
+		//_useCUDA = false;
+		//printf("USE CUDA IS FALSE!\n");
 #endif
 	}
 

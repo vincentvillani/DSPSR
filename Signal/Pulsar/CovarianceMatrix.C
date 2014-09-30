@@ -8,11 +8,12 @@
 
 #include "dsp/CovarianceMatrix.h"
 
-dsp::CovarianceMatrix::CovarianceMatrix()
+dsp::CovarianceMatrix::CovarianceMatrix(bool useCuda)
 {
-	_covarianceMatrixResult = new CovarianceMatrixResult();
+	_covarianceMatrixResult = new CovarianceMatrixResult(useCuda);
 	_unloader = NULL;
 	_engine = NULL;
+	_useCuda = useCuda;
 }
 
 
