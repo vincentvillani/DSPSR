@@ -150,7 +150,7 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 */
 
 
-	if(_engine)
+	if(_engine && _useCuda)
 	{
 		//compute the outer product using the GPU
 		#if HAVE_CUDA
