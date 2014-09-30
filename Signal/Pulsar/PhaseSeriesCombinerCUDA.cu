@@ -80,7 +80,7 @@ void dsp::PhaseSeriesCombinerCUDA::combine(PhaseSeries* lhs, const PhaseSeries* 
 	unsigned int totalHitLength = hitLength * nHitChan;
 
 	unsigned int* d_lhsHits = lhs->get_hits(0);
-	unsigned int* d_rhsHits = rhs->get_hits(0);
+	const unsigned int* d_rhsHits = rhs->get_hits(0);
 
 	unsigned int blockDim = 256;
 	unsigned int gridDim = min ( (unsigned int)ceil(totalHitLength / blockDim), 65535);
