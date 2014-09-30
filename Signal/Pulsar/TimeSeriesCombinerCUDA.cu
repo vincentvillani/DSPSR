@@ -97,7 +97,7 @@ void dsp::TimeSeriesCombinerCUDA::combine(TimeSeries* lhs, const TimeSeries* rhs
 		}
 
 		return;
-	}
+	 }
 
 
 	gridDim = min ( (unsigned int)ceil(npt / blockDim), 65535);
