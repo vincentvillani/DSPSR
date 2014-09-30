@@ -110,10 +110,6 @@ dsp::CovarianceMatrix::~CovarianceMatrix()
 void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 {
 
-	fprintf(stderr, "Value: %f\n", phaseSeriesData->get_datptr(0, 0));
-
-	exit(0);
-
 	printf("\n\nCOVARIANCEMATRIX PS\n");
 	phaseSeriesData->print();
 
@@ -171,6 +167,10 @@ void dsp::CovarianceMatrix::unload(const PhaseSeries* phaseSeriesData)
 
 void dsp::CovarianceMatrix::compute_covariance_matrix_host(const PhaseSeries* phaseSeriesData)
 {
+
+	fprintf(stderr, "Value: %f\n", phaseSeriesData->get_datptr(0, 0));
+	exit(0);
+
 	unsigned int chanNum = _covarianceMatrixResult->getNumberOfFreqChans();
 	unsigned int binNum = _covarianceMatrixResult->getBinNum();
 	unsigned int stokesLength = _covarianceMatrixResult->getStokesLength();
