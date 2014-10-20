@@ -564,8 +564,11 @@ void dsp::LoadToFold::construct () try
   {
     if (config->fourth_moment || config->profile_covariance)
     {
-      detect->set_output_state (Signal::Stokes);
-      detect->set_output_ndim (4);
+      //detect->set_output_state (Signal::Stokes);
+      //detect->set_output_ndim (4);
+
+    	detect->set_output_state(Signal::Coherence);
+    	detect->set_output_ndim(2);
     }
     else if (config->npol == 4)
     {
