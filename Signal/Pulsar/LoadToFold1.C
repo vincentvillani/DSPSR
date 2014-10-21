@@ -538,7 +538,7 @@ void dsp::LoadToFold::construct () try
 
   // Currently assume full-polarization profile covariance matrix
   if (config->profile_covariance)
-	config->ndim = 4;
+	config->ndim = 2; //TODO: VINCENT CHANGE THIS BACK TO 4
 
 #if HAVE_CUDA
   if (run_on_gpu)

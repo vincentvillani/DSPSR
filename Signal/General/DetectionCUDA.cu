@@ -116,9 +116,9 @@ void CUDA::DetectionEngine::polarimetry (Signal::State state, unsigned ndim,
 
     //TODO: VINCENT - UNDO THIS
 	bool inplace = input == output;
-	//if (!inplace && ndim == 2)
-	//	throw Error (InvalidParam, "CUDA::DetectionEngine::polarimetry"
-	//			"cannot handle out-of-place data when ndim==2");
+	if (!inplace && ndim == 2)
+		throw Error (InvalidParam, "CUDA::DetectionEngine::polarimetry"
+				"cannot handle out-of-place data when ndim==2");
     
 
 	if (inplace && ndim == 4)
